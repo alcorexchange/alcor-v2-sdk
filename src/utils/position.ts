@@ -1,5 +1,5 @@
 import JSBI from "jsbi";
-import { subIn256 } from ".";
+import { subIn128 } from ".";
 import { Q64 } from "../internalConstants";
 
 export abstract class PositionLibrary {
@@ -18,7 +18,7 @@ export abstract class PositionLibrary {
   ) {
     const tokensOwed0 = JSBI.divide(
       JSBI.multiply(
-        subIn256(feeGrowthInsideAX64, feeGrowthInsideALastX64),
+        subIn128(feeGrowthInsideAX64, feeGrowthInsideALastX64),
         liquidity
       ),
       Q64
@@ -26,7 +26,7 @@ export abstract class PositionLibrary {
 
     const tokensOwed1 = JSBI.divide(
       JSBI.multiply(
-        subIn256(feeGrowthInsideBX64, feeGrowthInsideBLastX64),
+        subIn128(feeGrowthInsideBX64, feeGrowthInsideBLastX64),
         liquidity
       ),
       Q64

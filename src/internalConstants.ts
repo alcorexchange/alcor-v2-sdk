@@ -20,3 +20,12 @@ export const MaxUint128 = JSBI.BigInt("0xffffffffffffffffffffffffffffffff");
 
 // exports for external consumption
 export type BigintIsh = JSBI | string | number;
+
+/**
+ * The default factory enabled fee amounts, denominated in hundredths of bips.
+ */
+ export enum FeeAmount {
+  LOW = 500,
+  MEDIUM = 3000,
+  HIGH = 10000
+}
