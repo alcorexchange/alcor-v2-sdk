@@ -37,7 +37,7 @@ export abstract class BaseCurrency {
     name?: string
   ) {
     invariant(
-      decimals >= 0 && decimals < 15 && Number.isInteger(decimals),
+      decimals >= 0 && decimals < 19 && Number.isInteger(decimals),
       "DECIMALS"
     );
     this.contract = contract;

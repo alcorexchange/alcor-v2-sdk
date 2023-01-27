@@ -34,12 +34,16 @@
     "rimraf": "^4.1.1",
     "ts-jest": "^28.0.4",
     "ts-node": "^10.9.1",
+    "@types/big.js": "^4.0.5",
     "typescript": "^4.9.4"
   },
   "dependencies": {
     "eosjs-account-name": "^2.2.1",
     "jsbi": "^4.3.0",
     "tiny-invariant": "^1.1.0",
-    "tiny-warning": "^1.0.3"
+    "tiny-warning": "^1.0.3",
+    "decimal.js-light": "^2.5.0",
+    "big.js": "^5.2.2",
+    "toformat": "^2.0.0"
   }
 }

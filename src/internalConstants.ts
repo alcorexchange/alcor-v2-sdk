@@ -29,3 +29,9 @@ export enum FeeAmount {
   MEDIUM = 3000,
   HIGH = 10000,
 }
+
+export enum Rounding {
+  ROUND_DOWN,
+  ROUND_HALF_UP,
+  ROUND_UP,
+}
