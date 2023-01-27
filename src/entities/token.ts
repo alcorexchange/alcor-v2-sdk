@@ -1,6 +1,6 @@
 import invariant from "tiny-invariant";
 import { BaseCurrency } from "./baseCurrency";
-import { eosjsAccountName } from "eosjs-account-name";
+import { nameToUint64 } from "eosjs-account-name";
 import JSBI from "jsbi";
 
 /**
@@ -46,8 +46,8 @@ export class Token extends BaseCurrency {
       return this.symbol.toLowerCase() < other.symbol.toLowerCase();
     } else {
       return JSBI.lessThan(
-        eosjsAccountName.nameToUint64(this.contract),
-        eosjsAccountName.nameToUint64(other.contract)
+        JSBI.BigInt(nameToUint64(this.contract)),
+        JSBI.BigInt(nameToUint64(other.contract))
       );
     }
   }

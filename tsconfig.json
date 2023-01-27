@@ -18,7 +18,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "test/price.test.ts", "test/percent.test.ts", "test/currencyAmount.test.ts", "test/fraction.test.ts", "test/tick.test.ts"  ],
   "exclude": [
     "node_modules"
   ],

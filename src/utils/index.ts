@@ -9,3 +9,4 @@ export * from "./nearestUsableTick";
 export * from "./fullMath";
 export * from "./isSorted";
 export * from "./tickList";
+export * from "./priceTickConversions";

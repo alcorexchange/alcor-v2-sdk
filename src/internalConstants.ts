@@ -35,3 +35,12 @@ export enum Rounding {
   ROUND_HALF_UP,
   ROUND_UP,
 }
+
+/**
+ * The default factory tick spacings by fee amount.
+ */
+export const TICK_SPACINGS: { [amount in FeeAmount]: number } = {
+  [FeeAmount.LOW]: 10,
+  [FeeAmount.MEDIUM]: 60,
+  [FeeAmount.HIGH]: 200,
+};
