@@ -17,6 +17,7 @@ export const MaxUint256 = JSBI.BigInt(
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 );
 export const MaxUint128 = JSBI.BigInt("0xffffffffffffffffffffffffffffffff");
+export const MaxUint64 = JSBI.BigInt("0xffffffffffffffff");
 
 // exports for external consumption
 export type BigintIsh = JSBI | string | number;

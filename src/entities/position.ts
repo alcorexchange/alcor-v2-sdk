@@ -65,14 +65,14 @@ export class Position {
   /**
    * Returns the price of tokenA at the lower tick
    */
-  public get token0PriceLower(): Price<Token, Token> {
+  public get tokenAPriceLower(): Price<Token, Token> {
     return tickToPrice(this.pool.tokenA, this.pool.tokenB, this.tickLower);
   }
 
   /**
    * Returns the price of tokenA at the upper tick
    */
-  public get token0PriceUpper(): Price<Token, Token> {
+  public get tokenAPriceUpper(): Price<Token, Token> {
     return tickToPrice(this.pool.tokenA, this.pool.tokenB, this.tickUpper);
   }
 
@@ -155,10 +155,10 @@ export class Position {
     sqrtRatioX64Lower: JSBI;
     sqrtRatioX64Upper: JSBI;
   } {
-    const priceLower = this.pool.token0Price.asFraction.multiply(
+    const priceLower = this.pool.tokenAPrice.asFraction.multiply(
       new Percent(1).subtract(slippageTolerance)
     );
-    const priceUpper = this.pool.token0Price.asFraction.multiply(
+    const priceUpper = this.pool.tokenAPrice.asFraction.multiply(
       slippageTolerance.add(1)
     );
     let sqrtRatioX64Lower = encodeSqrtRatioX64(
@@ -393,7 +393,7 @@ export class Position {
    * not what core can theoretically support
    * @returns The position
    */
-  public static fromAmount0({
+  public static fromAmountA({
     pool,
     tickLower,
     tickUpper,
@@ -424,7 +424,7 @@ export class Position {
    * @param amountB The desired amount of tokenB
    * @returns The position
    */
-  public static fromAmount1({
+  public static fromAmountB({
     pool,
     tickLower,
     tickUpper,

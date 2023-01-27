@@ -3,7 +3,7 @@ import { Q64, BigintIsh } from "../internalConstants";
 
 /**
  * Returns an imprecise maximum amount of liquidity received for a given amount of token 0.
- * This function is available to accommodate LiquidityAmounts#getLiquidityForAmount0 in the v3 periphery,
+ * This function is available to accommodate LiquidityAmounts#getLiquidityForAmountA in the v3 periphery,
  * which could be more precise by at least 32 bits by dividing by Q64 instead of Q64 in the intermediate step,
  * and shifting the subtracted ratio left by 32 bits. This imprecise calculation will likely be replaced in a future
  * v3 router contract.

@@ -3,32 +3,6 @@ import { Price } from "entities/fractions/price";
 import { priceToClosestTick, tickToPrice } from "utils/priceTickConversions";
 
 describe("priceTickConversions", () => {
-  /**
-   * Creates an example token with a specific sort order
-   */
-  // function token({
-  //   sortOrder,
-  //   decimals = 18,
-  //   symbol = 'ABC'
-  // }: {
-  //   sortOrder: number
-  //   decimals?: number
-  //   symbol?: string
-  // }): Token {
-  //   if (sortOrder > 9 || sortOrder % 1 !== 0) throw new Error('invalid sort order')
-  //   return new Token(
-  //     chainId,
-  //     `0x${new Array<string>(40).fill(`${sortOrder}`).join('')}`,
-  //     decimals,
-  //     `T${sortOrder}`,
-  //     `token${sortOrder}`
-  //   )
-  // }
-
-  // const token0 = token({ sortOrder: 0 })
-  // const token1 = token({ sortOrder: 1 })
-  // const token2_6decimals = token({ sortOrder: 2, decimals: 6 })
-
   const token0 = new Token("contracta", 18, "ABC");
   const token1 = new Token("contractb", 18, "BCD");
   const token2_6decimals = new Token("contractc", 6, "EFG");

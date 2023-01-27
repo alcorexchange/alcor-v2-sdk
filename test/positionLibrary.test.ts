@@ -1,5 +1,5 @@
 import JSBI from "jsbi";
-import { PositionLibrary } from "utils/position";
+import { PositionLibrary } from "utils/positionLibrary";
 import { ZERO } from "internalConstants";
 
 describe("PositionLibrary", () => {

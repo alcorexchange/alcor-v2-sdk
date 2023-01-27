@@ -3,7 +3,7 @@ import { Token } from "./token";
 import { BigintIsh, FeeAmount, TICK_SPACINGS } from "../internalConstants";
 import JSBI from "jsbi";
 import invariant from "tiny-invariant";
-import { NEGATIVE_ONE, ONE, Q192, ZERO } from "../internalConstants";
+import { NEGATIVE_ONE, ONE, Q128, ZERO } from "../internalConstants";
 import { computePoolAddress } from "../utils/computePoolAddress";
 import { LiquidityMath } from "../utils/liquidityMath";
 import { SwapMath } from "../utils/swapMath";
@@ -39,8 +39,8 @@ export class Pool {
   public readonly tickCurrent: number;
   public readonly tickDataProvider: TickDataProvider;
 
-  private _token0Price?: Price<Token, Token>;
-  private _token1Price?: Price<Token, Token>;
+  private _tokenAPrice?: Price<Token, Token>;
+  private _tokenBPrice?: Price<Token, Token>;
 
   /**
    * Construct a pool
@@ -65,14 +65,14 @@ export class Pool {
   ) {
     invariant(Number.isInteger(fee) && fee < 1_000_000, "FEE");
 
-    const tickCurrentSqrtRatioX96 = TickMath.getSqrtRatioAtTick(tickCurrent);
-    const nextTickSqrtRatioX96 = TickMath.getSqrtRatioAtTick(tickCurrent + 1);
+    const tickCurrentSqrtRatioX64 = TickMath.getSqrtRatioAtTick(tickCurrent);
+    const nextTickSqrtRatioX64 = TickMath.getSqrtRatioAtTick(tickCurrent + 1);
     invariant(
       JSBI.greaterThanOrEqual(
         JSBI.BigInt(sqrtRatioX64),
-        tickCurrentSqrtRatioX96
+        tickCurrentSqrtRatioX64
       ) &&
-        JSBI.lessThanOrEqual(JSBI.BigInt(sqrtRatioX64), nextTickSqrtRatioX96),
+        JSBI.lessThanOrEqual(JSBI.BigInt(sqrtRatioX64), nextTickSqrtRatioX64),
       "PRICE_BOUNDS"
     );
     // always create a copy of the list since we want the pool's tick list to be immutable
@@ -100,13 +100,13 @@ export class Pool {
   /**
    * Returns the current mid price of the pool in terms of tokenA, i.e. the ratio of tokenB over tokenA
    */
-  public get token0Price(): Price<Token, Token> {
+  public get tokenAPrice(): Price<Token, Token> {
     return (
-      this._token0Price ??
-      (this._token0Price = new Price(
+      this._tokenAPrice ??
+      (this._tokenAPrice = new Price(
         this.tokenA,
         this.tokenB,
-        Q192,
+        Q128,
         JSBI.multiply(this.sqrtRatioX64, this.sqrtRatioX64)
       ))
     );
@@ -115,14 +115,14 @@ export class Pool {
   /**
    * Returns the current mid price of the pool in terms of tokenB, i.e. the ratio of tokenA over tokenB
    */
-  public get token1Price(): Price<Token, Token> {
+  public get tokenBPrice(): Price<Token, Token> {
     return (
-      this._token1Price ??
-      (this._token1Price = new Price(
+      this._tokenBPrice ??
+      (this._tokenBPrice = new Price(
         this.tokenB,
         this.tokenA,
         JSBI.multiply(this.sqrtRatioX64, this.sqrtRatioX64),
-        Q192
+        Q128
       ))
     );
   }
@@ -134,7 +134,7 @@ export class Pool {
    */
   public priceOf(token: Token): Price<Token, Token> {
     invariant(this.involvesToken(token), "TOKEN");
-    return token.equals(this.tokenA) ? this.token0Price : this.token1Price;
+    return token.equals(this.tokenA) ? this.tokenAPrice : this.tokenBPrice;
   }
 
   /**

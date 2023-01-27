@@ -137,7 +137,7 @@ describe("Pool", () => {
     });
   });
 
-  describe("#token0Price", () => {
+  describe("#tokenAPrice", () => {
     it("returns price of tokenA in terms of tokenB", () => {
       expect(
         new Pool(
@@ -148,7 +148,7 @@ describe("Pool", () => {
           0,
           TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
           []
-        ).token0Price.toSignificant(5)
+        ).tokenAPrice.toSignificant(5)
       ).toEqual("1.01");
       expect(
         new Pool(
@@ -159,12 +159,12 @@ describe("Pool", () => {
           0,
           TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
           []
-        ).token0Price.toSignificant(5)
+        ).tokenAPrice.toSignificant(5)
       ).toEqual("1.01");
     });
   });
 
-  describe("#token1Price", () => {
+  describe("#tokenBPrice", () => {
     it("returns price of tokenB in terms of tokenA", () => {
       expect(
         new Pool(
@@ -175,7 +175,7 @@ describe("Pool", () => {
           0,
           TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
           []
-        ).token1Price.toSignificant(5)
+        ).tokenBPrice.toSignificant(5)
       ).toEqual("0.9901");
       expect(
         new Pool(
@@ -186,7 +186,7 @@ describe("Pool", () => {
           0,
           TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
           []
-        ).token1Price.toSignificant(5)
+        ).tokenBPrice.toSignificant(5)
       ).toEqual("0.9901");
     });
   });
@@ -202,8 +202,8 @@ describe("Pool", () => {
       []
     );
     it("returns price of token in terms of other token", () => {
-      expect(pool.priceOf(DAI)).toEqual(pool.token0Price);
-      expect(pool.priceOf(USDC)).toEqual(pool.token1Price);
+      expect(pool.priceOf(DAI)).toEqual(pool.tokenAPrice);
+      expect(pool.priceOf(USDC)).toEqual(pool.tokenBPrice);
     });
 
     it("throws if invalid token", () => {
