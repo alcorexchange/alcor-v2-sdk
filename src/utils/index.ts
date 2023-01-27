@@ -8,3 +8,4 @@ export * from "./maxLiquidityForAmounts";
 export * from "./nearestUsableTick";
 export * from "./fullMath";
 export * from "./isSorted";
+export * from "./tickList";
