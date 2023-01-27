@@ -37,6 +37,7 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
+    "eosjs-account-name": "^2.2.1",
     "jsbi": "^4.3.0",
     "tiny-invariant": "^1.1.0",
     "tiny-warning": "^1.0.3"

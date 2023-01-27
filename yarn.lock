@@ -1279,6 +1279,11 @@ emoji-regex@^8.0.0:
   resolved "https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz"
   integrity sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==
 
+eosjs-account-name@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/eosjs-account-name/-/eosjs-account-name-2.2.1.tgz#326a7e7a1e853c40667f2e935c1e0e70d6d1af4e"
+  integrity sha512-bxFWmULh96K2WJKCzKKgyuBPy1asRI9A3yYXbJoEMYzVwlMrDDgvPhd6HT5Y19QMJoKWcirqhxGJndyNSJEOzA==
+
 error-ex@^1.3.1:
   version "1.3.2"
   resolved "https://registry.npmjs.org/error-ex/-/error-ex-1.3.2.tgz"
