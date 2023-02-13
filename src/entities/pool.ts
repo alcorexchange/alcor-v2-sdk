@@ -31,6 +31,7 @@ const NO_TICK_DATA_PROVIDER_DEFAULT = new NoTickDataProvider();
  * Represents a V3 pool
  */
 export class Pool {
+  public readonly id: number;
   public readonly tokenA: Token;
   public readonly tokenB: Token;
   public readonly fee: FeeAmount;
@@ -61,7 +62,8 @@ export class Pool {
     tickCurrent: number,
     ticks:
       | TickDataProvider
-      | (Tick | TickConstructorArgs)[] = NO_TICK_DATA_PROVIDER_DEFAULT
+      | (Tick | TickConstructorArgs)[] = NO_TICK_DATA_PROVIDER_DEFAULT,
+    id: number
   ) {
     invariant(Number.isInteger(fee) && fee < 1_000_000, "FEE");
 
@@ -79,6 +81,7 @@ export class Pool {
     [this.tokenA, this.tokenB] = tokenA.sortsBefore(tokenB)
       ? [tokenA, tokenB]
       : [tokenB, tokenA];
+    this.id = id;
     this.fee = fee;
     this.sqrtRatioX64 = JSBI.BigInt(sqrtRatioX64);
     this.liquidity = JSBI.BigInt(liquidity);
