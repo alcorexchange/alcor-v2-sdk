@@ -4,7 +4,6 @@ import { Currency } from "../currency";
 import { Token } from "../token";
 import { Fraction } from "./fraction";
 import _Big from "big.js";
-
 import toFormat from "toformat";
 import { BigintIsh, Rounding, MaxUint256 } from "../../internalConstants";
 
@@ -118,14 +117,5 @@ export class CurrencyAmount<T extends Currency> extends Fraction {
     return new Big(this.quotient.toString())
       .div(this.decimalScale.toString())
       .toFormat(format);
-  }
-
-  public get wrapped(): CurrencyAmount<Token> {
-    if (this.currency.isToken) return this as CurrencyAmount<Token>;
-    return CurrencyAmount.fromFractionalAmount(
-      this.currency.wrapped,
-      this.numerator,
-      this.denominator
-    );
   }
 }

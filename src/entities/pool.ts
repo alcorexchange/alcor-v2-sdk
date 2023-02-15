@@ -4,7 +4,6 @@ import { BigintIsh, FeeAmount, TICK_SPACINGS } from "../internalConstants";
 import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { NEGATIVE_ONE, ONE, Q128, ZERO } from "../internalConstants";
-import { computePoolAddress } from "../utils/computePoolAddress";
 import { LiquidityMath } from "../utils/liquidityMath";
 import { SwapMath } from "../utils/swapMath";
 import { TickMath } from "../utils/tickMath";
@@ -31,7 +30,7 @@ const NO_TICK_DATA_PROVIDER_DEFAULT = new NoTickDataProvider();
  * Represents a V3 pool
  */
 export class Pool {
-  public readonly id: number;
+  // public readonly id: number;
   public readonly tokenA: Token;
   public readonly tokenB: Token;
   public readonly fee: FeeAmount;
@@ -62,8 +61,7 @@ export class Pool {
     tickCurrent: number,
     ticks:
       | TickDataProvider
-      | (Tick | TickConstructorArgs)[] = NO_TICK_DATA_PROVIDER_DEFAULT,
-    id: number
+      | (Tick | TickConstructorArgs)[] = NO_TICK_DATA_PROVIDER_DEFAULT
   ) {
     invariant(Number.isInteger(fee) && fee < 1_000_000, "FEE");
 
@@ -81,7 +79,6 @@ export class Pool {
     [this.tokenA, this.tokenB] = tokenA.sortsBefore(tokenB)
       ? [tokenA, tokenB]
       : [tokenB, tokenA];
-    this.id = id;
     this.fee = fee;
     this.sqrtRatioX64 = JSBI.BigInt(sqrtRatioX64);
     this.liquidity = JSBI.BigInt(liquidity);

@@ -1,6 +1,6 @@
 import { CurrencyAmount, Price, Percent } from "./fractions";
 import { Token } from "./token";
-import { BigintIsh, MaxUint256 } from "../internalConstants";
+import { BigintIsh, MaxUint64 } from "../internalConstants";
 import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { ZERO } from "../internalConstants";
@@ -417,7 +417,7 @@ export class Position {
       tickLower,
       tickUpper,
       amountA,
-      amountB: MaxUint256,
+      amountB: MaxUint64,
       useFullPrecision,
     });
   }
@@ -446,7 +446,7 @@ export class Position {
       pool,
       tickLower,
       tickUpper,
-      amountA: MaxUint256,
+      amountA: MaxUint64,
       amountB,
       useFullPrecision: true,
     });

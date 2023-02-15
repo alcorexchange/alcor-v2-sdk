@@ -1,8 +1,8 @@
 import JSBI from "jsbi";
 import invariant from "tiny-invariant";
+import toFormat from "toformat";
 import _Decimal from "decimal.js-light";
 import _Big, { RoundingMode } from "big.js";
-import toFormat from "toformat";
 
 import { BigintIsh, Rounding } from "../../internalConstants";
 

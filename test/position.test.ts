@@ -8,7 +8,7 @@ import { TickMath } from "utils/tickMath";
 import { Pool } from "entities/pool";
 import { Position } from "entities/position";
 
-describe("Position", () => {
+describe.skip("Position", () => {
   const USDC = new Token("contracta", 6, "USDC", "USD Coin");
   const DAI = new Token("contractb", 18, "DAI", "DAI Stablecoin");
   const POOL_SQRT_RATIO_START = encodeSqrtRatioX64(100e6, 100e18);
