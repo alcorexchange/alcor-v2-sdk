@@ -62,10 +62,12 @@ export class Position {
     this.liquidity = JSBI.BigInt(liquidity);
   }
 
-
   // TODO Should be gte?
   public get inRange(): boolean {
-    return this.tickLower < this.pool.tickCurrent && this.pool.tickCurrent < this.tickUpper;
+    return (
+      this.tickLower < this.pool.tickCurrent &&
+      this.pool.tickCurrent < this.tickUpper
+    );
   }
 
   /**
