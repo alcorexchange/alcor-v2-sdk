@@ -18,9 +18,7 @@ interface PositionConstructorArgs {
   liquidity: BigintIsh;
 }
 
-/**
- * Represents a position on a Uniswap V3 Pool
- */
+
 export class Position {
   public readonly pool: Pool;
   public readonly tickLower: number;

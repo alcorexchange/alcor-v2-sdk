@@ -1,6 +1,6 @@
 import JSBI from "jsbi";
 import invariant from "tiny-invariant";
-import { ONE, ZERO, MaxUint256, Q32, Q64 } from "../internalConstants";
+import { ONE, ZERO, MaxUint256, Q64 } from "../internalConstants";
 import { mostSignificantBit } from "./mostSignificantBit";
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
@@ -12,14 +12,9 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
 
 export abstract class TickMath {
   /**
-   * Cannot be constructed.
-   */
-  private constructor() {}
-
-  /**
    * The minimum tick that can be used on any pool.
    */
-  public static MIN_TICK: number = -443636;
+  public static MIN_TICK = -443636;
   /**
    * The maximum tick that can be used on any pool.
    */
