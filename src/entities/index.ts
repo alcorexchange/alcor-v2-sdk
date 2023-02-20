@@ -7,3 +7,4 @@ export * from "./currency";
 export * from "./token";
 export * from "./pool";
 export * from "./position";
+export * from "./route";
