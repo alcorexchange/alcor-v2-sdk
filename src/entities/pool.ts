@@ -31,6 +31,7 @@ const NO_TICK_DATA_PROVIDER_DEFAULT = new NoTickDataProvider();
  */
 export class Pool {
   // public readonly id: number;
+  public readonly id: number;
   public readonly tokenA: Token;
   public readonly tokenB: Token;
   public readonly fee: FeeAmount;
@@ -53,6 +54,7 @@ export class Pool {
    * @param ticks The current state of the pool ticks or a data provider that can return tick data
    */
   public constructor(
+    id: number,
     tokenA: Token,
     tokenB: Token,
     fee: FeeAmount,
@@ -80,6 +82,7 @@ export class Pool {
       ? [tokenA, tokenB]
       : [tokenB, tokenA];
     this.fee = fee;
+    this.id = id;
     this.sqrtRatioX64 = JSBI.BigInt(sqrtRatioX64);
     this.liquidity = JSBI.BigInt(liquidity);
     this.tickCurrent = tickCurrent;
@@ -164,6 +167,7 @@ export class Pool {
         JSBI.multiply(outputAmount, NEGATIVE_ONE)
       ),
       new Pool(
+        this.id,
         this.tokenA,
         this.tokenB,
         this.fee,
@@ -201,6 +205,7 @@ export class Pool {
     return [
       CurrencyAmount.fromRawAmount(inputToken, inputAmount),
       new Pool(
+        this.id,
         this.tokenA,
         this.tokenB,
         this.fee,
@@ -274,7 +279,7 @@ export class Pool {
       JSBI.notEqual(state.amountSpecifiedRemaining, ZERO) &&
       state.sqrtPriceX64 != sqrtPriceLimitX64
     ) {
-      let step: Partial<StepComputations> = {};
+      const step: Partial<StepComputations> = {};
       step.sqrtPriceStartX64 = state.sqrtPriceX64;
 
       // because each iteration of the while loop rounds, we can't optimize this code (relative to the smart contract)

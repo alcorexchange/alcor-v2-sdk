@@ -22,6 +22,11 @@ export const MaxUint64 = JSBI.BigInt("0xffffffffffffffff");
 // exports for external consumption
 export type BigintIsh = JSBI | string | number;
 
+export enum TradeType {
+  EXACT_INPUT,
+  EXACT_OUTPUT
+}
+
 /**
  * The default factory enabled fee amounts, denominated in hundredths of bips.
  */

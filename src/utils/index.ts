@@ -11,3 +11,4 @@ export * from "./isSorted";
 export * from "./tickList";
 export * from "./priceTickConversions";
 export * from "./sqrtPriceMath";
+export * from "./sortedInsert";

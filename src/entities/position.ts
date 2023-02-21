@@ -205,6 +205,7 @@ export class Position {
 
     // construct counterfactual pools
     const poolLower = new Pool(
+      this.pool.id,
       this.pool.tokenA,
       this.pool.tokenB,
       this.pool.fee,
@@ -213,6 +214,7 @@ export class Position {
       TickMath.getTickAtSqrtRatio(sqrtRatioX64Lower)
     );
     const poolUpper = new Pool(
+      this.pool.id,
       this.pool.tokenA,
       this.pool.tokenB,
       this.pool.fee,
@@ -264,6 +266,7 @@ export class Position {
 
     // construct counterfactual pools
     const poolLower = new Pool(
+      this.pool.id,
       this.pool.tokenA,
       this.pool.tokenB,
       this.pool.fee,
@@ -272,6 +275,7 @@ export class Position {
       TickMath.getTickAtSqrtRatio(sqrtRatioX64Lower)
     );
     const poolUpper = new Pool(
+      this.pool.id,
       this.pool.tokenA,
       this.pool.tokenB,
       this.pool.fee,
