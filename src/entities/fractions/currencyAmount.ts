@@ -118,4 +118,8 @@ export class CurrencyAmount<T extends Currency> extends Fraction {
       .div(this.decimalScale.toString())
       .toFormat(format);
   }
+
+  public toAsset(...args): string {
+    return this.toFixed(...args) + ' ' + this.currency.symbol
+  }
 }

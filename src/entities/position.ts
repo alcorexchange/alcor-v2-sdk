@@ -12,6 +12,7 @@ import { encodeSqrtRatioX64 } from "../utils/encodeSqrtRatioX64";
 import { Pool } from "./pool";
 
 interface PositionConstructorArgs {
+  id: number,
   pool: Pool;
   tickLower: number;
   tickUpper: number;
@@ -20,6 +21,7 @@ interface PositionConstructorArgs {
 
 
 export class Position {
+  public readonly id: number;
   public readonly pool: Pool;
   public readonly tickLower: number;
   public readonly tickUpper: number;
@@ -39,6 +41,7 @@ export class Position {
    * @param tickUpper The upper tick of the position
    */
   public constructor({
+    id,
     pool,
     liquidity,
     tickLower,
@@ -54,6 +57,7 @@ export class Position {
       "TICK_UPPER"
     );
 
+    this.id = id;
     this.pool = pool;
     this.tickLower = tickLower;
     this.tickUpper = tickUpper;
@@ -225,6 +229,7 @@ export class Position {
 
     // because the router is imprecise, we need to calculate the position that will be created (assuming no slippage)
     const positionThatWillBeCreated = Position.fromAmounts({
+      id: this.id,
       pool: this.pool,
       tickLower: this.tickLower,
       tickUpper: this.tickUpper,
@@ -235,6 +240,7 @@ export class Position {
     // we want the smaller amounts...
     // ...which occurs at the upper price for amountA...
     const { amountA } = new Position({
+      id: this.id,
       pool: poolUpper,
       liquidity: positionThatWillBeCreated.liquidity,
       tickLower: this.tickLower,
@@ -242,6 +248,7 @@ export class Position {
     }).mintAmounts;
     // ...and the lower for amountB
     const { amountB } = new Position({
+      id: this.id,
       pool: poolLower,
       liquidity: positionThatWillBeCreated.liquidity,
       tickLower: this.tickLower,
@@ -287,6 +294,7 @@ export class Position {
     // we want the smaller amounts...
     // ...which occurs at the upper price for amountA...
     const amountA = new Position({
+      id: this.id,
       pool: poolUpper,
       liquidity: this.liquidity,
       tickLower: this.tickLower,
@@ -294,6 +302,7 @@ export class Position {
     }).amountA;
     // ...and the lower for amountB
     const amountB = new Position({
+      id: this.id,
       pool: poolLower,
       liquidity: this.liquidity,
       tickLower: this.tickLower,
@@ -362,6 +371,7 @@ export class Position {
    * @returns The amount of liquidity for the position
    */
   public static fromAmounts({
+    id,
     pool,
     tickLower,
     tickUpper,
@@ -369,6 +379,7 @@ export class Position {
     amountB,
     useFullPrecision,
   }: {
+    id: number,
     pool: Pool;
     tickLower: number;
     tickUpper: number;
@@ -379,6 +390,7 @@ export class Position {
     const sqrtRatioLX64 = TickMath.getSqrtRatioAtTick(tickLower);
     const sqrtRatioUX64 = TickMath.getSqrtRatioAtTick(tickUpper);
     return new Position({
+      id,
       pool,
       tickLower,
       tickUpper,
@@ -404,12 +416,14 @@ export class Position {
    * @returns The position
    */
   public static fromAmountA({
+    id,
     pool,
     tickLower,
     tickUpper,
     amountA,
     useFullPrecision,
   }: {
+    id: number,
     pool: Pool;
     tickLower: number;
     tickUpper: number;
@@ -417,6 +431,7 @@ export class Position {
     useFullPrecision: boolean;
   }) {
     return Position.fromAmounts({
+      id,
       pool,
       tickLower,
       tickUpper,
@@ -435,11 +450,13 @@ export class Position {
    * @returns The position
    */
   public static fromAmountB({
+    id,
     pool,
     tickLower,
     tickUpper,
     amountB,
   }: {
+    id: number,
     pool: Pool;
     tickLower: number;
     tickUpper: number;
@@ -447,6 +464,7 @@ export class Position {
   }) {
     // this function always uses full precision,
     return Position.fromAmounts({
+      id,
       pool,
       tickLower,
       tickUpper,
