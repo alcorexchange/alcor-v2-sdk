@@ -11,6 +11,21 @@ import { Tick, TickConstructorArgs } from "./tick";
 import { NoTickDataProvider, TickDataProvider } from "./tickDataProvider";
 import { TickListDataProvider } from "./tickListDataProvider";
 
+export interface PoolConstructorArgs {
+  id: number,
+  tokenA: Token,
+  tokenB: Token,
+  fee: FeeAmount,
+  sqrtPriceX64: BigintIsh,
+  liquidity: BigintIsh,
+  tickCurrent: number,
+  feeGrowthGlobalAX64: BigintIsh,
+  feeGrowthGlobalBX64: BigintIsh,
+  ticks:
+    | TickDataProvider
+    | (Tick | TickConstructorArgs)[]
+}
+
 interface StepComputations {
   sqrtPriceStartX64: JSBI;
   tickNext: number;
@@ -35,9 +50,11 @@ export class Pool {
   public readonly tokenA: Token;
   public readonly tokenB: Token;
   public readonly fee: FeeAmount;
-  public readonly sqrtRatioX64: JSBI;
+  public readonly sqrtPriceX64: JSBI;
   public readonly liquidity: JSBI;
   public readonly tickCurrent: number;
+  public readonly feeGrowthGlobalAX64: JSBI;
+  public readonly feeGrowthGlobalBX64: JSBI;
   public readonly tickDataProvider: TickDataProvider;
 
   private _tokenAPrice?: Price<Token, Token>;
@@ -48,47 +65,51 @@ export class Pool {
    * @param tokenA One of the tokens in the pool
    * @param tokenB The other token in the pool
    * @param fee The fee in hundredths of a bips of the input amount of every swap that is collected by the pool
-   * @param sqrtRatioX64 The sqrt of the current ratio of amounts of tokenB to tokenA
+   * @param sqrtPriceX64 The sqrt of the current ratio of amounts of tokenB to tokenA
    * @param liquidity The current value of in range liquidity
    * @param tickCurrent The current tick of the pool
    * @param ticks The current state of the pool ticks or a data provider that can return tick data
    */
-  public constructor(
-    id: number,
-    tokenA: Token,
-    tokenB: Token,
-    fee: FeeAmount,
-    sqrtRatioX64: BigintIsh,
-    liquidity: BigintIsh,
-    tickCurrent: number,
-    ticks:
-      | TickDataProvider
-      | (Tick | TickConstructorArgs)[] = NO_TICK_DATA_PROVIDER_DEFAULT
-  ) {
+  public constructor({
+    id,
+    tokenA,
+    tokenB,
+    fee,
+    sqrtPriceX64,
+    liquidity,
+    tickCurrent,
+    ticks = NO_TICK_DATA_PROVIDER_DEFAULT,
+    feeGrowthGlobalAX64,
+    feeGrowthGlobalBX64,
+  }: PoolConstructorArgs) {
     invariant(Number.isInteger(fee) && fee < 1_000_000, "FEE");
 
     const tickCurrentSqrtRatioX64 = TickMath.getSqrtRatioAtTick(tickCurrent);
     const nextTickSqrtRatioX64 = TickMath.getSqrtRatioAtTick(tickCurrent + 1);
     invariant(
       JSBI.greaterThanOrEqual(
-        JSBI.BigInt(sqrtRatioX64),
+        JSBI.BigInt(sqrtPriceX64),
         tickCurrentSqrtRatioX64
       ) &&
-        JSBI.lessThanOrEqual(JSBI.BigInt(sqrtRatioX64), nextTickSqrtRatioX64),
+        JSBI.lessThanOrEqual(JSBI.BigInt(sqrtPriceX64), nextTickSqrtRatioX64),
       "PRICE_BOUNDS"
     );
     // always create a copy of the list since we want the pool's tick list to be immutable
-    [this.tokenA, this.tokenB] = tokenA.sortsBefore(tokenB)
-      ? [tokenA, tokenB]
-      : [tokenB, tokenA];
-    this.fee = fee;
     this.id = id;
-    this.sqrtRatioX64 = JSBI.BigInt(sqrtRatioX64);
+    this.fee = fee;
+    this.sqrtPriceX64 = JSBI.BigInt(sqrtPriceX64);
     this.liquidity = JSBI.BigInt(liquidity);
     this.tickCurrent = tickCurrent;
+    this.feeGrowthGlobalAX64 = JSBI.BigInt(feeGrowthGlobalAX64);
+    this.feeGrowthGlobalBX64 = JSBI.BigInt(feeGrowthGlobalBX64);
+
     this.tickDataProvider = Array.isArray(ticks)
       ? new TickListDataProvider(ticks, TICK_SPACINGS[fee])
       : ticks;
+
+    [this.tokenA, this.tokenB] = tokenA.sortsBefore(tokenB)
+      ? [tokenA, tokenB]
+      : [tokenB, tokenA];
   }
 
   /**
@@ -110,7 +131,7 @@ export class Pool {
         this.tokenA,
         this.tokenB,
         Q128,
-        JSBI.multiply(this.sqrtRatioX64, this.sqrtRatioX64)
+        JSBI.multiply(this.sqrtPriceX64, this.sqrtPriceX64)
       ))
     );
   }
@@ -124,7 +145,7 @@ export class Pool {
       (this._tokenBPrice = new Price(
         this.tokenB,
         this.tokenA,
-        JSBI.multiply(this.sqrtRatioX64, this.sqrtRatioX64),
+        JSBI.multiply(this.sqrtPriceX64, this.sqrtPriceX64),
         Q128
       ))
     );
@@ -156,7 +177,7 @@ export class Pool {
 
     const {
       amountCalculated: outputAmount,
-      sqrtRatioX64,
+      sqrtPriceX64,
       liquidity,
       tickCurrent,
     } = await this.swap(zeroForOne, inputAmount.quotient, sqrtPriceLimitX64);
@@ -166,16 +187,18 @@ export class Pool {
         outputToken,
         JSBI.multiply(outputAmount, NEGATIVE_ONE)
       ),
-      new Pool(
-        this.id,
-        this.tokenA,
-        this.tokenB,
-        this.fee,
-        sqrtRatioX64,
+      new Pool({
+        id: this.id,
+        tokenA: this.tokenA,
+        tokenB: this.tokenB,
+        fee: this.fee,
+        sqrtPriceX64,
         liquidity,
         tickCurrent,
-        this.tickDataProvider
-      ),
+        ticks: this.tickDataProvider,
+        feeGrowthGlobalAX64: this.feeGrowthGlobalAX64,
+        feeGrowthGlobalBX64: this.feeGrowthGlobalBX64,
+      })
     ];
   }
 
@@ -193,7 +216,7 @@ export class Pool {
 
     const {
       amountCalculated: inputAmount,
-      sqrtRatioX64,
+      sqrtPriceX64,
       liquidity,
       tickCurrent,
     } = await this.swap(
@@ -204,16 +227,18 @@ export class Pool {
     const inputToken = zeroForOne ? this.tokenA : this.tokenB;
     return [
       CurrencyAmount.fromRawAmount(inputToken, inputAmount),
-      new Pool(
-        this.id,
-        this.tokenA,
-        this.tokenB,
-        this.fee,
-        sqrtRatioX64,
+      new Pool({
+        id: this.id,
+        tokenA: this.tokenA,
+        tokenB: this.tokenB,
+        fee: this.fee,
+        sqrtPriceX64,
         liquidity,
         tickCurrent,
-        this.tickDataProvider
-      ),
+        ticks: this.tickDataProvider,
+        feeGrowthGlobalAX64: this.feeGrowthGlobalAX64,
+        feeGrowthGlobalBX64: this.feeGrowthGlobalBX64,
+      }),
     ];
   }
 
@@ -223,7 +248,7 @@ export class Pool {
    * @param amountSpecified The amount of the swap, which implicitly configures the swap as exact input (positive), or exact output (negative)
    * @param sqrtPriceLimitX64 The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap
    * @returns amountCalculated
-   * @returns sqrtRatioX64
+   * @returns sqrtPriceX64
    * @returns liquidity
    * @returns tickCurrent
    */
@@ -233,7 +258,7 @@ export class Pool {
     sqrtPriceLimitX64?: JSBI
   ): Promise<{
     amountCalculated: JSBI;
-    sqrtRatioX64: JSBI;
+    sqrtPriceX64: JSBI;
     liquidity: JSBI;
     tickCurrent: number;
   }> {
@@ -248,7 +273,7 @@ export class Pool {
         "RATIO_MIN"
       );
       invariant(
-        JSBI.lessThan(sqrtPriceLimitX64, this.sqrtRatioX64),
+        JSBI.lessThan(sqrtPriceLimitX64, this.sqrtPriceX64),
         "RATIO_CURRENT"
       );
     } else {
@@ -257,7 +282,7 @@ export class Pool {
         "RATIO_MAX"
       );
       invariant(
-        JSBI.greaterThan(sqrtPriceLimitX64, this.sqrtRatioX64),
+        JSBI.greaterThan(sqrtPriceLimitX64, this.sqrtPriceX64),
         "RATIO_CURRENT"
       );
     }
@@ -269,7 +294,7 @@ export class Pool {
     const state = {
       amountSpecifiedRemaining: amountSpecified,
       amountCalculated: ZERO,
-      sqrtPriceX64: this.sqrtRatioX64,
+      sqrtPriceX64: this.sqrtPriceX64,
       tick: this.tickCurrent,
       liquidity: this.liquidity,
     };
@@ -362,7 +387,7 @@ export class Pool {
 
     return {
       amountCalculated: state.amountCalculated,
-      sqrtRatioX64: state.sqrtPriceX64,
+      sqrtPriceX64: state.sqrtPriceX64,
       liquidity: state.liquidity,
       tickCurrent: state.tick,
     };

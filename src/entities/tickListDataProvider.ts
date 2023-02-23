@@ -1,4 +1,3 @@
-import { BigintIsh } from "../internalConstants";
 import { TickList } from "../utils/tickList";
 import { Tick, TickConstructorArgs } from "./tick";
 import { TickDataProvider } from "./tickDataProvider";
@@ -19,7 +18,7 @@ export class TickListDataProvider implements TickDataProvider {
 
   async getTick(
     tick: number
-  ): Promise<{ liquidityNet: BigintIsh; liquidityGross: BigintIsh }> {
+  ): Promise<Tick> {
     return TickList.getTick(this.ticks, tick);
   }
 

@@ -5,7 +5,7 @@ import { ZERO } from "../internalConstants";
 import { isSorted } from "./isSorted";
 
 function tickComparator(a: Tick, b: Tick) {
-  return a.index - b.index;
+  return a.id - b.id;
 }
 
 /**x
@@ -21,7 +21,7 @@ export abstract class TickList {
     invariant(tickSpacing > 0, "TICK_SPACING_NONZERO");
     // ensure ticks are spaced appropriately
     invariant(
-      ticks.every(({ index }) => index % tickSpacing === 0),
+      ticks.every(({ id }) => id % tickSpacing === 0),
       "TICK_SPACING"
     );
 
@@ -43,7 +43,7 @@ export abstract class TickList {
 
   public static isBelowSmallest(ticks: readonly Tick[], tick: number): boolean {
     invariant(ticks.length > 0, "LENGTH");
-    return tick < ticks[0].index;
+    return tick < ticks[0].id;
   }
 
   public static isAtOrAboveLargest(
@@ -51,12 +51,12 @@ export abstract class TickList {
     tick: number
   ): boolean {
     invariant(ticks.length > 0, "LENGTH");
-    return tick >= ticks[ticks.length - 1].index;
+    return tick >= ticks[ticks.length - 1].id;
   }
 
-  public static getTick(ticks: readonly Tick[], index: number): Tick {
-    const tick = ticks[this.binarySearch(ticks, index)];
-    invariant(tick.index === index, "NOT_CONTAINED");
+  public static getTick(ticks: readonly Tick[], id: number): Tick {
+    const tick = ticks[this.binarySearch(ticks, id)];
+    invariant(tick.id === id, "NOT_CONTAINED");
     return tick;
   }
 
@@ -76,13 +76,13 @@ export abstract class TickList {
       i = Math.floor((l + r) / 2);
 
       if (
-        ticks[i].index <= tick &&
-        (i === ticks.length - 1 || ticks[i + 1].index > tick)
+        ticks[i].id <= tick &&
+        (i === ticks.length - 1 || ticks[i + 1].id > tick)
       ) {
         return i;
       }
 
-      if (ticks[i].index < tick) {
+      if (ticks[i].id < tick) {
         l = i + 1;
       } else {
         r = i - 1;
@@ -100,15 +100,15 @@ export abstract class TickList {
       if (TickList.isAtOrAboveLargest(ticks, tick)) {
         return ticks[ticks.length - 1];
       }
-      const index = this.binarySearch(ticks, tick);
-      return ticks[index];
+      const id = this.binarySearch(ticks, tick);
+      return ticks[id];
     } else {
       invariant(!this.isAtOrAboveLargest(ticks, tick), "AT_OR_ABOVE_LARGEST");
       if (this.isBelowSmallest(ticks, tick)) {
         return ticks[0];
       }
-      const index = this.binarySearch(ticks, tick);
-      return ticks[index + 1];
+      const id = this.binarySearch(ticks, tick);
+      return ticks[id + 1];
     }
   }
 
@@ -128,9 +128,9 @@ export abstract class TickList {
         return [minimum, false];
       }
 
-      const index = TickList.nextInitializedTick(ticks, tick, lte).index;
-      const nextInitializedTick = Math.max(minimum, index);
-      return [nextInitializedTick, nextInitializedTick === index];
+      const id = TickList.nextInitializedTick(ticks, tick, lte).id;
+      const nextInitializedTick = Math.max(minimum, id);
+      return [nextInitializedTick, nextInitializedTick === id];
     } else {
       const wordPos = (compressed + 1) >> 7;
       const maximum = (((wordPos + 1) << 7) - 1) * tickSpacing;
@@ -139,9 +139,9 @@ export abstract class TickList {
         return [maximum, false];
       }
 
-      const index = this.nextInitializedTick(ticks, tick, lte).index;
-      const nextInitializedTick = Math.min(maximum, index);
-      return [nextInitializedTick, nextInitializedTick === index];
+      const id = this.nextInitializedTick(ticks, tick, lte).id;
+      const nextInitializedTick = Math.min(maximum, id);
+      return [nextInitializedTick, nextInitializedTick === id];
     }
   }
 }

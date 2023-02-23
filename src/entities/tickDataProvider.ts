@@ -1,4 +1,4 @@
-import { BigintIsh } from "../internalConstants";
+import { Tick } from "./tick";
 
 /**
  * Provides information about ticks
@@ -8,7 +8,7 @@ export interface TickDataProvider {
    * Return information corresponding to a specific tick
    * @param tick the tick to load
    */
-  getTick(tick: number): Promise<{ liquidityNet: BigintIsh }>;
+  getTick(tick: number): Promise<Tick>;
 
   /**
    * Return the next tick that is initialized within a single word
@@ -29,7 +29,7 @@ export interface TickDataProvider {
  */
 export class NoTickDataProvider implements TickDataProvider {
   private static ERROR_MESSAGE = "No tick data provider was given";
-  async getTick(_tick: number): Promise<{ liquidityNet: BigintIsh }> {
+  async getTick(_tick: number): Promise<Tick> {
     throw new Error(NoTickDataProvider.ERROR_MESSAGE);
   }
 

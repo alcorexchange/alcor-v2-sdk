@@ -1,5 +1,5 @@
 import JSBI from "jsbi";
-import { ZERO, Q256, Q128 } from "../internalConstants";
+import { BigintIsh, ZERO, Q256, Q128 } from "../internalConstants";
 
 interface FeeGrowthOutside {
   feeGrowthOutsideAX64: JSBI;

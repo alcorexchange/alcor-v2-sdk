@@ -4,20 +4,45 @@ import { BigintIsh } from "../internalConstants";
 import { TickMath } from "../utils";
 
 export interface TickConstructorArgs {
-  index: number;
+  id: number;
   liquidityGross: BigintIsh;
   liquidityNet: BigintIsh;
+  feeGrowthOutsideAX64: BigintIsh;
+  feeGrowthOutsideBX64: BigintIsh;
+  tickCumulativeOutside: BigintIsh;
+  secondsPerLiquidityOutsideX64: BigintIsh;
+  secondsOutside: BigintIsh;
 }
 
 export class Tick {
-  public readonly index: number;
+  public readonly id: number;
   public readonly liquidityGross: JSBI;
   public readonly liquidityNet: JSBI;
+  public readonly feeGrowthOutsideAX64: JSBI;
+  public readonly feeGrowthOutsideBX64: JSBI;
+  public readonly tickCumulativeOutside: JSBI;
+  public readonly secondsOutside: JSBI;
+  public readonly secondsPerLiquidityOutsideX64: JSBI;
 
-  constructor({ index, liquidityGross, liquidityNet }: TickConstructorArgs) {
-    invariant(index >= TickMath.MIN_TICK && index <= TickMath.MAX_TICK, "TICK");
-    this.index = index;
+  constructor({
+    id,
+    liquidityGross,
+    liquidityNet,
+    feeGrowthOutsideAX64,
+    feeGrowthOutsideBX64,
+    tickCumulativeOutside,
+    secondsOutside,
+    secondsPerLiquidityOutsideX64,
+  }: TickConstructorArgs) {
+    invariant(id >= TickMath.MIN_TICK && id <= TickMath.MAX_TICK, "TICK");
+
+    this.id = id;
     this.liquidityGross = JSBI.BigInt(liquidityGross);
     this.liquidityNet = JSBI.BigInt(liquidityNet);
+    this.feeGrowthOutsideAX64 = JSBI.BigInt(feeGrowthOutsideAX64);
+    this.feeGrowthOutsideBX64 = JSBI.BigInt(feeGrowthOutsideBX64);
+    this.tickCumulativeOutside = JSBI.BigInt(tickCumulativeOutside)
+    this.secondsOutside = JSBI.BigInt(secondsOutside);
+    this.secondsPerLiquidityOutsideX64 = JSBI.BigInt(secondsPerLiquidityOutsideX64);
   }
 }
