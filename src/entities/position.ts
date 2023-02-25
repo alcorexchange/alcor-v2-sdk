@@ -14,6 +14,7 @@ import { TickLibrary, subIn128 } from "../utils";
 
 interface PositionConstructorArgs {
   id: number,
+  owner: string,
   pool: Pool;
   lower: number;
   upper: number;
@@ -29,6 +30,7 @@ interface Fees {
 
 export class Position {
   public readonly id: number;
+  public readonly owner: string;
   public readonly pool: Pool;
   public readonly lower: number;
   public readonly upper: number;
@@ -51,6 +53,7 @@ export class Position {
    */
   public constructor({
     id,
+    owner,
     pool,
     liquidity,
     lower,
@@ -69,6 +72,7 @@ export class Position {
     );
 
     this.id = id;
+    this.owner = owner;
     this.pool = pool;
     this.lower = lower;
     this.upper = upper;
@@ -248,6 +252,7 @@ export class Position {
     // because the router is imprecise, we need to calculate the position that will be created (assuming no slippage)
     const positionThatWillBeCreated = Position.fromAmounts({
       id: this.id,
+      owner: this.owner,
       pool: this.pool,
       lower: this.lower,
       upper: this.upper,
@@ -261,6 +266,7 @@ export class Position {
     // ...which occurs at the upper price for amountA...
     const { amountA } = new Position({
       id: this.id,
+      owner: this.owner,
       pool: poolUpper,
       liquidity: positionThatWillBeCreated.liquidity,
       lower: this.lower,
@@ -271,6 +277,7 @@ export class Position {
     // ...and the lower for amountB
     const { amountB } = new Position({
       id: this.id,
+      owner: this.owner,
       pool: poolLower,
       liquidity: positionThatWillBeCreated.liquidity,
       lower: this.lower,
@@ -325,6 +332,7 @@ export class Position {
     // ...which occurs at the upper price for amountA...
     const amountA = new Position({
       id: this.id,
+      owner: this.owner,
       pool: poolUpper,
       liquidity: this.liquidity,
       lower: this.lower,
@@ -335,6 +343,7 @@ export class Position {
     // ...and the lower for amountB
     const amountB = new Position({
       id: this.id,
+      owner: this.owner,
       pool: poolLower,
       liquidity: this.liquidity,
       lower: this.lower,
@@ -406,6 +415,7 @@ export class Position {
    */
   public static fromAmounts({
     id,
+    owner,
     pool,
     lower,
     upper,
@@ -416,6 +426,7 @@ export class Position {
     feeGrowthInsideBLastX64,
   }: {
     id: number,
+    owner: string,
     pool: Pool;
     lower: number;
     upper: number;
@@ -429,6 +440,7 @@ export class Position {
     const sqrtRatioUX64 = TickMath.getSqrtRatioAtTick(upper);
     return new Position({
       id,
+      owner,
       pool,
       lower,
       upper,
@@ -457,6 +469,7 @@ export class Position {
    */
   public static fromAmountA({
     id,
+    owner,
     pool,
     lower,
     upper,
@@ -466,6 +479,7 @@ export class Position {
     feeGrowthInsideBLastX64
   }: {
     id: number,
+    owner: string,
     pool: Pool;
     lower: number;
     upper: number;
@@ -476,6 +490,7 @@ export class Position {
   }) {
     return Position.fromAmounts({
       id,
+      owner,
       pool,
       lower,
       upper,
@@ -497,6 +512,7 @@ export class Position {
    */
   public static fromAmountB({
     id,
+    owner,
     pool,
     lower,
     upper,
@@ -505,6 +521,7 @@ export class Position {
     feeGrowthInsideBLastX64,
   }: {
     id: number,
+    owner: string,
     pool: Pool;
     lower: number;
     upper: number;
@@ -515,6 +532,7 @@ export class Position {
     // this function always uses full precision,
     return Position.fromAmounts({
       id,
+      owner,
       pool,
       lower,
       upper,
