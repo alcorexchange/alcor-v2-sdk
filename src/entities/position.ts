@@ -58,8 +58,8 @@ export class Position {
     liquidity,
     tickLower,
     tickUpper,
-    feeGrowthInsideALastX64,
-    feeGrowthInsideBLastX64,
+    feeGrowthInsideALastX64 = 0,
+    feeGrowthInsideBLastX64 = 0,
   }: PositionConstructorArgs) {
     invariant(tickLower < tickUpper, "TICK_ORDER");
     invariant(
