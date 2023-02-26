@@ -297,7 +297,7 @@ export class Position {
    */
   public burnAmountsWithSlippage(
     slippageTolerance: Percent
-  ): Readonly<{ amountA: JSBI; amountB: JSBI }> {
+  ): Readonly<{ amountA: CurrencyAmount<Token>; amountB: CurrencyAmount<Token> }> {
     // get lower/upper prices
     const { sqrtPriceX64Upper, sqrtPriceX64Lower } =
       this.ratiosAfterSlippage(slippageTolerance);
@@ -352,7 +352,7 @@ export class Position {
       feeGrowthInsideBLastX64: this.feeGrowthInsideBLastX64,
     }).amountB;
 
-    return { amountA: amountA.quotient, amountB: amountB.quotient };
+    return { amountA: amountA, amountB: amountB };
   }
 
   /**
