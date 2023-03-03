@@ -79,8 +79,8 @@ export class Pool {
     liquidity,
     tickCurrent,
     ticks = NO_TICK_DATA_PROVIDER_DEFAULT,
-    feeGrowthGlobalAX64,
-    feeGrowthGlobalBX64,
+    feeGrowthGlobalAX64 = 0,
+    feeGrowthGlobalBX64 = 0,
   }: PoolConstructorArgs) {
     invariant(Number.isInteger(fee) && fee < 1_000_000, "FEE");
 
