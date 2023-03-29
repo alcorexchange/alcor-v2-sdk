@@ -1,6 +1,5 @@
 import invariant from "tiny-invariant";
 import { Currency } from "./currency";
-import { Token } from "./token";
 
 /**
  * A currency is any fungible financial instrument, including Ether, all ERC20 tokens, and other chain-native currencies
@@ -19,9 +18,9 @@ export abstract class BaseCurrency {
    */
   public readonly symbol: string;
   /**
-   * The name of the currency, i.e. a descriptive textual non-unique identifier
+   * The id of the currency(<symbol-contract>), i.e. eos-eosio.token
    */
-  public readonly name?: string;
+  public readonly id?: string;
 
   /**
    * Constructs an instance of the base class `BaseCurrency`.
@@ -34,7 +33,7 @@ export abstract class BaseCurrency {
     contract: string,
     decimals: number,
     symbol: string,
-    name?: string
+    id?: string
   ) {
     invariant(
       decimals >= 0 && decimals < 19 && Number.isInteger(decimals),
@@ -43,7 +42,7 @@ export abstract class BaseCurrency {
     this.contract = contract;
     this.decimals = decimals;
     this.symbol = symbol;
-    this.name = name;
+    this.id = id;
   }
 
   /**

@@ -50,3 +50,9 @@ export const TICK_SPACINGS: { [amount in FeeAmount]: number } = {
   [FeeAmount.MEDIUM]: 60,
   [FeeAmount.HIGH]: 200,
 };
+
+// export const TICK_SPACINGS: { [amount in FeeAmount]: number } = {
+//   [FeeAmount.LOW]: 4,
+//   [FeeAmount.MEDIUM]: 10,
+//   [FeeAmount.HIGH]: 50,
+// };

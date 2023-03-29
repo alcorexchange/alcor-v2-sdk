@@ -8,19 +8,23 @@ import JSBI from "jsbi";
  */
 export class Token extends BaseCurrency {
   /**
-   *
    * @param contract {@link BaseCurrency#contract}
    * @param decimals {@link BaseCurrency#decimals}
    * @param symbol {@link BaseCurrency#symbol}
-   * @param name {@link BaseCurrency#name}
+   * @param id {@link BaseCurrency#id}
    */
   public constructor(
     contract: string,
     decimals: number,
     symbol: string,
-    name?: string
+    id?: string
   ) {
-    super(contract, decimals, symbol, name);
+    super(contract, decimals, symbol, id);
+  }
+
+  public get name(): string {
+    console.warn('Token.name is deprecated, use token.id')
+    return this.symbol.toLowerCase() + '-' + this.contract
   }
 
   /**
