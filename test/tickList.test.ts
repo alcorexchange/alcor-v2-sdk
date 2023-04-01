@@ -9,17 +9,17 @@ describe("TickList", () => {
 
   beforeEach(() => {
     lowTick = new Tick({
-      index: TickMath.MIN_TICK + 1,
+      id: TickMath.MIN_TICK + 1,
       liquidityNet: 10,
       liquidityGross: 10,
     });
     midTick = new Tick({
-      index: 0,
+      id: 0,
       liquidityNet: -5,
       liquidityGross: 5,
     });
     highTick = new Tick({
-      index: TickMath.MAX_TICK - 1,
+      id: TickMath.MAX_TICK - 1,
       liquidityNet: -5,
       liquidityGross: 5,
     });
@@ -193,12 +193,12 @@ describe("TickList", () => {
     it("performs correctly with tickSpacing > 1", () => {
       ticks = [
         new Tick({
-          index: 0,
+          id: 0,
           liquidityNet: 0,
           liquidityGross: 0,
         }),
         new Tick({
-          index: 255,
+          id: 255,
           liquidityNet: 0,
           liquidityGross: 0,
         }),

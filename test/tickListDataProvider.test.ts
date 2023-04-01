@@ -16,8 +16,8 @@ describe("TickListDataProvider", () => {
         () =>
           new TickListDataProvider(
             [
-              { index: -1, liquidityNet: -1, liquidityGross: 1 },
-              { index: 1, liquidityNet: 2, liquidityGross: 1 },
+              { id: -1, liquidityNet: -1, liquidityGross: 1 },
+              { id: 1, liquidityNet: 2, liquidityGross: 1 },
             ],
             1
           )
@@ -29,8 +29,8 @@ describe("TickListDataProvider", () => {
     it("throws if tick not in list", async () => {
       const provider = new TickListDataProvider(
         [
-          { index: -1, liquidityNet: -1, liquidityGross: 1 },
-          { index: 1, liquidityNet: 1, liquidityGross: 1 },
+          { id: -1, liquidityNet: -1, liquidityGross: 1 },
+          { id: 1, liquidityNet: 1, liquidityGross: 1 },
         ],
         1
       );
@@ -39,8 +39,8 @@ describe("TickListDataProvider", () => {
     it("gets the smallest tick from the list", async () => {
       const provider = new TickListDataProvider(
         [
-          { index: -1, liquidityNet: -1, liquidityGross: 1 },
-          { index: 1, liquidityNet: 1, liquidityGross: 1 },
+          { id: -1, liquidityNet: -1, liquidityGross: 1 },
+          { id: 1, liquidityNet: 1, liquidityGross: 1 },
         ],
         1
       );
@@ -51,8 +51,8 @@ describe("TickListDataProvider", () => {
     it("gets the largest tick from the list", async () => {
       const provider = new TickListDataProvider(
         [
-          { index: -1, liquidityNet: -1, liquidityGross: 1 },
-          { index: 1, liquidityNet: 1, liquidityGross: 1 },
+          { id: -1, liquidityNet: -1, liquidityGross: 1 },
+          { id: 1, liquidityNet: 1, liquidityGross: 1 },
         ],
         1
       );
