@@ -28,11 +28,11 @@ export class Tick {
     id,
     liquidityGross,
     liquidityNet,
-    feeGrowthOutsideAX64,
-    feeGrowthOutsideBX64,
-    tickCumulativeOutside,
-    secondsOutside,
-    secondsPerLiquidityOutsideX64,
+    feeGrowthOutsideAX64 = 0,
+    feeGrowthOutsideBX64 = 0,
+    tickCumulativeOutside = 0,
+    secondsOutside = 0,
+    secondsPerLiquidityOutsideX64 = 0,
   }: TickConstructorArgs) {
     invariant(id >= TickMath.MIN_TICK && id <= TickMath.MAX_TICK, "TICK");
 

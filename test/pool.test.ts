@@ -18,121 +18,153 @@ describe("Pool", () => {
   describe("constructor", () => {
     it("fee must be integer", () => {
       expect(() => {
-        new Pool(
-          USDC,
-          DAI,
-          FeeAmount.MEDIUM + 0.5,
-          encodeSqrtRatioX64(1, 1),
-          0,
-          0,
-          []
-        );
+        new Pool({
+          tokenA: USDC,
+          tokenB: DAI,
+          fee: FeeAmount.MEDIUM + 0.5,
+          sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+          liquidity: 0,
+          tickCurrent: 0,
+          ticks: []
+        });
       }).toThrow("FEE");
     });
 
     it("fee cannot be more than 1e6", () => {
       expect(() => {
-        new Pool(USDC, DAI, 1e6, encodeSqrtRatioX64(1, 1), 0, 0, []);
+        new Pool({
+          tokenA: USDC,
+          tokenB: DAI,
+          fee: 1e6,
+          sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+          liquidity: 0,
+          tickCurrent: 0,
+          ticks: []
+        });
       }).toThrow("FEE");
     });
 
     it("cannot be given two of the same token", () => {
       expect(() => {
-        new Pool(
-          USDC,
-          USDC,
-          FeeAmount.MEDIUM,
-          encodeSqrtRatioX64(1, 1),
-          0,
-          0,
-          []
-        );
+        new Pool({
+          tokenA: USDC,
+          tokenB: USDC,
+          fee: FeeAmount.MEDIUM,
+          sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+          liquidity: 0,
+          tickCurrent: 0,
+          ticks: []
+        });
       }).toThrow("SYMBOLS");
     });
 
     it("price must be within tick price bounds", () => {
       expect(() => {
-        new Pool(
-          USDC,
-          DAI,
-          FeeAmount.MEDIUM,
-          encodeSqrtRatioX64(1, 1),
-          0,
-          1,
-          []
-        );
+        new Pool({
+          tokenA: USDC,
+          tokenB: DAI,
+          fee: FeeAmount.MEDIUM,
+          sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+          liquidity: 0,
+          tickCurrent: 1,
+          ticks: []
+        });
       }).toThrow("PRICE_BOUNDS");
       expect(() => {
-        new Pool(
-          USDC,
-          DAI,
-          FeeAmount.MEDIUM,
-          JSBI.add(encodeSqrtRatioX64(1, 1), JSBI.BigInt(1)),
-          0,
-          -1,
-          []
-        );
+        new Pool({
+          tokenA: USDC,
+          tokenB: DAI,
+          fee: FeeAmount.MEDIUM,
+          sqrtPriceX64: JSBI.add(encodeSqrtRatioX64(1, 1), JSBI.BigInt(1)),
+          liquidity: 0,
+          tickCurrent: -1,
+          ticks: []
+        });
       }).toThrow("PRICE_BOUNDS");
     });
 
     it("works with valid arguments for empty pool medium fee", () => {
-      new Pool(USDC, DAI, FeeAmount.MEDIUM, encodeSqrtRatioX64(1, 1), 0, 0, []);
+      new Pool({
+        tokenA: USDC,
+        tokenB: DAI,
+        fee: FeeAmount.MEDIUM,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: 0,
+        tickCurrent: 0,
+        ticks: []
+      });
     });
 
     it("works with valid arguments for empty pool low fee", () => {
-      new Pool(USDC, DAI, FeeAmount.LOW, encodeSqrtRatioX64(1, 1), 0, 0, []);
+      new Pool({
+        tokenA: USDC,
+        tokenB: DAI,
+        fee: FeeAmount.LOW,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: 0,
+        tickCurrent: 0,
+        ticks: []
+      });
     });
 
     it("works with valid arguments for empty pool high fee", () => {
-      new Pool(USDC, DAI, FeeAmount.HIGH, encodeSqrtRatioX64(1, 1), 0, 0, []);
+      new Pool({
+        tokenA: USDC,
+        tokenB: DAI,
+        fee: FeeAmount.HIGH,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: 0,
+        tickCurrent: 0,
+        ticks: []
+      });
     });
   });
 
   describe("#tokenA", () => {
     it("always is the token that sorts before", () => {
-      let pool = new Pool(
-        USDC,
-        DAI,
-        FeeAmount.LOW,
-        encodeSqrtRatioX64(1, 1),
-        0,
-        0,
-        []
-      );
+      let pool = new Pool({
+        tokenA: USDC,
+        tokenB: DAI,
+        fee: FeeAmount.LOW,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: 0,
+        tickCurrent: 0,
+        ticks: []
+      });
       expect(pool.tokenA).toEqual(DAI);
-      pool = new Pool(
-        DAI,
-        USDC,
-        FeeAmount.LOW,
-        encodeSqrtRatioX64(1, 1),
-        0,
-        0,
-        []
-      );
+      pool = new Pool({
+        tokenA: DAI,
+        tokenB: USDC,
+        fee: FeeAmount.LOW,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: 0,
+        tickCurrent: 0,
+        ticks: []
+      });
       expect(pool.tokenA).toEqual(DAI);
     });
   });
   describe("#tokenB", () => {
     it("always is the token that sorts after", () => {
-      let pool = new Pool(
-        USDC,
-        DAI,
-        FeeAmount.LOW,
-        encodeSqrtRatioX64(1, 1),
-        0,
-        0,
-        []
-      );
+      let pool = new Pool({
+        tokenA: USDC,
+        tokenB: DAI,
+        fee: FeeAmount.LOW,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: 0,
+        tickCurrent: 0,
+        ticks: []
+      });
       expect(pool.tokenB).toEqual(USDC);
-      pool = new Pool(
-        DAI,
-        USDC,
-        FeeAmount.LOW,
-        encodeSqrtRatioX64(1, 1),
-        0,
-        0,
-        []
-      );
+      pool = new Pool({
+        tokenA: DAI,
+        tokenB: USDC,
+        fee: FeeAmount.LOW,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: 0,
+        tickCurrent: 0,
+        ticks: []
+      });
       expect(pool.tokenB).toEqual(USDC);
     });
   });
@@ -140,26 +172,26 @@ describe("Pool", () => {
   describe("#tokenAPrice", () => {
     it("returns price of tokenA in terms of tokenB", () => {
       expect(
-        new Pool(
-          USDC,
-          DAI,
-          FeeAmount.LOW,
-          encodeSqrtRatioX64(101e6, 100e18),
-          0,
-          TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
-          []
-        ).tokenAPrice.toSignificant(5)
+        new Pool({
+          tokenA: USDC,
+          tokenB: DAI,
+          fee: FeeAmount.LOW,
+          sqrtPriceX64: encodeSqrtRatioX64(101e6, 100e18),
+          liquidity: 0,
+          tickCurrent: TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
+          ticks: []
+        }).tokenAPrice.toSignificant(5)
       ).toEqual("1.01");
       expect(
-        new Pool(
-          DAI,
-          USDC,
-          FeeAmount.LOW,
-          encodeSqrtRatioX64(101e6, 100e18),
-          0,
-          TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
-          []
-        ).tokenAPrice.toSignificant(5)
+        new Pool({
+          tokenA: DAI,
+          tokenB: USDC,
+          fee: FeeAmount.LOW,
+          sqrtPriceX64: encodeSqrtRatioX64(101e6, 100e18),
+          liquidity: 0,
+          tickCurrent: TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
+          ticks: []
+        }).tokenAPrice.toSignificant(5)
       ).toEqual("1.01");
     });
   });
@@ -167,40 +199,40 @@ describe("Pool", () => {
   describe("#tokenBPrice", () => {
     it("returns price of tokenB in terms of tokenA", () => {
       expect(
-        new Pool(
-          USDC,
-          DAI,
-          FeeAmount.LOW,
-          encodeSqrtRatioX64(101e6, 100e18),
-          0,
-          TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
-          []
-        ).tokenBPrice.toSignificant(5)
+        new Pool({
+          tokenA: USDC,
+          tokenB: DAI,
+          fee: FeeAmount.LOW,
+          sqrtPriceX64: encodeSqrtRatioX64(101e6, 100e18),
+          liquidity: 0,
+          tickCurrent: TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
+          ticks: []
+        }).tokenBPrice.toSignificant(5)
       ).toEqual("0.9901");
       expect(
-        new Pool(
-          DAI,
-          USDC,
-          FeeAmount.LOW,
-          encodeSqrtRatioX64(101e6, 100e18),
-          0,
-          TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
-          []
-        ).tokenBPrice.toSignificant(5)
+        new Pool({
+          tokenA: DAI,
+          tokenB: USDC,
+          fee: FeeAmount.LOW,
+          sqrtPriceX64: encodeSqrtRatioX64(101e6, 100e18),
+          liquidity: 0,
+          tickCurrent: TickMath.getTickAtSqrtRatio(encodeSqrtRatioX64(101e6, 100e18)),
+          ticks: []
+        }).tokenBPrice.toSignificant(5)
       ).toEqual("0.9901");
     });
   });
 
   describe("#priceOf", () => {
-    const pool = new Pool(
-      USDC,
-      DAI,
-      FeeAmount.LOW,
-      encodeSqrtRatioX64(1, 1),
-      0,
-      0,
-      []
-    );
+    const pool = new Pool({
+      tokenA: USDC,
+      tokenB: DAI,
+      fee: FeeAmount.LOW,
+      sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+      liquidity: 0,
+      tickCurrent: 0,
+      ticks: []
+    });
     it("returns price of token in terms of other token", () => {
       expect(pool.priceOf(DAI)).toEqual(pool.tokenAPrice);
       expect(pool.priceOf(USDC)).toEqual(pool.tokenBPrice);
@@ -212,15 +244,15 @@ describe("Pool", () => {
   });
 
   describe("#involvesToken", () => {
-    const pool = new Pool(
-      USDC,
-      DAI,
-      FeeAmount.LOW,
-      encodeSqrtRatioX64(1, 1),
-      0,
-      0,
-      []
-    );
+    const pool = new Pool({
+      tokenA: USDC,
+      tokenB: DAI,
+      fee: FeeAmount.LOW,
+      sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+      liquidity: 0,
+      tickCurrent: 0,
+      ticks: []
+    });
     expect(pool.involvesToken(USDC)).toEqual(true);
     expect(pool.involvesToken(DAI)).toEqual(true);
   });
@@ -229,16 +261,16 @@ describe("Pool", () => {
     let pool: Pool;
 
     beforeEach(() => {
-      pool = new Pool(
-        USDC,
-        DAI,
-        FeeAmount.LOW,
-        encodeSqrtRatioX64(1, 1),
-        ONE_ETHER,
-        0,
-        [
+      pool = new Pool({
+        tokenA: USDC,
+        tokenB: DAI,
+        fee: FeeAmount.LOW,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: ONE_ETHER,
+        tickCurrent: 0,
+        ticks: [
           {
-            index: nearestUsableTick(
+            id: nearestUsableTick(
               TickMath.MIN_TICK,
               TICK_SPACINGS[FeeAmount.LOW]
             ),
@@ -246,7 +278,7 @@ describe("Pool", () => {
             liquidityGross: ONE_ETHER,
           },
           {
-            index: nearestUsableTick(
+            id: nearestUsableTick(
               TickMath.MAX_TICK,
               TICK_SPACINGS[FeeAmount.LOW]
             ),
@@ -254,7 +286,7 @@ describe("Pool", () => {
             liquidityGross: ONE_ETHER,
           },
         ]
-      );
+      });
     });
 
     describe("#getOutputAmount", () => {
@@ -301,16 +333,16 @@ describe("Pool", () => {
       JSBI.BigInt(1)
     );
     beforeEach(() => {
-      pool = new Pool(
-        USDC,
-        DAI,
-        FeeAmount.LOW,
-        encodeSqrtRatioX64(bigNum1, bigNum2),
-        ONE_ETHER,
-        0,
-        [
+      pool = new Pool({
+        tokenA: USDC,
+        tokenB: DAI,
+        fee: FeeAmount.LOW,
+        sqrtPriceX64: encodeSqrtRatioX64(bigNum1, bigNum2),
+        liquidity: ONE_ETHER,
+        tickCurrent: 0,
+        ticks: [
           {
-            index: nearestUsableTick(
+            id: nearestUsableTick(
               TickMath.MIN_TICK,
               TICK_SPACINGS[FeeAmount.LOW]
             ),
@@ -318,7 +350,7 @@ describe("Pool", () => {
             liquidityGross: ONE_ETHER,
           },
           {
-            index: nearestUsableTick(
+            id: nearestUsableTick(
               TickMath.MAX_TICK,
               TICK_SPACINGS[FeeAmount.LOW]
             ),
@@ -326,7 +358,7 @@ describe("Pool", () => {
             liquidityGross: ONE_ETHER,
           },
         ]
-      );
+      });
     });
 
     describe("#priceLimit", () => {
