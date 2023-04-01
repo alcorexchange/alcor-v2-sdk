@@ -14,15 +14,15 @@ describe.skip("Position", () => {
   const POOL_SQRT_RATIO_START = encodeSqrtRatioX64(100e6, 100e18);
   const POOL_TICK_CURRENT = TickMath.getTickAtSqrtRatio(POOL_SQRT_RATIO_START);
   const TICK_SPACING = TICK_SPACINGS[FeeAmount.LOW];
-  const DAI_USDC_POOL = new Pool(
-    DAI,
-    USDC,
-    FeeAmount.LOW,
-    POOL_SQRT_RATIO_START,
-    0,
-    POOL_TICK_CURRENT,
-    []
-  );
+  const DAI_USDC_POOL = new Pool({
+    tokenA: DAI,
+    tokenB: USDC,
+    fee: FeeAmount.LOW,
+    sqrtPriceX64: POOL_SQRT_RATIO_START,
+    liquidity: 0,
+    tickCurrent: POOL_TICK_CURRENT,
+    ticks: []
+  });
 
   it("can be constructed around 0 tick", () => {
     const position = new Position({
@@ -322,15 +322,15 @@ describe.skip("Position", () => {
 
       it("is correct for pool at min price", () => {
         const position = new Position({
-          pool: new Pool(
-            DAI,
-            USDC,
-            FeeAmount.LOW,
-            TickMath.MIN_SQRT_RATIO,
-            0,
-            TickMath.MIN_TICK,
-            []
-          ),
+          pool: new Pool({
+            tokenA: DAI,
+            tokenB: USDC,
+            fee: FeeAmount.LOW,
+            sqrtPriceX64: TickMath.MIN_SQRT_RATIO,
+            liquidity: 0,
+            tickCurrent: TickMath.MIN_TICK,
+            ticks: []
+          }),
           liquidity: 100e18,
           tickLower:
             nearestUsableTick(POOL_TICK_CURRENT, TICK_SPACING) + TICK_SPACING,
@@ -347,15 +347,15 @@ describe.skip("Position", () => {
 
       it("is correct for pool at max price", () => {
         const position = new Position({
-          pool: new Pool(
-            DAI,
-            USDC,
-            FeeAmount.LOW,
-            JSBI.subtract(TickMath.MAX_SQRT_RATIO, JSBI.BigInt(1)),
-            0,
-            TickMath.MAX_TICK - 1,
-            []
-          ),
+          pool: new Pool({
+            tokenA: DAI,
+            tokenB: USDC,
+            fee: FeeAmount.LOW,
+            sqrtPriceX64: JSBI.subtract(TickMath.MAX_SQRT_RATIO, JSBI.BigInt(1)),
+            liquidity: 0,
+            tickCurrent: TickMath.MAX_TICK - 1,
+            ticks: []
+          }),
           liquidity: 100e18,
           tickLower:
             nearestUsableTick(POOL_TICK_CURRENT, TICK_SPACING) + TICK_SPACING,
@@ -487,15 +487,15 @@ describe.skip("Position", () => {
 
       it("is correct for pool at min price", () => {
         const position = new Position({
-          pool: new Pool(
-            DAI,
-            USDC,
-            FeeAmount.LOW,
-            TickMath.MIN_SQRT_RATIO,
-            0,
-            TickMath.MIN_TICK,
-            []
-          ),
+          pool: new Pool({
+            tokenA: DAI,
+            tokenB: USDC,
+            fee: FeeAmount.LOW,
+            sqrtPriceX64: TickMath.MIN_SQRT_RATIO,
+            liquidity: 0,
+            tickCurrent: TickMath.MIN_TICK,
+            ticks: []
+          }),
           liquidity: 100e18,
           tickLower:
             nearestUsableTick(POOL_TICK_CURRENT, TICK_SPACING) + TICK_SPACING,
@@ -512,15 +512,15 @@ describe.skip("Position", () => {
 
       it("is correct for pool at max price", () => {
         const position = new Position({
-          pool: new Pool(
-            DAI,
-            USDC,
-            FeeAmount.LOW,
-            JSBI.subtract(TickMath.MAX_SQRT_RATIO, JSBI.BigInt(1)),
-            0,
-            TickMath.MAX_TICK - 1,
-            []
-          ),
+          pool: new Pool({
+            tokenA: DAI,
+            tokenB: USDC,
+            fee: FeeAmount.LOW,
+            sqrtPriceX64: JSBI.subtract(TickMath.MAX_SQRT_RATIO, JSBI.BigInt(1)),
+            liquidity: 0,
+            tickCurrent: TickMath.MAX_TICK - 1,
+            ticks: []
+          }),
           liquidity: 100e18,
           tickLower:
             nearestUsableTick(POOL_TICK_CURRENT, TICK_SPACING) + TICK_SPACING,
