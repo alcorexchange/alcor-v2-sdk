@@ -1,0 +1,276 @@
+{
+  "rows": [{
+      "id": 0,
+      "active": 1,
+      "tokenA": {
+        "quantity": "1314.5472 TLM",
+        "contract": "alien.worlds"
+      },
+      "tokenB": {
+        "quantity": "382.26789500 WAX",
+        "contract": "eosio.token"
+      },
+      "fee": 3000,
+      "feeProtocol": 0,
+      "tickSpacing": 60,
+      "maxLiquidityPerTick": "1247497401346422",
+      "currSlot": {
+        "sqrtPriceX64": "991708566516390553386",
+        "tick": 79694,
+        "lastObservationTimestamp": 1679381679,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": "61073176049015218",
+      "feeGrowthGlobalBX64": "12363045903005557614",
+      "protocolFeeA": "0.0000 TLM",
+      "protocolFeeB": "0.00000000 WAX",
+      "liquidity": "8156336317"
+    },{
+      "id": 1,
+      "active": 1,
+      "tokenA": {
+        "quantity": "2.567 AURI",
+        "contract": "1auriantoken"
+      },
+      "tokenB": {
+        "quantity": "12.6133 TLM",
+        "contract": "alien.worlds"
+      },
+      "fee": 3000,
+      "feeProtocol": 0,
+      "tickSpacing": 60,
+      "maxLiquidityPerTick": "1247497401346422",
+      "currSlot": {
+        "sqrtPriceX64": "58720362839899564841",
+        "tick": 23159,
+        "lastObservationTimestamp": 1679502630,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": "166384683957627",
+      "feeGrowthGlobalBX64": "2752279980465775",
+      "protocolFeeA": "0.000 AURI",
+      "protocolFeeB": "0.0000 TLM",
+      "liquidity": 2660833
+    },{
+      "id": 2,
+      "active": 1,
+      "tokenA": {
+        "quantity": "594.9239 TLM",
+        "contract": "alien.worlds"
+      },
+      "tokenB": {
+        "quantity": "127.00796966 WAX",
+        "contract": "eosio.token"
+      },
+      "fee": 10000,
+      "feeProtocol": 0,
+      "tickSpacing": 200,
+      "maxLiquidityPerTick": "4157481197590613",
+      "currSlot": {
+        "sqrtPriceX64": "975564656570664666461",
+        "tick": 79366,
+        "lastObservationTimestamp": 1679681200,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": "1821398004233484",
+      "feeGrowthGlobalBX64": "424632741919913791",
+      "protocolFeeA": "0.0000 TLM",
+      "protocolFeeB": "0.00000000 WAX",
+      "liquidity": "7226194136"
+    },{
+      "id": 3,
+      "active": 1,
+      "tokenA": {
+        "quantity": "0.0183 TLM",
+        "contract": "alien.worlds"
+      },
+      "tokenB": {
+        "quantity": "62.50448285 WAX",
+        "contract": "eosio.token"
+      },
+      "fee": 500,
+      "feeProtocol": 0,
+      "tickSpacing": 10,
+      "maxLiquidityPerTick": "207904516930692",
+      "currSlot": {
+        "sqrtPriceX64": "846996484997384679810",
+        "tick": 76540,
+        "lastObservationTimestamp": 1680112629,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": "10076192982494",
+      "feeGrowthGlobalBX64": "81972777076841212",
+      "protocolFeeA": "0.0000 TLM",
+      "protocolFeeB": "0.00000000 WAX",
+      "liquidity": 0
+    },{
+      "id": 4,
+      "active": 1,
+      "tokenA": {
+        "quantity": "63.35380794 WAX",
+        "contract": "eosio.token"
+      },
+      "tokenB": {
+        "quantity": "159.02214649 CMX",
+        "contract": "token.mf"
+      },
+      "fee": 3000,
+      "feeProtocol": 0,
+      "tickSpacing": 60,
+      "maxLiquidityPerTick": "1247497401346422",
+      "currSlot": {
+        "sqrtPriceX64": "35384012338723553705",
+        "tick": 13028,
+        "lastObservationTimestamp": 1680272401,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": "195959741376088",
+      "feeGrowthGlobalBX64": 0,
+      "protocolFeeA": "0.00000000 WAX",
+      "protocolFeeB": "0.00000000 CMX",
+      "liquidity": "143680614039"
+    },{
+      "id": 5,
+      "active": 1,
+      "tokenA": {
+        "quantity": "38.85194390 WAX",
+        "contract": "eosio.token"
+      },
+      "tokenB": {
+        "quantity": "53.16698469 CMX",
+        "contract": "token.mf"
+      },
+      "fee": 500,
+      "feeProtocol": 0,
+      "tickSpacing": 10,
+      "maxLiquidityPerTick": "207904516930692",
+      "currSlot": {
+        "sqrtPriceX64": "35318676081364719585",
+        "tick": 12991,
+        "lastObservationTimestamp": 1680272464,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": "44497641052789",
+      "feeGrowthGlobalBX64": "11120158110407",
+      "protocolFeeA": "0.00000000 WAX",
+      "protocolFeeB": "0.00000000 CMX",
+      "liquidity": "308013115651"
+    },{
+      "id": 6,
+      "active": 1,
+      "tokenA": {
+        "quantity": "52.60568011 WAX",
+        "contract": "eosio.token"
+      },
+      "tokenB": {
+        "quantity": "212.16243115 CMX",
+        "contract": "token.mf"
+      },
+      "fee": 10000,
+      "feeProtocol": 0,
+      "tickSpacing": 200,
+      "maxLiquidityPerTick": "4157481197590613",
+      "currSlot": {
+        "sqrtPriceX64": "35625261329880876787",
+        "tick": 13164,
+        "lastObservationTimestamp": 1680272562,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": 0,
+      "feeGrowthGlobalBX64": 0,
+      "protocolFeeA": "0.00000000 WAX",
+      "protocolFeeB": "0.00000000 CMX",
+      "liquidity": "72648854818"
+    },{
+      "id": 7,
+      "active": 1,
+      "tokenA": {
+        "quantity": "219.0515 TLM",
+        "contract": "alien.worlds"
+      },
+      "tokenB": {
+        "quantity": "219.87743407 CMX",
+        "contract": "token.mf"
+      },
+      "fee": 3000,
+      "feeProtocol": 0,
+      "tickSpacing": 60,
+      "maxLiquidityPerTick": "1247497401346422",
+      "currSlot": {
+        "sqrtPriceX64": "1862078609064050296734",
+        "tick": 92295,
+        "lastObservationTimestamp": 1680285053,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": "8856712368873",
+      "feeGrowthGlobalBX64": 0,
+      "protocolFeeA": "0.0000 TLM",
+      "protocolFeeB": "0.00000000 CMX",
+      "liquidity": 775736962
+    },{
+      "id": 8,
+      "active": 1,
+      "tokenA": {
+        "quantity": "34.9838 TLM",
+        "contract": "alien.worlds"
+      },
+      "tokenB": {
+        "quantity": "66.73971733 CMX",
+        "contract": "token.mf"
+      },
+      "fee": 500,
+      "feeProtocol": 0,
+      "tickSpacing": 10,
+      "maxLiquidityPerTick": "207904516930692",
+      "currSlot": {
+        "sqrtPriceX64": "1858234166300152891562",
+        "tick": 92254,
+        "lastObservationTimestamp": 1680357774,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": 0,
+      "feeGrowthGlobalBX64": "6783693046124036",
+      "protocolFeeA": "0.0000 TLM",
+      "protocolFeeB": "0.00000000 CMX",
+      "liquidity": 2057723535
+    },{
+      "id": 9,
+      "active": 1,
+      "tokenA": {
+        "quantity": "275.8218 TLM",
+        "contract": "alien.worlds"
+      },
+      "tokenB": {
+        "quantity": "235.38591033 CMX",
+        "contract": "token.mf"
+      },
+      "fee": 10000,
+      "feeProtocol": 0,
+      "tickSpacing": 200,
+      "maxLiquidityPerTick": "4157481197590613",
+      "currSlot": {
+        "sqrtPriceX64": "1844673594537660054688",
+        "tick": 92108,
+        "lastObservationTimestamp": 1680357849,
+        "currentObservationNum": 1,
+        "maxObservationNum": 1
+      },
+      "feeGrowthGlobalAX64": 0,
+      "feeGrowthGlobalBX64": 0,
+      "protocolFeeA": "0.0000 TLM",
+      "protocolFeeB": "0.00000000 CMX",
+      "liquidity": 922913698
+    }
+  ],
+  "more": false,
+  "next_key": ""
+}
