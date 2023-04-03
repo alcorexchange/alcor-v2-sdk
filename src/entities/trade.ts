@@ -611,13 +611,13 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       // we have arrived at the input token, so this is the first trade of one of the paths
       if (amountIn.currency.equals(tokenIn)) {
         const trade = await Trade.fromRoute(
-            new Route([pool, ...currentPools], currencyIn, currencyAmountOut.currency),
-            currencyAmountOut,
-            TradeType.EXACT_OUTPUT
-          )
+          new Route([pool, ...currentPools], currencyIn, currencyAmountOut.currency),
+          currencyAmountOut,
+          TradeType.EXACT_OUTPUT
+        )
 
         // FIX hotfix, i do not really sure about it
-        if (trade.priceImpact.lessThan(0)) continue
+        if (!trade.inputAmount.greaterThan(0) || trade.priceImpact.lessThan(0)) continue
         //
 
         sortedInsert(
