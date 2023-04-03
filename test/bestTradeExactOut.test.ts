@@ -54,18 +54,19 @@ describe("test", () => {
         parseToken(token0),
         100_0000
       );
+
       const [bestExactIn] = await Trade.bestTradeExactIn(
         pools,
         currencyAmountIn,
         parseToken(token1)
       );
 
-      console.log(
-        "100.0000 TLM -> ",
-        bestExactIn.outputAmount.toAsset(),
-        "| priceImpact:",
-        bestExactIn.priceImpact.toFixed()
-      );
+      // console.log(
+      //   "100.0000 TLM -> ",
+      //   bestExactIn.outputAmount.toAsset(),
+      //   "| priceImpact:",
+      //   bestExactIn.priceImpact.toFixed()
+      // );
 
       const currencyAmountOut = bestExactIn.outputAmount;
       const [bestExactOut] = await Trade.bestTradeExactOut(
@@ -73,14 +74,16 @@ describe("test", () => {
         parseToken(token0),
         currencyAmountOut
       );
-      console.log(currencyAmountOut.toAsset());
-      console.log(
-        bestExactOut.outputAmount.toAsset(),
-        "->",
-        bestExactOut.inputAmount.toAsset(),
-        "| priceImpact:",
-        bestExactOut.priceImpact.toFixed()
-      );
+      // console.log(currencyAmountOut.toAsset());
+      // console.log(
+      //   bestExactOut.outputAmount.toAsset(),
+      //   "->",
+      //   bestExactOut.inputAmount.toAsset(),
+      //   "| priceImpact:",
+      //   bestExactOut.priceImpact.toFixed()
+      // );
+
+      expect(currencyAmountIn.toAsset()).toEqual(bestExactOut.inputAmount.toAsset());
     });
   });
 });

@@ -610,13 +610,17 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       }
       // we have arrived at the input token, so this is the first trade of one of the paths
       if (amountIn.currency.equals(tokenIn)) {
-        sortedInsert(
-          bestTrades,
-          await Trade.fromRoute(
+        const trade = await Trade.fromRoute(
             new Route([pool, ...currentPools], currencyIn, currencyAmountOut.currency),
             currencyAmountOut,
             TradeType.EXACT_OUTPUT
-          ),
+          )
+
+        if (trade.priceImpact.lessThan(0)) continue
+
+        sortedInsert(
+          bestTrades,
+          trade,
           maxNumResults,
           tradeComparator
         )
