@@ -616,7 +616,9 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
             TradeType.EXACT_OUTPUT
           )
 
+        // FIX hotfix, i do not really sure about it
         if (trade.priceImpact.lessThan(0)) continue
+        //
 
         sortedInsert(
           bestTrades,
