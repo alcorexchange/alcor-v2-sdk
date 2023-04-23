@@ -42,7 +42,6 @@
     "big.js": "^5.2.2",
     "decimal.js-light": "^2.5.0",
     "eos-common": "^0.12.0",
-    "eosjs-account-name": "2.3.0",
     "jsbi": "^4.3.0",
     "tiny-invariant": "^1.1.0",
     "tiny-warning": "^1.0.3",
