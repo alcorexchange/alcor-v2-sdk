@@ -2,6 +2,7 @@ import invariant from "tiny-invariant";
 import { BaseCurrency } from "./baseCurrency";
 import { nameToUint64 } from "eosjs-account-name";
 import JSBI from "jsbi";
+import { symbol, name } from "eos-common"
 
 /**
  * Represents an ERC20 token with a unique address and some metadata.
@@ -43,8 +44,9 @@ export class Token extends BaseCurrency {
    * Returns true if the address of this token sorts before the address of the other token
    * @param other other token to compare
    * @throws if the tokens have the same contract and symbol
+   * @dev deprecated function
    */
-  public sortsBefore(other: Token): boolean {
+  public sortsBefore0(other: Token): boolean {
     if (this.contract === other.contract) {
       invariant(this.symbol !== other.symbol, "SYMBOLS");
       return this.symbol.toLowerCase() < other.symbol.toLowerCase();
@@ -52,6 +54,23 @@ export class Token extends BaseCurrency {
       return JSBI.lessThan(
         JSBI.BigInt(nameToUint64(this.contract)),
         JSBI.BigInt(nameToUint64(other.contract))
+      );
+    }
+  }
+
+  public sortsBefore(other: Token): boolean {
+    if (this.contract === other.contract) {
+      invariant(this.symbol !== other.symbol, "SYMBOLS");
+      const token0Symbol = symbol(this.symbol, this.decimals);
+      const token1Symbol = symbol(other.symbol, other.decimals);
+      return JSBI.lessThan(
+        JSBI.BigInt(token0Symbol.raw()), 
+        JSBI.BigInt(token1Symbol.raw())
+      );
+    } else {
+      return JSBI.lessThan(
+        JSBI.BigInt(name(this.contract).raw()),
+        JSBI.BigInt(name(other.contract).raw())
       );
     }
   }

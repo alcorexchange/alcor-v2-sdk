@@ -39,4 +39,33 @@ describe("Token", () => {
       expect(tokenA.equals(tokenB)).toBe(true);
     });
   });
+
+  describe("#sortsBefore", () => {
+    it("correct cases", () => {
+     
+      expect(
+        new Token('eosio.token', 4, "TLOS").sortsBefore(
+          new Token('vapaeetokens', 6, "GUX")
+        )
+      ).toBe(true);
+
+      // expect(
+      //   new Token('eosio.token', 4, "TLOS").sortsBefore0(
+      //     new Token('vapaeetokens', 6, "GUX")
+      //   )
+      // ).toBe(true);
+
+      expect(
+        new Token('vapaeetokens', 0, "SEXCOIN").sortsBefore(
+          new Token('vapaeetokens', 0, "PRTYFUN")
+        )
+      ).toBe(true);
+
+      // expect(
+      //   new Token('vapaeetokens', 0, "SEXCOIN").sortsBefore0(
+      //     new Token('vapaeetokens', 0, "PRTYFUN")
+      //   )
+      // ).toBe(false);
+    });
+  });
 });
