@@ -53,7 +53,7 @@ async function main() {
   const receiver = 'myaccount'
 
   // First trade sorted by biggest output
-  const [trade] = await Trade.bestTradeExactIn(pools, amountIn, tokenOut)
+  const [trade] = await Trade.bestTradeExactIn(pools, amountIn, tokenOut, { maxHops: 4 })
 
   const route = trade.route.pools.map(p => p.id)
 
