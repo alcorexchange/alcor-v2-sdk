@@ -1,4 +1,5 @@
 import fetch from 'node-fetch'
+import { fetchAllRows } from './utils/rpc'
 
 // Alcor v2 sdk: https://github.com/alcorexchange/alcor-v2-sdk
 import { Token, Pool, Trade, CurrencyAmount, Percent } from '../src'
@@ -15,10 +16,10 @@ export function parseToken(token) {
   )
 }
 
-const rpc = new JsonRpc('https://eosnode.alcor.exchange', { fetch });
+const rpc = new JsonRpc('https://waxnode02.alcor.exchange', { fetch });
 
 async function main() {
-  const { rows } = await rpc.get_table_rows({
+  const rows = await fetchAllRows(rpc, {
     scope: 'swap.alcor',
     table: 'pools',
     code: 'swap.alcor',
@@ -30,7 +31,7 @@ async function main() {
   for (const p of rows) {
     const { id, tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = p
 
-    const { rows: ticks } = await rpc.get_table_rows({
+    const ticks = await fetchAllRows(rpc, {
       scope: id,
       table: 'ticks',
       code: 'swap.alcor',
@@ -53,7 +54,7 @@ async function main() {
   const receiver = 'myaccount'
 
   // First trade sorted by biggest output
-  const [trade] = await Trade.bestTradeExactIn(pools, amountIn, tokenOut, { maxHops: 4 })
+  const [trade] = await Trade.bestTradeExactIn(pools, amountIn, tokenOut, { maxHops: 3 })
 
   const route = trade.route.pools.map(p => p.id)
 
