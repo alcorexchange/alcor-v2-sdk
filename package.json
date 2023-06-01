@@ -1,6 +1,6 @@
 {
   "name": "@alcorexchange/alcor-swap-sdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "build/index.js",
   "scripts": {
@@ -15,7 +15,13 @@
     "type": "git",
     "url": "git+https://github.com/alcorexchange/alcor-v2-sdk"
   },
-  "keywords": ["alcor", "antelope", "eosio", "amm", "dex"],
+  "keywords": [
+    "alcor",
+    "antelope",
+    "eosio",
+    "amm",
+    "dex"
+  ],
   "author": "alcorexchange",
   "license": "ISC",
   "bugs": {
