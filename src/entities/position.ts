@@ -20,7 +20,9 @@ interface PositionConstructorArgs {
   tickUpper: number;
   liquidity: BigintIsh;
   feeGrowthInsideALastX64: BigintIsh,
-  feeGrowthInsideBLastX64: BigintIsh
+  feeGrowthInsideBLastX64: BigintIsh,
+  feesA: BigintIsh,
+  feesB: BigintIsh,
 }
 
 interface Fees {
@@ -35,6 +37,8 @@ export class Position {
   public readonly tickLower: number;
   public readonly tickUpper: number;
   public readonly liquidity: JSBI;
+  public readonly feesA: JSBI;
+  public readonly feesB: JSBI;
   public readonly feeGrowthInsideALastX64: JSBI;
   public readonly feeGrowthInsideBLastX64: JSBI;
 
@@ -60,6 +64,8 @@ export class Position {
     tickUpper,
     feeGrowthInsideALastX64 = 0,
     feeGrowthInsideBLastX64 = 0,
+    feesA = 0,
+    feesB = 0,
   }: PositionConstructorArgs) {
     invariant(tickLower < tickUpper, "TICK_ORDER");
     invariant(
@@ -79,6 +85,8 @@ export class Position {
     this.liquidity = JSBI.BigInt(liquidity);
     this.feeGrowthInsideALastX64 = JSBI.BigInt(feeGrowthInsideALastX64);
     this.feeGrowthInsideBLastX64 = JSBI.BigInt(feeGrowthInsideBLastX64);
+    this.feesA = JSBI.BigInt(feesA)
+    this.feesB = JSBI.BigInt(feesB)
   }
 
   public get inRange(): boolean {
@@ -260,6 +268,8 @@ export class Position {
       useFullPrecision: false,
       feeGrowthInsideALastX64: this.feeGrowthInsideALastX64,
       feeGrowthInsideBLastX64: this.feeGrowthInsideBLastX64,
+      feesA: this.feesA,
+      feesB: this.feesB,
     });
 
     // we want the smaller amounts...
@@ -273,6 +283,8 @@ export class Position {
       tickUpper: this.tickUpper,
       feeGrowthInsideALastX64: this.feeGrowthInsideALastX64,
       feeGrowthInsideBLastX64: this.feeGrowthInsideBLastX64,
+      feesA: this.feesA,
+      feesB: this.feesB,
     }).mintAmounts;
     // ...and the lower for amountB
     const { amountB } = new Position({
@@ -284,6 +296,8 @@ export class Position {
       tickUpper: this.tickUpper,
       feeGrowthInsideALastX64: this.feeGrowthInsideALastX64,
       feeGrowthInsideBLastX64: this.feeGrowthInsideBLastX64,
+      feesA: this.feesA,
+      feesB: this.feesB,
     }).mintAmounts;
 
     return { amountA, amountB };
@@ -339,6 +353,8 @@ export class Position {
       tickUpper: this.tickUpper,
       feeGrowthInsideALastX64: this.feeGrowthInsideALastX64,
       feeGrowthInsideBLastX64: this.feeGrowthInsideBLastX64,
+      feesA: this.feesA,
+      feesB: this.feesB,
     }).amountA;
     // ...and the lower for amountB
     const amountB = new Position({
@@ -350,6 +366,8 @@ export class Position {
       tickUpper: this.tickUpper,
       feeGrowthInsideALastX64: this.feeGrowthInsideALastX64,
       feeGrowthInsideBLastX64: this.feeGrowthInsideBLastX64,
+      feesA: this.feesA,
+      feesB: this.feesB,
     }).amountB;
 
     return { amountA: amountA, amountB: amountB };
@@ -424,6 +442,8 @@ export class Position {
     useFullPrecision,
     feeGrowthInsideALastX64,
     feeGrowthInsideBLastX64,
+    feesA,
+    feesB
   }: {
     id: number,
     owner: string,
@@ -434,7 +454,9 @@ export class Position {
     amountB: BigintIsh;
     useFullPrecision: boolean;
     feeGrowthInsideALastX64: | BigintIsh,
-    feeGrowthInsideBLastX64: | BigintIsh
+    feeGrowthInsideBLastX64: | BigintIsh,
+    feesA: BigintIsh,
+    feesB: BigintIsh
   }) {
     const sqrtRatioLX64 = TickMath.getSqrtRatioAtTick(tickLower);
     const sqrtRatioUX64 = TickMath.getSqrtRatioAtTick(tickUpper);
@@ -453,7 +475,9 @@ export class Position {
         useFullPrecision
       ),
       feeGrowthInsideALastX64,
-      feeGrowthInsideBLastX64
+      feeGrowthInsideBLastX64,
+      feesA,
+      feesB
     });
   }
 
@@ -476,7 +500,9 @@ export class Position {
     amountA,
     useFullPrecision,
     feeGrowthInsideALastX64,
-    feeGrowthInsideBLastX64
+    feeGrowthInsideBLastX64,
+    feesA,
+    feesB
   }: {
     id: number,
     owner: string,
@@ -487,6 +513,8 @@ export class Position {
     useFullPrecision: boolean;
     feeGrowthInsideALastX64: | BigintIsh;
     feeGrowthInsideBLastX64: | BigintIsh;
+    feesA: | BigintIsh;
+    feesB: | BigintIsh;
   }) {
     return Position.fromAmounts({
       id,
@@ -498,7 +526,9 @@ export class Position {
       amountB: MaxUint64,
       useFullPrecision,
       feeGrowthInsideALastX64,
-      feeGrowthInsideBLastX64
+      feeGrowthInsideBLastX64,
+      feesA,
+      feesB
     });
   }
 
@@ -519,6 +549,8 @@ export class Position {
     amountB,
     feeGrowthInsideALastX64,
     feeGrowthInsideBLastX64,
+    feesA,
+    feesB
   }: {
     id: number,
     owner: string,
@@ -528,6 +560,8 @@ export class Position {
     amountB: BigintIsh;
     feeGrowthInsideALastX64: | BigintIsh;
     feeGrowthInsideBLastX64: | BigintIsh;
+    feesA: BigintIsh
+    feesB: BigintIsh
   }) {
     // this function always uses full precision,
     return Position.fromAmounts({
@@ -541,6 +575,8 @@ export class Position {
       useFullPrecision: true,
       feeGrowthInsideALastX64,
       feeGrowthInsideBLastX64,
+      feesA,
+      feesB
     });
   }
 
@@ -584,8 +620,8 @@ export class Position {
     );
 
     return {
-      feesA: CurrencyAmount.fromRawAmount(this.pool.tokenA, tokensOwedA),
-      feesB: CurrencyAmount.fromRawAmount(this.pool.tokenB, tokensOwedB),
+      feesA: CurrencyAmount.fromRawAmount(this.pool.tokenA, JSBI.add(tokensOwedA, this.feesA)),
+      feesB: CurrencyAmount.fromRawAmount(this.pool.tokenB, JSBI.add(tokensOwedB, this.feesB))
     }
   }
 }
