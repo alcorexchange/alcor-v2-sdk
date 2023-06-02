@@ -43,10 +43,10 @@ async function main() {
   // Or Specific pool
   const poolRow= pools.find(p => p.id == 205)
 
-  //const { id, tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = poolRow
+  const { id, tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = poolRow
 
   // Or Specific pool
-  const { id, tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = poolRow
+  //const { id, tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = poolRow
 
   const ticks = await fetchAllRows(rpc, {
     scope: id,
@@ -63,24 +63,26 @@ async function main() {
     ticks: ticks.sort((a, b) => a.id - b.id)
   })
 
-  // const { rows: positions } = await rpc.get_table_rows({
-  //   scope: pool.id,
-  //   table: 'positions',
-  //   code: 'swap.alcor',
-  //   key_type: 'i64',
-  //   index_position: 3,
-  //   lower_bound: nameToUint64(account),
-  //   upper_bound: nameToUint64(account)
-  // })
-
-  // or Specific position by id
   const { rows: positions } = await rpc.get_table_rows({
     scope: pool.id,
     table: 'positions',
     code: 'swap.alcor',
-    lower_bound: 14235,
-    upper_bound: 14235
+
+    // TO get positions by account name
+    // key_type: 'i64',
+    // index_position: 3,
+    // lower_bound: nameToUint64(account),
+    // upper_bound: nameToUint64(account)
   })
+
+  // or Specific position by id
+  // const { rows: positions } = await rpc.get_table_rows({
+  //   scope: pool.id,
+  //   table: 'positions',
+  //   code: 'swap.alcor',
+  //   lower_bound: 14235,
+  //   upper_bound: 14235
+  // })
 
   //console.log({ pool: pool.id, positions })
 
@@ -89,8 +91,8 @@ async function main() {
     pool
   })
 
-  // console.log('amountA:', position.amountA.toAsset())
-  // console.log('amountB:', position.amountB.toAsset())
+  console.log('amountA:', position.amountA.toAsset())
+  console.log('amountB:', position.amountB.toAsset())
 
   // fees:
   const { feesA, feesB } = await position.getFees()
