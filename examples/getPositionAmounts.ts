@@ -29,7 +29,7 @@ export const nameToUint64 = (name) => {
 }
 
 async function main() {
-  const account = '3mob2.wam'
+  const account = 'alcordexfund'
 
   const pools = await fetchAllRows(rpc, {
     scope: 'swap.alcor',
@@ -38,10 +38,10 @@ async function main() {
   })
 
   // First pool for example (TLM / WAX)
-  // const poolRow= pools[0]
+  const poolRow= pools[0]
 
   // Or Specific pool
-  const poolRow= pools.find(p => p.id == 205)
+  //const poolRow= pools.find(p => p.id == 205)
 
   const { id, tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = poolRow
 

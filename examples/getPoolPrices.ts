@@ -15,7 +15,7 @@ export function parseToken(token) {
   )
 }
 
-const rpc = new JsonRpc('https://waxnode02.alcor.exchange', { fetch });
+const rpc = new JsonRpc('https://wax-api.alcor.exchange', { fetch });
 
 async function main() {
   const { rows } = await rpc.get_table_rows({

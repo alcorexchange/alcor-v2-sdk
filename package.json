@@ -48,8 +48,10 @@
     "big.js": "^5.2.2",
     "decimal.js-light": "^2.5.0",
     "eos-common": "^0.12.0",
+    "eosjs": "^22.1.0",
     "eosjs-account-name": "2.3.0",
     "jsbi": "^4.3.0",
+    "node-fetch": "2",
     "tiny-invariant": "^1.1.0",
     "tiny-warning": "^1.0.3",
     "toformat": "^2.0.0"
