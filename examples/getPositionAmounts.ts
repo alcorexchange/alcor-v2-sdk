@@ -54,6 +54,9 @@ async function main() {
     code: 'swap.alcor',
   })
 
+  console.log(JSON.stringify(ticks))
+  return
+
   const pool = new Pool({
     ...poolRow,
     tokenA: parseToken(tokenA),
