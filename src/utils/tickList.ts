@@ -31,7 +31,7 @@ export abstract class TickList {
       ZERO
     )
 
-    if (JSBI.greaterThan(totalNet, ZERO)) console.error('ZERO_NET')
+    if (!JSBI.equal(totalNet, ZERO)) console.error('ZERO_NET INVARIAN ISSUE!')
 
     // HOTFIX ignoring for now TODO
     // ensure tick liquidity deltas sum to 0
