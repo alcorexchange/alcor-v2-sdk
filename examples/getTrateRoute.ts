@@ -37,6 +37,8 @@ async function main() {
       code: 'swap.alcor',
     })
 
+    if (ticks.length == 0) continue
+
     pools.push(new Pool({
       ...p,
       tokenA: parseToken(tokenA),
