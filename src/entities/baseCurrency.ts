@@ -18,6 +18,8 @@ export abstract class BaseCurrency {
    */
   public readonly symbol: string;
 
+  public readonly id: string;
+
   /**
    * Constructs an instance of the base class `BaseCurrency`.
    * @param chainId the chain ID on which this currency resides
@@ -37,6 +39,7 @@ export abstract class BaseCurrency {
     this.contract = contract;
     this.decimals = decimals;
     this.symbol = symbol;
+    this.id = symbol.toLowerCase() + '-' + contract
   }
 
   /**

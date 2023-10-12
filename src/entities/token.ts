@@ -10,7 +10,6 @@ export class Token extends BaseCurrency {
    * @param contract {@link BaseCurrency#contract}
    * @param decimals {@link BaseCurrency#decimals}
    * @param symbol {@link BaseCurrency#symbol}
-   * @param id {@link BaseCurrency#id}
    */
   public constructor(
     contract: string,
@@ -22,10 +21,6 @@ export class Token extends BaseCurrency {
 
   public get name(): string {
     console.warn('Token.name is deprecated, use token.id')
-    return this.symbol.toLowerCase() + '-' + this.contract
-  }
-
-  public get id(): string {
     return this.symbol.toLowerCase() + '-' + this.contract
   }
 
