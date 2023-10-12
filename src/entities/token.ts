@@ -16,13 +16,16 @@ export class Token extends BaseCurrency {
     contract: string,
     decimals: number,
     symbol: string,
-    id?: string
   ) {
-    super(contract, decimals, symbol, id);
+    super(contract, decimals, symbol);
   }
 
   public get name(): string {
     console.warn('Token.name is deprecated, use token.id')
+    return this.symbol.toLowerCase() + '-' + this.contract
+  }
+
+  public get id(): string {
     return this.symbol.toLowerCase() + '-' + this.contract
   }
 
