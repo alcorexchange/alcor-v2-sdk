@@ -17,10 +17,6 @@ export abstract class BaseCurrency {
    * The symbol of the currency, i.e. a short textual non-unique identifier
    */
   public readonly symbol: string;
-  /**
-   * The id of the currency(<symbol-contract>), i.e. eos-eosio.token
-   */
-  public readonly id?: string;
 
   /**
    * Constructs an instance of the base class `BaseCurrency`.
@@ -33,7 +29,6 @@ export abstract class BaseCurrency {
     contract: string,
     decimals: number,
     symbol: string,
-    id?: string
   ) {
     invariant(
       decimals >= 0 && decimals < 19 && Number.isInteger(decimals),
@@ -42,7 +37,6 @@ export abstract class BaseCurrency {
     this.contract = contract;
     this.decimals = decimals;
     this.symbol = symbol;
-    this.id = id;
   }
 
   /**
