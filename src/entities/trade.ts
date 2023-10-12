@@ -617,7 +617,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
         )
 
         // FIX hotfix, i do not really sure about it
-        if (!trade.inputAmount.greaterThan(0) || trade.priceImpact.lessThan(0)) continue
+        if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
         //
 
         sortedInsert(
