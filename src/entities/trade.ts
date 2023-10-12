@@ -529,13 +529,18 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       }
       // we have arrived at the output token, so this is the final trade of one of the paths
       if (amountOut.currency && amountOut.currency.equals(tokenOut)) {
+        const trade = await Trade.fromRoute(
+          new Route([...currentPools, pool], currencyAmountIn.currency, currencyOut),
+          currencyAmountIn,
+          TradeType.EXACT_INPUT
+        )
+
+        //FIX hotfix, i do not really sure about it
+        if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
+
         sortedInsert(
           bestTrades,
-          await Trade.fromRoute(
-            new Route([...currentPools, pool], currencyAmountIn.currency, currencyOut),
-            currencyAmountIn,
-            TradeType.EXACT_INPUT
-          ),
+          trade,
           maxNumResults,
           tradeComparator
         )
@@ -643,6 +648,36 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
           bestTrades
         )
       }
+    }
+
+    return bestTrades
+  }
+
+  public static async bestTradeExactIn2<TInput extends Currency, TOutput extends Currency>(
+    routes: Route<TInput, TOutput>[],
+    pools: Pool[],
+    currencyAmountIn: CurrencyAmount<TInput>,
+    maxNumResults = 3,
+  ): Promise<Trade<TInput, TOutput, TradeType.EXACT_INPUT>[]> {
+    invariant(pools.length > 0, 'POOLS')
+
+    const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] = []
+
+    for (const route of routes) {
+      const trade = await Trade.fromRoute(
+        route,
+        currencyAmountIn,
+        TradeType.EXACT_INPUT
+      )
+
+      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
+
+      sortedInsert(
+        bestTrades,
+        trade,
+        maxNumResults,
+        tradeComparator
+      )
     }
 
     return bestTrades
