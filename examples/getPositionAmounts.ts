@@ -13,8 +13,7 @@ export function parseToken(token) {
   return new Token(
     token.contract,
     asset(token.quantity).symbol.precision(),
-    asset(token.quantity).symbol.code().to_string(),
-    (asset(token.quantity).symbol.code().to_string() + '-' + token.contract).toLowerCase()
+    asset(token.quantity).symbol.code().to_string()
   )
 }
 
@@ -53,9 +52,6 @@ async function main() {
     table: 'ticks',
     code: 'swap.alcor',
   })
-
-  console.log(JSON.stringify(ticks))
-  return
 
   const pool = new Pool({
     ...poolRow,

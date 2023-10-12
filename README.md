@@ -39,8 +39,7 @@ export function parseToken(token) {
   return new Token(
     token.contract,
     asset(token.quantity).symbol.precision(),
-    asset(token.quantity).symbol.code().to_string(),
-    (asset(token.quantity).symbol.code().to_string() + '-' + token.contract).toLowerCase()
+    asset(token.quantity).symbol.code().to_string()
   )
 }
 
