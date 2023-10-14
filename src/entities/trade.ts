@@ -26,7 +26,7 @@ export function tradeComparator<TInput extends Currency, TOutput extends Currenc
   invariant(a.outputAmount.currency.equals(b.outputAmount.currency), 'OUTPUT_CURRENCY')
   if (a.outputAmount.equalTo(b.outputAmount)) {
     if (a.inputAmount.equalTo(b.inputAmount)) {
-      // consider the number of hops since each hop costs gas
+      // consider the number of hops since each hop costs cpu
       const aHops = a.swaps.reduce((total, cur) => total + cur.route.tokenPath.length, 0)
       const bHops = b.swaps.reduce((total, cur) => total + cur.route.tokenPath.length, 0)
       return aHops - bHops
@@ -660,12 +660,14 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     maxNumResults = 3,
   ): Promise<Trade<TInput, TOutput, TradeType.EXACT_INPUT>[]> {
     invariant(pools.length > 0, 'POOLS')
+    const poolsMap = new Map(pools.map(p => [p.id, p]))
 
     const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] = []
-
     for (const route of routes) {
+      const freshPools = route.pools.map(p => poolsMap.get(p.id)!)
+
       const trade = await Trade.fromRoute(
-        route,
+        new Route([...freshPools], route.input, route.output),
         currencyAmountIn,
         TradeType.EXACT_INPUT
       )
