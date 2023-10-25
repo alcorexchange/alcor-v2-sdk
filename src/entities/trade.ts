@@ -657,7 +657,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     routes: Route<TInput, TOutput>[],
     pools: Pool[],
     currencyAmountIn: CurrencyAmount<TInput>,
-    maxNumResults = 3,
+    maxNumResults = 1,
   ): Promise<Trade<TInput, TOutput, TradeType.EXACT_INPUT>[]> {
     invariant(pools.length > 0, 'POOLS')
     const poolsMap = new Map(pools.map(p => [p.id, p]))
@@ -670,6 +670,38 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
         new Route([...freshPools], route.input, route.output),
         currencyAmountIn,
         TradeType.EXACT_INPUT
+      )
+
+      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
+
+      sortedInsert(
+        bestTrades,
+        trade,
+        maxNumResults,
+        tradeComparator
+      )
+    }
+
+    return bestTrades
+  }
+
+  public static async bestTradeExactOut2<TInput extends Currency, TOutput extends Currency>(
+    routes: Route<TInput, TOutput>[],
+    pools: Pool[],
+    currencyAmountOut: CurrencyAmount<TOutput>,
+    maxNumResults = 1,
+  ): Promise<Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[]> {
+    invariant(pools.length > 0, 'POOLS')
+    const poolsMap = new Map(pools.map(p => [p.id, p]))
+
+    const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[] = []
+    for (const route of routes) {
+      const freshPools = route.pools.map(p => poolsMap.get(p.id)!)
+
+      const trade = await Trade.fromRoute(
+        new Route([...freshPools], route.input, route.output),
+        currencyAmountOut,
+        TradeType.EXACT_OUTPUT
       )
 
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
