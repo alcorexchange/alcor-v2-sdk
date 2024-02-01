@@ -126,4 +126,8 @@ export class CurrencyAmount<T extends Currency> extends Fraction {
   public toExtendedAsset(...args): string {
     return `${this.toFixed(...args)} ${this.currency.symbol}@${this.currency.contract}`
   }
+
+  public toExtendedAssetObject(...args): object {
+    return { quantity: `${this.toFixed(...args)} ${this.currency.symbol}`, contract: this.currency.contract }
+  }
 }
