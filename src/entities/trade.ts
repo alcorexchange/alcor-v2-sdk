@@ -720,7 +720,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
       // FIXME! Sorting bug multiple pools
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
-        console.log('continue trade', parseTrade(trade))
+        //console.log('continue trade', parseTrade(trade))
         continue
       }
 
@@ -755,7 +755,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       )
 
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
-        console.log('continue trade', parseTrade(trade))
+        //console.log('continue trade', parseTrade(trade))
         continue
       }
 
