@@ -2,7 +2,7 @@ import invariant from 'tiny-invariant'
 
 import { Currency } from './currency'
 import { Fraction, Percent, Price, CurrencyAmount } from './fractions'
-import { sortedInsert } from '../utils'
+import { sortedInsert, parseTrade } from '../utils'
 import { Token } from './token'
 import { ONE, ZERO, TradeType } from '../internalConstants'
 import { Pool } from './pool'
@@ -718,7 +718,11 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
         TradeType.EXACT_INPUT
       )
 
-      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
+      // FIXME! Sorting bug multiple pools
+      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
+        console.log('continue trade', parseTrade(trade))
+        continue
+      }
 
       sortedInsert(
         bestTrades,
@@ -750,7 +754,10 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
         TradeType.EXACT_OUTPUT
       )
 
-      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
+      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
+        console.log('continue trade', parseTrade(trade))
+        continue
+      }
 
       sortedInsert(
         bestTrades,
