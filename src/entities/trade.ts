@@ -7,7 +7,6 @@ import { Token } from './token'
 import { ONE, ZERO, TradeType } from '../internalConstants'
 import { Pool } from './pool'
 import { Route } from './route'
-import { callReadOnlySwapCalculation } from '../utils/computeAllRoutes'
 
 /**
  * Trades comparator, an extension of the input output comparator that also considers other dimensions of the trade in ranking them
@@ -260,51 +259,6 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       }
       inputAmount = CurrencyAmount.fromFractionalAmount(route.input, amounts[0].numerator, amounts[0].denominator)
       outputAmount = CurrencyAmount.fromFractionalAmount(route.output, amount.numerator, amount.denominator)
-    }
-
-    return new Trade({
-      routes: [{ inputAmount, outputAmount, route }],
-      tradeType
-    })
-  }
-
-  public static async fromRouteReadOnly<TInput extends Currency, TOutput extends Currency, TTradeType extends TradeType>(
-    nodes: string[],
-    route: Route<TInput, TOutput>,
-    amount: TTradeType extends TradeType.EXACT_INPUT ? CurrencyAmount<TInput> : CurrencyAmount<TOutput>,
-    tradeType: TTradeType
-  ): Promise<Trade<TInput, TOutput, TTradeType>> {
-    let inputAmount: CurrencyAmount<TInput>
-    let outputAmount: CurrencyAmount<TOutput>
-
-    if (tradeType === TradeType.EXACT_INPUT) {
-      invariant(amount.currency.equals(route.input), 'INPUT')
-
-      inputAmount = CurrencyAmount.fromFractionalAmount(route.input, amount.numerator, amount.denominator)
-
-      const value = await callReadOnlySwapCalculation(
-        nodes,
-        tradeType,
-        inputAmount,
-        CurrencyAmount.fromRawAmount(route.output, 0),
-        route.pools.map(p => p.id),
-      )
-
-      outputAmount = CurrencyAmount.fromRawAmount(route.output, value)
-    } else {
-      invariant(amount.currency.equals(route.output), 'OUTPUT')
-
-      outputAmount = CurrencyAmount.fromFractionalAmount(route.output, amount.numerator, amount.denominator)
-
-      const value = await callReadOnlySwapCalculation(
-        nodes,
-        tradeType,
-        CurrencyAmount.fromRawAmount(route.input, 0),
-        outputAmount,
-        route.pools.map(p => p.id),
-      )
-
-      inputAmount = CurrencyAmount.fromRawAmount(route.input, value)
     }
 
     return new Trade({
@@ -720,7 +674,6 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
       // FIXME! Sorting bug multiple pools
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
-        //console.log('continue trade', parseTrade(trade))
         continue
       }
 
@@ -755,77 +708,8 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       )
 
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
-        //console.log('continue trade', parseTrade(trade))
         continue
       }
-
-      sortedInsert(
-        bestTrades,
-        trade,
-        maxNumResults,
-        tradeComparator
-      )
-    }
-
-    return bestTrades
-  }
-
-  public static async bestTradeExactInReadOnly<TInput extends Currency, TOutput extends Currency>(
-    nodes: string[],
-    routes: Route<TInput, TOutput>[],
-    currencyAmountIn: CurrencyAmount<TInput>,
-    maxNumResults = 1,
-  ): Promise<Trade<TInput, TOutput, TradeType.EXACT_INPUT>[]> {
-    const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] = []
-
-    const requests = routes.map(r => {
-      return Trade.fromRouteReadOnly(
-        nodes,
-        r,
-        currencyAmountIn,
-        TradeType.EXACT_INPUT
-      )
-    })
-
-    const trades = await Promise.all(requests)
-
-    for (const trade of trades) {
-      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
-        continue
-      }
-
-      sortedInsert(
-        bestTrades,
-        trade,
-        maxNumResults,
-        tradeComparator
-      )
-    }
-
-    return bestTrades
-  }
-
-  public static async bestTradeExactOutReadOnly<TInput extends Currency, TOutput extends Currency>(
-    nodes: string[],
-    routes: Route<TInput, TOutput>[],
-    currencyAmountOut: CurrencyAmount<TOutput>,
-    maxNumResults = 1,
-  ): Promise<Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[]> {
-    const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[] = []
-
-    const requests = routes.map(r => {
-      return Trade.fromRouteReadOnly(
-        nodes,
-        r,
-        currencyAmountOut,
-        TradeType.EXACT_OUTPUT
-      )
-    })
-
-    const trades = await Promise.all(requests)
-
-    for (const trade of trades) {
-      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
 
       sortedInsert(
         bestTrades,
