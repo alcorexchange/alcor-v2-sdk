@@ -16,17 +16,17 @@ export class TickListDataProvider implements TickDataProvider {
     this.ticks = ticksMapped;
   }
 
-  async getTick(
+  getTick(
     tick: number
-  ): Promise<Tick> {
+  ): Tick {
     return TickList.getTick(this.ticks, tick);
   }
 
-  async nextInitializedTickWithinOneWord(
+  nextInitializedTickWithinOneWord(
     tick: number,
     lte: boolean,
     tickSpacing: number
-  ): Promise<[number, boolean]> {
+  ): [number, boolean] {
     return TickList.nextInitializedTickWithinOneWord(
       this.ticks,
       tick,

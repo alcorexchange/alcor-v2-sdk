@@ -167,10 +167,10 @@ export class Pool {
    * @param sqrtPriceLimitX64 The Q64.96 sqrt price limit
    * @returns The output amount and the pool with updated state
    */
-  public async getOutputAmount(
+  public getOutputAmount(
     inputAmount: CurrencyAmount<Token>,
     sqrtPriceLimitX64?: JSBI
-  ): Promise<[CurrencyAmount<Token>, Pool]> {
+  ): [CurrencyAmount<Token>, Pool] {
     invariant(this.involvesToken(inputAmount.currency), "TOKEN");
 
     const zeroForOne = inputAmount.currency.equals(this.tokenA);
@@ -180,7 +180,7 @@ export class Pool {
       sqrtPriceX64,
       liquidity,
       tickCurrent,
-    } = await this.swap(zeroForOne, inputAmount.quotient, sqrtPriceLimitX64);
+    } = this.swap(zeroForOne, inputAmount.quotient, sqrtPriceLimitX64);
     const outputToken = zeroForOne ? this.tokenB : this.tokenA;
     return [
       CurrencyAmount.fromRawAmount(
@@ -208,10 +208,10 @@ export class Pool {
    * @param sqrtPriceLimitX64 The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap
    * @returns The input amount and the pool with updated state
    */
-  public async getInputAmount(
+  public getInputAmount(
     outputAmount: CurrencyAmount<Token>,
     sqrtPriceLimitX64?: JSBI
-  ): Promise<[CurrencyAmount<Token>, Pool]> {
+  ): [CurrencyAmount<Token>, Pool] {
     const zeroForOne = outputAmount.currency.equals(this.tokenB);
 
     const {
@@ -219,7 +219,7 @@ export class Pool {
       sqrtPriceX64,
       liquidity,
       tickCurrent,
-    } = await this.swap(
+    } = this.swap(
       zeroForOne,
       JSBI.multiply(outputAmount.quotient, NEGATIVE_ONE),
       sqrtPriceLimitX64
@@ -252,16 +252,16 @@ export class Pool {
    * @returns liquidity
    * @returns tickCurrent
    */
-  private async swap(
+  private swap(
     zeroForOne: boolean,
     amountSpecified: JSBI,
     sqrtPriceLimitX64?: JSBI
-  ): Promise<{
+  ): {
     amountCalculated: JSBI;
     sqrtPriceX64: JSBI;
     liquidity: JSBI;
     tickCurrent: number;
-  }> {
+  } {
     if (!sqrtPriceLimitX64)
       sqrtPriceLimitX64 = zeroForOne
         ? JSBI.add(TickMath.MIN_SQRT_RATIO, ONE)
@@ -311,7 +311,7 @@ export class Pool {
       // by simply traversing to the next available tick, we instead need to exactly replicate
       // tickBitmap.nextInitializedTickWithinOneWord
       [step.tickNext, step.initialized] =
-        await this.tickDataProvider.nextInitializedTickWithinOneWord(
+        this.tickDataProvider.nextInitializedTickWithinOneWord(
           state.tick,
           zeroForOne,
           this.tickSpacing
@@ -364,7 +364,7 @@ export class Pool {
         // if the tick is initialized, run the tick transition
         if (step.initialized) {
           let liquidityNet = JSBI.BigInt(
-            (await this.tickDataProvider.getTick(step.tickNext)).liquidityNet
+            (this.tickDataProvider.getTick(step.tickNext)).liquidityNet
           );
           // if we're moving leftward, we interpret liquidityNet as the opposite sign
           // safe because liquidityNet cannot be type(int128).min

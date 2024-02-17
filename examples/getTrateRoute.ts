@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
 import { fetchAllRows } from './utils/rpc'
+import { computeAllRoutes } from '../src'
 
 // Alcor v2 sdk: https://github.com/alcorexchange/alcor-v2-sdk
 import { Token, Pool, Trade, CurrencyAmount, Percent } from '../src'
@@ -55,7 +56,9 @@ async function main() {
   const receiver = 'myaccount'
 
   // First trade sorted by biggest output
-  const [trade] = await Trade.bestTradeExactIn(pools, amountIn, tokenOut, { maxHops: 3 })
+  //const [trade] = Trade.bestTradeExactIn(pools, amountIn, tokenOut, { maxHops: 3 })
+  const routes = computeAllRoutes(amountIn.currency, tokenOut, pools, 3)
+  const [trade] = Trade.bestTradeExactIn(routes, pools, amountIn, 3)
 
   const route = trade.route.pools.map(p => p.id)
 

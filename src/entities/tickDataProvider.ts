@@ -8,7 +8,7 @@ export interface TickDataProvider {
    * Return information corresponding to a specific tick
    * @param tick the tick to load
    */
-  getTick(tick: number): Promise<Tick>;
+  getTick(tick: number): Tick;
 
   /**
    * Return the next tick that is initialized within a single word
@@ -20,7 +20,7 @@ export interface TickDataProvider {
     tick: number,
     lte: boolean,
     tickSpacing: number
-  ): Promise<[number, boolean]>;
+  ): [number, boolean];
 }
 
 /**
@@ -29,15 +29,15 @@ export interface TickDataProvider {
  */
 export class NoTickDataProvider implements TickDataProvider {
   private static ERROR_MESSAGE = "No tick data provider was given";
-  async getTick(_tick: number): Promise<Tick> {
+  getTick(_tick: number): Tick {
     throw new Error(NoTickDataProvider.ERROR_MESSAGE);
   }
 
-  async nextInitializedTickWithinOneWord(
+  nextInitializedTickWithinOneWord(
     _tick: number,
     _lte: boolean,
     _tickSpacing: number
-  ): Promise<[number, boolean]> {
+  ): [number, boolean] {
     throw new Error(NoTickDataProvider.ERROR_MESSAGE);
   }
 }
