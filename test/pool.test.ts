@@ -292,14 +292,14 @@ describe("Pool", () => {
     describe("#getOutputAmount", () => {
       it("USDC -> DAI", async () => {
         const inputAmount = CurrencyAmount.fromRawAmount(USDC, 100);
-        const [outputAmount] = await pool.getOutputAmount(inputAmount);
+        const outputAmount = await pool.getOutputAmount(inputAmount);
         expect(outputAmount.currency.equals(DAI)).toBe(true);
         expect(outputAmount.quotient).toEqual(JSBI.BigInt(98));
       });
 
       it("DAI -> USDC", async () => {
         const inputAmount = CurrencyAmount.fromRawAmount(DAI, 100);
-        const [outputAmount] = await pool.getOutputAmount(inputAmount);
+        const outputAmount = await pool.getOutputAmount(inputAmount);
         expect(outputAmount.currency.equals(USDC)).toBe(true);
         expect(outputAmount.quotient).toEqual(JSBI.BigInt(98));
       });
@@ -308,14 +308,14 @@ describe("Pool", () => {
     describe("#getInputAmount", () => {
       it("USDC -> DAI", async () => {
         const outputAmount = CurrencyAmount.fromRawAmount(DAI, 98);
-        const [inputAmount] = await pool.getInputAmount(outputAmount);
+        const inputAmount = await pool.getInputAmount(outputAmount);
         expect(inputAmount.currency.equals(USDC)).toBe(true);
         expect(inputAmount.quotient).toEqual(JSBI.BigInt(100));
       });
 
       it("DAI -> USDC", async () => {
         const outputAmount = CurrencyAmount.fromRawAmount(USDC, 98);
-        const [inputAmount] = await pool.getInputAmount(outputAmount);
+        const inputAmount = await pool.getInputAmount(outputAmount);
         expect(inputAmount.currency.equals(DAI)).toBe(true);
         expect(inputAmount.quotient).toEqual(JSBI.BigInt(100));
       });
@@ -367,7 +367,7 @@ describe("Pool", () => {
       });
       it("correctly handles two BigIntegers", async () => {
         const inputAmount = CurrencyAmount.fromRawAmount(USDC, 100);
-        const [outputAmount] = await pool.getOutputAmount(inputAmount);
+        const outputAmount = await pool.getOutputAmount(inputAmount);
         pool.getInputAmount(outputAmount);
         expect(outputAmount.currency.equals(DAI)).toBe(true);
         // if output is correct, function has succeeded

@@ -62,3 +62,63 @@ export function computeAllRoutes(
 
   return routes;
 }
+
+export function computeAllRoutesFromMap(
+    tokenIn: Token,
+    tokenOut: Token,
+    poolMap: { [tokenId: string]: Pool[] },
+    maxHops: number
+): Route<Token , Token>[] {
+  const routes: Route<Token, Token>[] = [];
+
+  const computeRoutes = (
+      tokenIn: Token,
+      tokenOut: Token,
+      currentRoute: Pool[],
+      visitedPools: Set<Pool>,
+      _previousTokenOut?: Token
+  ) => {
+    if (currentRoute.length > maxHops) {
+      return;
+    }
+
+    if (
+        currentRoute.length > 0 &&
+        currentRoute[currentRoute.length - 1]!.involvesToken(tokenOut)
+    ) {
+      routes.push(new Route([...currentRoute], tokenIn, tokenOut));
+      return;
+    }
+
+    const previousTokenOut = _previousTokenOut ? _previousTokenOut : tokenIn;
+    const relevantPools = poolMap[previousTokenOut.id] || [];
+
+    for (const curPool of relevantPools) {
+      if (visitedPools.has(curPool)) {
+        continue;
+      }
+
+      const currentTokenOut = curPool.tokenA.equals(previousTokenOut)
+          ? curPool.tokenB
+          : curPool.tokenA;
+
+      currentRoute.push(curPool);
+      visitedPools.add(curPool);
+
+      computeRoutes(
+          tokenIn,
+          tokenOut,
+          currentRoute,
+          visitedPools,
+          currentTokenOut
+      );
+
+      visitedPools.delete(curPool);
+      currentRoute.pop();
+    }
+  };
+
+  computeRoutes(tokenIn, tokenOut, [], new Set());
+
+  return routes;
+}

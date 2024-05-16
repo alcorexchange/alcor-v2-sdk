@@ -1,3 +1,6 @@
+import msgpack from "msgpack-lite";
+import crypto, {createHash} from 'crypto';
+
 import { CurrencyAmount, Price } from "./fractions";
 import { Token } from "./token";
 import { BigintIsh, FeeAmount, TICK_SPACINGS } from "../internalConstants";
@@ -56,6 +59,14 @@ export class Pool {
   public readonly feeGrowthGlobalAX64: JSBI;
   public readonly feeGrowthGlobalBX64: JSBI;
   public readonly tickDataProvider: TickDataProvider;
+
+  public json?: any
+  public buffer?: Buffer
+  public bufferHash?: string
+
+  static hashToPoolMap: Map<string, Pool> = new Map()
+  public static idToPoolMap: Map<number, Pool> = new Map()
+
 
   private _tokenAPrice?: Price<Token, Token>;
   private _tokenBPrice?: Price<Token, Token>;
@@ -170,36 +181,19 @@ export class Pool {
   public getOutputAmount(
     inputAmount: CurrencyAmount<Token>,
     sqrtPriceLimitX64?: JSBI
-  ): [CurrencyAmount<Token>, Pool] {
+  ): CurrencyAmount<Token> {
     invariant(this.involvesToken(inputAmount.currency), "TOKEN");
 
     const zeroForOne = inputAmount.currency.equals(this.tokenA);
 
     const {
       amountCalculated: outputAmount,
-      sqrtPriceX64,
-      liquidity,
-      tickCurrent,
     } = this.swap(zeroForOne, inputAmount.quotient, sqrtPriceLimitX64);
     const outputToken = zeroForOne ? this.tokenB : this.tokenA;
-    return [
-      CurrencyAmount.fromRawAmount(
+    return CurrencyAmount.fromRawAmount(
         outputToken,
         JSBI.multiply(outputAmount, NEGATIVE_ONE)
-      ),
-      new Pool({
-        id: this.id,
-        tokenA: this.tokenA,
-        tokenB: this.tokenB,
-        fee: this.fee,
-        sqrtPriceX64,
-        liquidity,
-        tickCurrent,
-        ticks: this.tickDataProvider,
-        feeGrowthGlobalAX64: this.feeGrowthGlobalAX64,
-        feeGrowthGlobalBX64: this.feeGrowthGlobalBX64,
-      })
-    ];
+      )
   }
 
   /**
@@ -211,35 +205,18 @@ export class Pool {
   public getInputAmount(
     outputAmount: CurrencyAmount<Token>,
     sqrtPriceLimitX64?: JSBI
-  ): [CurrencyAmount<Token>, Pool] {
+  ): CurrencyAmount<Token> {
     const zeroForOne = outputAmount.currency.equals(this.tokenB);
 
     const {
       amountCalculated: inputAmount,
-      sqrtPriceX64,
-      liquidity,
-      tickCurrent,
     } = this.swap(
       zeroForOne,
       JSBI.multiply(outputAmount.quotient, NEGATIVE_ONE),
       sqrtPriceLimitX64
     );
     const inputToken = zeroForOne ? this.tokenA : this.tokenB;
-    return [
-      CurrencyAmount.fromRawAmount(inputToken, inputAmount),
-      new Pool({
-        id: this.id,
-        tokenA: this.tokenA,
-        tokenB: this.tokenB,
-        fee: this.fee,
-        sqrtPriceX64,
-        liquidity,
-        tickCurrent,
-        ticks: this.tickDataProvider,
-        feeGrowthGlobalAX64: this.feeGrowthGlobalAX64,
-        feeGrowthGlobalBX64: this.feeGrowthGlobalBX64,
-      }),
-    ];
+    return CurrencyAmount.fromRawAmount(inputToken, inputAmount)
   }
 
   /**
@@ -395,5 +372,132 @@ export class Pool {
 
   public get tickSpacing(): number {
     return TICK_SPACINGS[this.fee];
+  }
+
+  static toJSON(pool: Pool): object {
+    if (pool.json) return pool.json
+    pool.json = {
+      id: pool.id,
+      tokenA: Token.toJSON(pool.tokenA),
+      tokenB: Token.toJSON(pool.tokenB),
+      fee: pool.fee,
+      sqrtPriceX64: pool.sqrtPriceX64.toString(),
+      liquidity: pool.liquidity.toString(),
+      tickCurrent: pool.tickCurrent,
+      feeGrowthGlobalAX64: pool.feeGrowthGlobalAX64.toString(),
+      feeGrowthGlobalBX64: pool.feeGrowthGlobalBX64.toString(),
+      tickDataProvider: TickListDataProvider.toJSON((pool.tickDataProvider as TickListDataProvider).ticks as Tick[])
+    }
+
+    return pool.json
+  }
+
+  static fromJSON(json: any): Pool {
+    return new Pool({
+      id: json.id,
+      tokenA: Token.fromJSON(json.tokenA),
+      tokenB: Token.fromJSON(json.tokenB),
+      fee: json.fee,
+      sqrtPriceX64: JSBI.BigInt(json.sqrtPriceX64),
+      liquidity: JSBI.BigInt(json.liquidity),
+      tickCurrent: json.tickCurrent,
+      feeGrowthGlobalAX64: JSBI.BigInt(json.feeGrowthGlobalAX64),
+      feeGrowthGlobalBX64: JSBI.BigInt(json.feeGrowthGlobalBX64),
+      ticks: TickListDataProvider.fromJSON(json.tickDataProvider)
+    });
+  }
+  static toBuffer(pool: Pool): Buffer {
+    if (pool.buffer) return pool.buffer
+    const json = Pool.toJSON(pool)
+    pool.buffer = msgpack.encode(json)
+    pool.bufferHash = Pool.createHash(pool.buffer as Buffer)
+
+    return pool.buffer as Buffer
+  }
+
+  static fromBuffer(data: Buffer | any): Pool {
+    if (!Buffer.isBuffer(data)) {
+      const {buffer, bufferHash}: { buffer: Buffer; bufferHash: string } = data
+      const newPool = this.fromBuffer(buffer)
+      if (this.idToPoolMap.has(newPool.id)) { // had old version pool, delete him
+        const oldPool = <Pool>this.idToPoolMap.get(newPool.id)
+        const oldHash = oldPool.bufferHash
+        if (oldHash) {
+          this.hashToPoolMap.delete(oldHash)
+        }
+      }
+      this.hashToPoolMap.set(bufferHash, newPool)
+      this.idToPoolMap.set(newPool.id, newPool)
+      return newPool
+    }
+
+
+    const bufferHash = Pool.createHash(data)
+    if (this.hashToPoolMap.has(bufferHash)) {
+      //console.log('use cache', bufferHash)
+      return <Pool>this.hashToPoolMap.get(bufferHash)
+    }
+
+    const json = msgpack.decode(data)
+    const pool = new Pool({
+      id: json.id,
+      tokenA: Token.fromJSON(json.tokenA),
+      tokenB: Token.fromJSON(json.tokenB),
+      fee: json.fee,
+      sqrtPriceX64: JSBI.BigInt(json.sqrtPriceX64),
+      liquidity: JSBI.BigInt(json.liquidity),
+      tickCurrent: json.tickCurrent,
+      feeGrowthGlobalAX64: JSBI.BigInt(json.feeGrowthGlobalAX64),
+      feeGrowthGlobalBX64: JSBI.BigInt(json.feeGrowthGlobalBX64),
+      ticks: TickListDataProvider.fromJSON(json.tickDataProvider)
+    })
+    this.hashToPoolMap.set(bufferHash, pool)
+    this.idToPoolMap.set(pool.id, pool)
+    return pool;
+  }
+  static fromId(id: number): Pool {
+    //console.log('fromId', id)
+    const pool = Pool.idToPoolMap.get(id)
+    if (!pool) throw new Error('pool does not exist in idToPoolMap')
+    return pool;
+  }
+
+  static createHash(buffer: Buffer, pool?: Pool) {
+    if (pool && pool.bufferHash) {
+      return pool.bufferHash
+    }
+    const hash = crypto.createHash('sha256');
+    hash.update(buffer);
+    const hexHash = hash.digest('hex');
+
+    if (pool) {
+      pool.bufferHash = hexHash
+    }
+    return hexHash
+  }
+  static hashEquals(pool: Pool, hash: string) {
+    return pool.bufferHash === hash
+  }
+  public equals(other: Pool): boolean {
+    // Сравниваем id пулов
+    if (this.id !== other.id) return false;
+
+    // Сравниваем fee
+    if (this.fee !== other.fee) return false;
+
+    // Сравниваем sqrtPriceX64
+    if (!JSBI.equal(this.sqrtPriceX64, other.sqrtPriceX64)) return false;
+
+    // Сравниваем liquidity
+    if (!JSBI.equal(this.liquidity, other.liquidity)) return false;
+
+    // Сравниваем tickCurrent
+    if (this.tickCurrent !== other.tickCurrent) return false;
+
+    // Сравниваем токены (предполагается, что у Token есть метод equals)
+    if (!this.tokenA.equals(other.tokenA) || !this.tokenB.equals(other.tokenB)) return false;
+
+    // Если все проверки прошли, объекты считаются равными
+    return true;
   }
 }

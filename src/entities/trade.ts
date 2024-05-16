@@ -240,7 +240,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       amounts[0] = amount
       for (let i = 0; i < route.tokenPath.length - 1; i++) {
         const pool = route.pools[i]
-        const [outputAmount] = pool.getOutputAmount(amounts[i])
+        const outputAmount = pool.getOutputAmount(amounts[i])
         amounts[i + 1] = outputAmount
       }
       inputAmount = CurrencyAmount.fromFractionalAmount(route.input, amount.numerator, amount.denominator)
@@ -254,7 +254,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       amounts[amounts.length - 1] = amount
       for (let i = route.tokenPath.length - 1; i > 0; i--) {
         const pool = route.pools[i - 1]
-        const [inputAmount] = pool.getInputAmount(amounts[i])
+        const inputAmount = pool.getInputAmount(amounts[i])
         amounts[i - 1] = inputAmount
       }
       inputAmount = CurrencyAmount.fromFractionalAmount(route.input, amounts[0].numerator, amounts[0].denominator)
@@ -302,7 +302,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
         for (let i = 0; i < route.tokenPath.length - 1; i++) {
           const pool = route.pools[i]
-          const [outputAmount] = pool.getOutputAmount(amounts[i])
+          const outputAmount = pool.getOutputAmount(amounts[i])
           amounts[i + 1] = outputAmount
         }
 
@@ -322,7 +322,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
         for (let i = route.tokenPath.length - 1; i > 0; i--) {
           const pool = route.pools[i - 1]
-          const [inputAmount] = pool.getInputAmount(amounts[i])
+          const inputAmount = pool.getInputAmount(amounts[i])
           amounts[i - 1] = inputAmount
         }
 

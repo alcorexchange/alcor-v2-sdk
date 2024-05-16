@@ -1,3 +1,5 @@
+import msgpack from "msgpack-lite"
+
 import invariant from "tiny-invariant";
 import JSBI from "jsbi";
 import { Currency } from "../currency";
@@ -129,5 +131,35 @@ export class CurrencyAmount<T extends Currency> extends Fraction {
 
   public toExtendedAssetObject(...args): object {
     return { quantity: `${this.toFixed(...args)} ${this.currency.symbol}`, contract: this.currency.contract }
+  }
+
+  static toJSON<T extends Currency>(amount: CurrencyAmount<T>): object {
+    return {
+      currency: Token.toJSON(amount.currency),
+      numerator: amount.numerator.toString(),
+      denominator: amount.denominator.toString(),
+    };
+  }
+
+  static fromJSON(json: any) {
+    const currency = Token.fromJSON(json.currency);
+    const numerator = JSBI.BigInt(json.numerator);
+    const denominator = JSBI.BigInt(json.denominator);
+    return new CurrencyAmount(currency, numerator, denominator);
+  }
+
+  static toBuffer<T extends Currency>(amount: CurrencyAmount<T>): object {
+    const json = {
+      currency: Token.toJSON(amount.currency),
+      numerator: amount.numerator.toString(),
+      denominator: amount.denominator.toString(),
+    }
+
+    return msgpack.encode(json);
+  }
+
+  static fromBuffer(buffer: Buffer) {
+    const json = msgpack.decode(buffer)
+    return this.fromJSON(json)
   }
 }

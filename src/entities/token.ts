@@ -51,4 +51,16 @@ export class Token extends BaseCurrency {
         return name(this.contract).raw().lt(name(other.contract).raw());
     }
   }
+
+  static toJSON(token: Token) {
+    return {
+      contract: token.contract,
+      decimals: token.decimals,
+      symbol: token.symbol,
+    }
+  }
+
+  static fromJSON(json: any) {
+    return new Token(json.contract, json.decimals, json.symbol);
+  }
 }
