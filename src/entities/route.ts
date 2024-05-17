@@ -114,7 +114,7 @@ export class Route<TInput extends Currency, TOutput extends Currency> {
       if (typeof pool === 'number') {
         return Pool.fromId(pool);
       } else {
-        return Pool.fromBuffer(pool);
+        return Pool.fromBuffer(Buffer.from(pool));
       }
     });
     const input = Token.fromJSON(json.input);

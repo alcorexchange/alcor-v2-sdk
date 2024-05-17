@@ -406,55 +406,42 @@ export class Pool {
       ticks: TickListDataProvider.fromJSON(json.tickDataProvider)
     });
   }
+  /**
+   * Converts the pool to a Buffer using msgpack encoding.
+   * @param {Pool} pool - The pool instance to convert.
+   * @returns {Buffer} The encoded buffer.
+   */
   static toBuffer(pool: Pool): Buffer {
-    if (pool.buffer) return pool.buffer
-    const json = Pool.toJSON(pool)
-    pool.buffer = msgpack.encode(json)
-    pool.bufferHash = Pool.createHash(pool.buffer as Buffer)
-
-    return pool.buffer as Buffer
+    if (pool.buffer) return pool.buffer;
+    
+    const json = Pool.toJSON(pool);
+    pool.buffer = msgpack.encode(json);
+    pool.bufferHash = Pool.createHash(pool.buffer as Buffer);
+    
+    return pool.buffer as Buffer;
   }
 
+  /**
+   * Creates a Pool instance from a Buffer or serialized data.
+   * @param {Buffer | any} data - The buffer or serialized data.
+   * @returns {Pool} The pool instance.
+   */
   static fromBuffer(data: Buffer | any): Pool {
-    if (!Buffer.isBuffer(data)) {
-      const {buffer, bufferHash}: { buffer: Buffer; bufferHash: string } = data
-      const newPool = this.fromBuffer(buffer)
-      if (this.idToPoolMap.has(newPool.id)) { // had old version pool, delete him
-        const oldPool = <Pool>this.idToPoolMap.get(newPool.id)
-        const oldHash = oldPool.bufferHash
-        if (oldHash) {
-          this.hashToPoolMap.delete(oldHash)
-        }
-      }
-      this.hashToPoolMap.set(bufferHash, newPool)
-      this.idToPoolMap.set(newPool.id, newPool)
-      return newPool
-    }
+    const bufferHash = Pool.createHash(data instanceof Buffer ? data : data.buffer);
 
-
-    const bufferHash = Pool.createHash(data)
     if (this.hashToPoolMap.has(bufferHash)) {
-      //console.log('use cache', bufferHash)
-      return <Pool>this.hashToPoolMap.get(bufferHash)
+      return <Pool>this.hashToPoolMap.get(bufferHash);
     }
 
-    const json = msgpack.decode(data)
-    const pool = new Pool({
-      id: json.id,
-      tokenA: Token.fromJSON(json.tokenA),
-      tokenB: Token.fromJSON(json.tokenB),
-      fee: json.fee,
-      sqrtPriceX64: JSBI.BigInt(json.sqrtPriceX64),
-      liquidity: JSBI.BigInt(json.liquidity),
-      tickCurrent: json.tickCurrent,
-      feeGrowthGlobalAX64: JSBI.BigInt(json.feeGrowthGlobalAX64),
-      feeGrowthGlobalBX64: JSBI.BigInt(json.feeGrowthGlobalBX64),
-      ticks: TickListDataProvider.fromJSON(json.tickDataProvider)
-    })
-    this.hashToPoolMap.set(bufferHash, pool)
-    this.idToPoolMap.set(pool.id, pool)
+    const json = msgpack.decode(data instanceof Buffer ? data : data.buffer);
+    const pool = Pool.fromJSON(json);
+
+    this.hashToPoolMap.set(bufferHash, pool);
+    this.idToPoolMap.set(pool.id, pool);
+    
     return pool;
   }
+
   static fromId(id: number): Pool {
     //console.log('fromId', id)
     const pool = Pool.idToPoolMap.get(id)
