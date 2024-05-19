@@ -495,6 +495,9 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     for (const route of routes) {
       const freshPools = route.pools.map(p => {
         const pool = poolsMap.get(p.id)
+        if (!pool) {
+          console.log('POOL FOR ROUTE NOT FOUND', p, route.pools)
+        }
         invariant(pool, 'POOL_FOR_ROUTE')
 
         // Creating new instance
