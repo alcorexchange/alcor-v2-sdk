@@ -1,6 +1,6 @@
 {
   "name": "@alcorexchange/alcor-swap-sdk",
-  "version": "1.0.30",
+  "version": "1.0.32",
   "description": "",
   "main": "build/index.js",
   "scripts": {

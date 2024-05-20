@@ -483,32 +483,14 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
   public static bestTradeExactIn<TInput extends Currency, TOutput extends Currency>(
     routes: Route<TInput, TOutput>[],
-    pools: Pool[] | Map<number, Pool>,
     currencyAmountIn: CurrencyAmount<TInput>,
     maxNumResults = 1,
   ): Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] {
-    const poolsMap = Array.isArray(pools) ? new Map(pools.map(p => [p.id, p])) : pools
-
-    invariant(poolsMap.size > 0, 'POOLS')
+    invariant(routes.length > 0, 'ROUTES')
 
     const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] = []
     for (const route of routes) {
-      const freshPools = route.pools.map(p => {
-        const pool = poolsMap.get(p.id)
-        if (!pool) {
-          console.log('POOL FOR ROUTE NOT FOUND', p, route.pools)
-        }
-        invariant(pool, 'POOL_FOR_ROUTE')
-
-        // Creating new instance
-        return Pool.fromBuffer(Pool.toBuffer(pool))
-      })
-
-      const trade = Trade.fromRoute(
-        new Route(freshPools, route.input, route.output),
-        currencyAmountIn,
-        TradeType.EXACT_INPUT
-      )
+      const trade = Trade.fromRoute(route, currencyAmountIn, TradeType.EXACT_INPUT)
 
       // FIXME! Sorting bug multiple pools
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
@@ -528,28 +510,14 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
   public static bestTradeExactOut<TInput extends Currency, TOutput extends Currency>(
     routes: Route<TInput, TOutput>[],
-    pools: Pool[] | Map<number, Pool>,
     currencyAmountOut: CurrencyAmount<TOutput>,
     maxNumResults = 1,
   ): Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[] {
-    const poolsMap = Array.isArray(pools) ? new Map(pools.map(p => [p.id, p])) : pools
-    invariant(poolsMap.size > 0, 'POOLS')
+    invariant(routes.length > 0, 'ROUTES')
 
     const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[] = []
     for (const route of routes) {
-      const freshPools = route.pools.map(p => {
-        const pool = poolsMap.get(p.id)
-        invariant(pool, 'POOL_FOR_ROUTE')
-
-        // Creating new instance
-        return Pool.fromBuffer(Pool.toBuffer(pool))
-      })
-
-      const trade = Trade.fromRoute(
-        new Route(freshPools, route.input, route.output),
-        currencyAmountOut,
-        TradeType.EXACT_OUTPUT
-      )
+      const trade = Trade.fromRoute(route, currencyAmountOut, TradeType.EXACT_OUTPUT)
 
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) {
         continue
