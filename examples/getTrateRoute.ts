@@ -28,6 +28,7 @@ async function main() {
   const pools: Pool[] = []
 
   // We have to get all pools with fetched ticks for them
+  let i = 0
   for (const p of rows) {
     const { id, tokenA, tokenB, currSlot: { sqrtPriceX64, tick } } = p
 
@@ -40,13 +41,15 @@ async function main() {
     if (ticks.length == 0) continue
 
     pools.push(new Pool({
-      ...p,
+      ...p as any,
       tokenA: parseToken(tokenA),
       tokenB: parseToken(tokenB),
       sqrtPriceX64,
       tickCurrent: tick,
-      ticks: ticks.sort((a, b) => a.id - b.id)
+      ticks: ticks.sort((a: any, b: any) => a.id - b.id)
     }))
+    i += 1
+    process.stdout.write(`fetching ticks: ${i}/${rows.length} \r`)
   }
 
   // 1.0000 EOS
@@ -56,9 +59,8 @@ async function main() {
   const receiver = 'myaccount'
 
   // First trade sorted by biggest output
-  //const [trade] = Trade.bestTradeExactIn(pools, amountIn, tokenOut, { maxHops: 3 })
-  const routes = computeAllRoutes(amountIn.currency, tokenOut, pools, 3)
-  const [trade] = Trade.bestTradeExactIn(routes, pools, amountIn, 3)
+  const routes = computeAllRoutes(amountIn.currency, tokenOut, pools, 2)
+  const [trade] = Trade.bestTradeExactIn(routes, amountIn, 1)
 
   const route = trade.route.pools.map(p => p.id)
 

@@ -54,12 +54,12 @@ async function main() {
   })
 
   const pool = new Pool({
-    ...poolRow,
+    ...poolRow as any,
     tokenA: parseToken(tokenA),
     tokenB: parseToken(tokenB),
     sqrtPriceX64,
     tickCurrent: tick,
-    ticks: ticks.sort((a, b) => a.id - b.id)
+    ticks: ticks.sort((a: any, b: any) => a.id - b.id)
   })
 
   const { rows: positions } = await rpc.get_table_rows({
