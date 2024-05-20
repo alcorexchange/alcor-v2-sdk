@@ -234,6 +234,7 @@ export class Position {
     // construct counterfactual pools
     const poolLower = new Pool({
       id: this.pool.id,
+      active: this.pool.active,
       tokenA: this.pool.tokenA,
       tokenB: this.pool.tokenB,
       fee: this.pool.fee,
@@ -246,6 +247,7 @@ export class Position {
     });
     const poolUpper = new Pool({
       id: this.pool.id,
+      active: this.pool.active,
       tokenA: this.pool.tokenA,
       tokenB: this.pool.tokenB,
       fee: this.pool.fee,
@@ -319,6 +321,7 @@ export class Position {
     // construct counterfactual pools
     const poolLower = new Pool({
       id: this.pool.id,
+      active: this.pool.active,
       tokenA: this.pool.tokenA,
       tokenB: this.pool.tokenB,
       fee: this.pool.fee,
@@ -331,6 +334,7 @@ export class Position {
     });
     const poolUpper = new Pool({
       id: this.pool.id,
+      active: this.pool.active,
       tokenA: this.pool.tokenA,
       tokenB: this.pool.tokenB,
       fee: this.pool.fee,

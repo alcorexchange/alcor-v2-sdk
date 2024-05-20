@@ -16,6 +16,7 @@ import { TickListDataProvider } from "./tickListDataProvider";
 
 export interface PoolConstructorArgs {
   id: number,
+  active: boolean,
   tokenA: Token,
   tokenB: Token,
   fee: FeeAmount,
@@ -50,6 +51,7 @@ const NO_TICK_DATA_PROVIDER_DEFAULT = new NoTickDataProvider();
 export class Pool {
   // public readonly id: number;
   public readonly id: number;
+  public readonly active: boolean;
   public readonly tokenA: Token;
   public readonly tokenB: Token;
   public readonly fee: FeeAmount;
@@ -83,6 +85,7 @@ export class Pool {
    */
   public constructor({
     id,
+    active,
     tokenA,
     tokenB,
     fee,
@@ -108,6 +111,7 @@ export class Pool {
     // always create a copy of the list since we want the pool's tick list to be immutable
     this.id = id;
     this.fee = fee;
+    this.active = active;
     this.sqrtPriceX64 = JSBI.BigInt(sqrtPriceX64);
     this.liquidity = JSBI.BigInt(liquidity);
     this.tickCurrent = tickCurrent;
@@ -380,6 +384,7 @@ export class Pool {
       id: pool.id,
       tokenA: Token.toJSON(pool.tokenA),
       tokenB: Token.toJSON(pool.tokenB),
+      active: pool.active,
       fee: pool.fee,
       sqrtPriceX64: pool.sqrtPriceX64.toString(),
       liquidity: pool.liquidity.toString(),
@@ -395,6 +400,7 @@ export class Pool {
   static fromJSON(json: any): Pool {
     return new Pool({
       id: json.id,
+      active: json.active,
       tokenA: Token.fromJSON(json.tokenA),
       tokenB: Token.fromJSON(json.tokenB),
       fee: json.fee,
