@@ -1,6 +1,6 @@
 {
   "name": "@alcorexchange/alcor-swap-sdk",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "description": "",
   "main": "build/index.js",
   "scripts": {
@@ -45,7 +45,7 @@
     "redis": "^4.6.10",
     "rimraf": "^4.1.1",
     "ts-jest": "^28.0.4",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "typescript": "^4.9.4"
   },
   "dependencies": {
@@ -55,6 +55,8 @@
     "eosjs": "^22.1.0",
     "eosjs-account-name": "2.3.0",
     "jsbi": "^4.3.0",
+    "lodash": "^4.17.21",
+    "mnemonist": "^0.39.8",
     "msgpack-lite": "^0.1.26",
     "node-fetch": "2",
     "tiny-invariant": "^1.1.0",
