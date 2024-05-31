@@ -13,6 +13,7 @@ import { TickMath } from "../utils/tickMath";
 import { Tick, TickConstructorArgs } from "./tick";
 import { NoTickDataProvider, TickDataProvider } from "./tickDataProvider";
 import { TickListDataProvider } from "./tickListDataProvider";
+import {InsufficientReservesError, InsufficientInputAmountError} from "../errors";
 
 export interface PoolConstructorArgs {
   id: number,
@@ -190,10 +191,17 @@ export class Pool {
 
     const zeroForOne = inputAmount.currency.equals(this.tokenA);
 
-    const {
-      amountCalculated: outputAmount,
-    } = this.swap(zeroForOne, inputAmount.quotient, sqrtPriceLimitX64);
+    const { amountA, amountB } = this.swap(zeroForOne, inputAmount.quotient, sqrtPriceLimitX64);
+
     const outputToken = zeroForOne ? this.tokenB : this.tokenA;
+    const outputAmount = zeroForOne ? amountB : amountA;
+    const amountIn = zeroForOne ? amountA : amountB;
+
+    //console.log(JSBI.equal(amountIn, inputAmount.quotient))
+    if (!JSBI.equal(amountIn, inputAmount.quotient)) {
+      throw new InsufficientInputAmountError
+    }
+
     return CurrencyAmount.fromRawAmount(
         outputToken,
         JSBI.multiply(outputAmount, NEGATIVE_ONE)
@@ -212,14 +220,16 @@ export class Pool {
   ): CurrencyAmount<Token> {
     const zeroForOne = outputAmount.currency.equals(this.tokenB);
 
-    const {
-      amountCalculated: inputAmount,
-    } = this.swap(
-      zeroForOne,
-      JSBI.multiply(outputAmount.quotient, NEGATIVE_ONE),
-      sqrtPriceLimitX64
-    );
+    const { amountA, amountB } = this.swap(zeroForOne, JSBI.multiply(outputAmount.quotient, NEGATIVE_ONE), sqrtPriceLimitX64);
+
     const inputToken = zeroForOne ? this.tokenA : this.tokenB;
+    const inputAmount = zeroForOne ? amountA : amountB;
+    const amountOutReceived = JSBI.multiply(zeroForOne ? amountB : amountA, NEGATIVE_ONE)
+
+    if (!JSBI.equal(amountOutReceived, outputAmount.quotient)) {
+      throw new InsufficientReservesError
+    }
+
     return CurrencyAmount.fromRawAmount(inputToken, inputAmount)
   }
 
@@ -238,7 +248,8 @@ export class Pool {
     amountSpecified: JSBI,
     sqrtPriceLimitX64?: JSBI
   ): {
-    amountCalculated: JSBI;
+    amountA: JSBI;
+    amountB: JSBI;
     sqrtPriceX64: JSBI;
     liquidity: JSBI;
     tickCurrent: number;
@@ -270,8 +281,6 @@ export class Pool {
 
     const exactInput = JSBI.greaterThanOrEqual(amountSpecified, ZERO);
 
-    // keep track of swap state
-
     const state = {
       amountSpecifiedRemaining: amountSpecified,
       amountCalculated: ZERO,
@@ -280,7 +289,6 @@ export class Pool {
       liquidity: this.liquidity,
     };
 
-    // start swap while loop
     while (
       JSBI.notEqual(state.amountSpecifiedRemaining, ZERO) &&
       state.sqrtPriceX64 != sqrtPriceLimitX64
@@ -288,9 +296,6 @@ export class Pool {
       const step: Partial<StepComputations> = {};
       step.sqrtPriceStartX64 = state.sqrtPriceX64;
 
-      // because each iteration of the while loop rounds, we can't optimize this code (relative to the smart contract)
-      // by simply traversing to the next available tick, we instead need to exactly replicate
-      // tickBitmap.nextInitializedTickWithinOneWord
       [step.tickNext, step.initialized] =
         this.tickDataProvider.nextInitializedTickWithinOneWord(
           state.tick,
@@ -340,15 +345,11 @@ export class Pool {
         );
       }
 
-      // TODO
       if (JSBI.equal(state.sqrtPriceX64, step.sqrtPriceNextX64)) {
-        // if the tick is initialized, run the tick transition
         if (step.initialized) {
           let liquidityNet = JSBI.BigInt(
             (this.tickDataProvider.getTick(step.tickNext)).liquidityNet
           );
-          // if we're moving leftward, we interpret liquidityNet as the opposite sign
-          // safe because liquidityNet cannot be type(int128).min
           if (zeroForOne)
             liquidityNet = JSBI.multiply(liquidityNet, NEGATIVE_ONE);
 
@@ -360,14 +361,20 @@ export class Pool {
 
         state.tick = zeroForOne ? step.tickNext - 1 : step.tickNext;
       } else if (JSBI.notEqual(state.sqrtPriceX64, step.sqrtPriceStartX64)) {
-        // updated comparison function
-        // recompute unless we're on a lower tick boundary (i.e. already transitioned ticks), and haven't moved
         state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX64);
       }
     }
 
+    const amountA = zeroForOne == exactInput 
+      ? JSBI.subtract(amountSpecified, state.amountSpecifiedRemaining)
+      : state.amountCalculated;
+    const amountB = zeroForOne == exactInput 
+      ? state.amountCalculated
+      : JSBI.subtract(amountSpecified, state.amountSpecifiedRemaining);
+
     return {
-      amountCalculated: state.amountCalculated,
+      amountA,
+      amountB,
       sqrtPriceX64: state.sqrtPriceX64,
       liquidity: state.liquidity,
       tickCurrent: state.tick,

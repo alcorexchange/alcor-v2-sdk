@@ -499,7 +499,17 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
     const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] = []
     for (const route of routes) {
-      const trade = Trade.fromRoute(route, currencyAmountIn, TradeType.EXACT_INPUT)
+      let trade
+
+      try {
+        trade = Trade.fromRoute(route, currencyAmountIn, TradeType.EXACT_INPUT)
+      } catch (error) {
+        // not enough liquidity in this pair
+        if ((error as any).isInsufficientInputAmountError) {
+          continue
+        }
+        throw error
+      }
 
       // FIXME! Sorting bug multiple pools
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
@@ -524,7 +534,16 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
     const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[] = []
     for (const route of routes) {
-      const trade = Trade.fromRoute(route, currencyAmountOut, TradeType.EXACT_OUTPUT)
+      let trade 
+      try {
+        trade = Trade.fromRoute(route, currencyAmountOut, TradeType.EXACT_OUTPUT)
+      } catch (error) {
+        // not enough liquidity in this pair
+        if ((error as any).isInsufficientReservesError) {
+          continue
+        }
+        throw error
+      }
 
       if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
 
@@ -545,7 +564,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     percents: number[],
     tradeType: TradeType,
     swapConfig = { minSplits: 1, maxSplits: 10 }
-  ): Trade<Currency, Currency, TradeType.EXACT_INPUT> | null {
+  ): Trade<Currency, Currency, TradeType> | null {
     invariant(routes.length > 0, 'ROUTES')
     invariant(percents.length > 0, 'PERCENTS')
 
@@ -555,7 +574,17 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       const splitAmount = amount.multiply(percent).divide(100)
 
       for (const route of routes) {
-        const trade = Trade.fromRoute(route, splitAmount, tradeType, percent)
+        let trade 
+        try {
+          trade = Trade.fromRoute(route, splitAmount, tradeType, percent)
+        } catch (error) {
+          // not enough liquidity in this pair
+          if ((error as any).isInsufficientReservesError || (error as any).isInsufficientInputAmountError) {
+            continue
+          }
+          throw error
+        }
+
         if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
 
         if (!percentToTrades[percent]) {
@@ -565,14 +594,13 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
         percentToTrades[percent].push(trade)
       }
     }
-
     const bestTrades = getBestSwapRoute(tradeType, percentToTrades, percents, swapConfig)
     if (!bestTrades) return null
 
     return new Trade({
-      routes: bestTrades.map(({ inputAmount, outputAmount, route, swaps }) => 
+      routes: bestTrades.map(({ inputAmount, outputAmount, route, swaps }) =>
         ({ inputAmount, outputAmount, route, percent: swaps[0].percent })),
-      tradeType: TradeType.EXACT_INPUT }
+      tradeType }
     )
   }
 }
