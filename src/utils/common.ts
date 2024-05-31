@@ -28,8 +28,8 @@ export function parseTrade(trade) {
   })
 
   const result = {
-    route: null,
-    memo: null,
+    route: [],
+    memo: '',
     swaps,
     input: trade.inputAmount.toFixed(),
     output: trade.outputAmount.toFixed(),
