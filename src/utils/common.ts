@@ -7,7 +7,6 @@ export function parseTrade(trade) {
   const receiver = '<receiver>'
 
   const exactIn = trade.tradeType === TradeType.EXACT_INPUT
-  console.log('trade.tradeType', trade.tradeType, TradeType.EXACT_INPUT)
 
   const maxSent = exactIn ? trade.inputAmount : trade.maximumAmountIn(slippage)
   const minReceived = exactIn ? trade.minimumAmountOut(slippage) : trade.outputAmount
