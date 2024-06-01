@@ -1,5 +1,5 @@
+import _ from 'lodash'
 import invariant from 'tiny-invariant'
-
 
 import { Currency } from './currency'
 import { Fraction, Percent, Price, CurrencyAmount } from './fractions'
@@ -559,13 +559,14 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
   }
 
   public static bestTradeWithSplit<TInput extends Currency, TOutput extends Currency>(
-    routes: Route<TInput, TOutput>[],
+    _routes: Route<TInput, TOutput>[],
     amount: CurrencyAmount<Currency>,
     percents: number[],
     tradeType: TradeType,
     swapConfig = { minSplits: 1, maxSplits: 10 }
   ): Trade<Currency, Currency, TradeType> | null {
-    invariant(routes.length > 0, 'ROUTES')
+    // TODO Need rafactor
+    invariant(_routes.length > 0, 'ROUTES')
     invariant(percents.length > 0, 'PERCENTS')
 
     // Compute routes for all percents for all routes
@@ -573,7 +574,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     for (const percent of percents) {
       const splitAmount = amount.multiply(percent).divide(100)
 
-      for (const route of routes) {
+      for (const route of _routes) {
         let trade 
         try {
           trade = Trade.fromRoute(route, splitAmount, tradeType, percent)
@@ -597,10 +598,26 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     const bestTrades = getBestSwapRoute(tradeType, percentToTrades, percents, swapConfig)
     if (!bestTrades) return null
 
-    return new Trade({
-      routes: bestTrades.map(({ inputAmount, outputAmount, route, swaps }) =>
-        ({ inputAmount, outputAmount, route, percent: swaps[0].percent })),
-      tradeType }
-    )
+    const routes = bestTrades.map(({ inputAmount, outputAmount, route, swaps }) => {
+      return { inputAmount, outputAmount, route, percent: swaps[0].percent }
+    })
+
+    // Check missing input after splitting
+    // TODO Do we need it for exact out?
+    if (tradeType === TradeType.EXACT_INPUT) {
+      const totalAmount = _.reduce(routes, (total, route) =>
+        total.add(route.inputAmount),
+        CurrencyAmount.fromRawAmount(routes[0].route.input, 0)
+      )
+
+      const missingAmount = amount.subtract(totalAmount)
+
+      if (missingAmount.greaterThan(0)) {
+        console.log("MISSING AMOUNT!!!", missingAmount.toFixed())
+        routes[0].inputAmount = routes[0].inputAmount.add(missingAmount)
+      }
+    }
+
+    return new Trade({ routes, tradeType })
   }
 }
