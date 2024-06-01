@@ -14,3 +14,4 @@ export * from "./sqrtPriceMath";
 export * from "./sortedInsert";
 export * from "./computeAllRoutes";
 export * from "./common";
+export * from "./getBestSwapRoute";
