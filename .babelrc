@@ -1,0 +1,20 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": "defaults",
+          "node": "8"
+        },
+        "modules": "commonjs"
+      }
+    ],
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    ["transform-jsbi-to-bigint", { "debug": true }],
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-classes"  
+  ]
+}

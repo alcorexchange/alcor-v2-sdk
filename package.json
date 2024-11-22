@@ -1,15 +1,15 @@
 {
   "name": "@alcorexchange/alcor-swap-sdk",
-  "version": "1.0.38",
+  "version": "1.0.391",
   "description": "",
   "main": "build/index.js",
   "scripts": {
     "start:dev": "npx nodemon",
-    "build": "rimraf ./build && tsc",
+    "build": "rimraf ./build && babel src --out-dir build --extensions \".ts\"",
     "start": "npm run build && node build/index.js",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "test": "jest "
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -29,11 +29,17 @@
   },
   "homepage": "https://github.com/alcorexchange/alcor-v2-sdk#readme",
   "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
     "@types/big.js": "^4.0.5",
     "@types/jest": "^29.2.6",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.48.2",
     "@typescript-eslint/parser": "^5.48.2",
+    "babel-plugin-transform-jsbi-to-bigint": "^1.4.0",
     "dotenv": "^16.3.1",
     "enf-eosjs": "^23.0.0",
     "eslint": "^8.32.0",
@@ -46,7 +52,8 @@
     "rimraf": "^4.1.1",
     "ts-jest": "^28.0.4",
     "ts-node": "^10.9.2",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "workerpool": "^9.2.0"
   },
   "dependencies": {
     "big.js": "^5.2.2",
