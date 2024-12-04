@@ -198,7 +198,8 @@ export class Pool {
     const amountIn = zeroForOne ? amountA : amountB;
 
     //console.log(JSBI.equal(amountIn, inputAmount.quotient))
-    if (!JSBI.equal(amountIn, inputAmount.quotient)) {
+    if (!JSBI.greaterThanOrEqual(inputAmount.quotient, amountIn)) {
+    //if (!JSBI.equal(amountIn, inputAmount.quotient)) {
       throw new InsufficientInputAmountError
     }
 
