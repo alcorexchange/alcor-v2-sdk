@@ -1,11 +1,11 @@
 {
   "name": "@alcorexchange/alcor-swap-sdk",
-  "version": "1.0.392",
+  "version": "1.0.393",
   "description": "",
   "main": "build/index.js",
   "scripts": {
     "start:dev": "npx nodemon",
-    "build": "rimraf ./build && babel src --out-dir build --extensions \".ts\"",
+    "build": "rimraf ./build && babel src --out-dir build --extensions \".ts\" && tsc --emitDeclarationOnly",
     "start": "npm run build && node build/index.js",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
