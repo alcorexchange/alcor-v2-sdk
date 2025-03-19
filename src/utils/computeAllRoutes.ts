@@ -1,71 +1,76 @@
 import { Token, Pool, Route } from '../entities';
 
-interface RouteNode {
-  currentToken: Token;
-  currentRoute: Pool[];
-  usedPools: Set<number>;
-}
-
 export function computeAllRoutes(
   tokenIn: Token,
   tokenOut: Token,
   pools: Pool[],
   maxHops: number
 ): Route<Token, Token>[] {
-  // Создаем карту пулов для каждого токена
-  const poolMap: Map<string, Pool[]> = new Map();
-  pools.forEach((pool, index) => {
-    const tokenA = pool.tokenA.id;
-    const tokenB = pool.tokenB.id;
-    if (!poolMap.has(tokenA)) poolMap.set(tokenA, []);
-    if (!poolMap.has(tokenB)) poolMap.set(tokenB, []);
-    poolMap.get(tokenA)!.push(pool);
-    poolMap.get(tokenB)!.push(pool);
-  });
-
-  // Инициализируем стек для итеративного обхода
   const routes: Route<Token, Token>[] = [];
-  const stack: RouteNode[] = [
-    {
-      currentToken: tokenIn,
-      currentRoute: [],
-      usedPools: new Set(),
-    },
-  ];
-
-  // Основной цикл обработки маршрутов
-  while (stack.length > 0) {
-    const { currentToken, currentRoute, usedPools } = stack.pop()!;
-
-    // Ранняя остановка: превышен лимит хопов
-    if (currentRoute.length > maxHops) continue;
-
-    // Если маршрут завершен (достигнут tokenOut), добавляем его в результат
-    if (currentRoute.length > 0 && currentRoute[currentRoute.length - 1].involvesToken(tokenOut)) {
-      routes.push(new Route([...currentRoute], tokenIn, tokenOut));
-      continue;
-    }
-
-    // Получаем доступные пулы для текущего токена
-    const availablePools = poolMap.get(currentToken.id) || [];
-    for (const pool of availablePools) {
-      const poolIndex = pools.indexOf(pool);
-      if (usedPools.has(poolIndex)) continue; // Пропускаем уже использованные пулы
-
-      // Определяем следующий токен
-      const nextToken = pool.tokenA.equals(currentToken) ? pool.tokenB : pool.tokenA;
-
-      // Создаем новый маршрут и добавляем его в стек
-      const newRoute = [...currentRoute, pool];
-      const newUsedPools = new Set(usedPools).add(poolIndex);
-      stack.push({
-        currentToken: nextToken,
-        currentRoute: newRoute,
-        usedPools: newUsedPools,
-      });
+  
+  // Pre-filter pools for faster lookup during recursion
+  const poolsByToken: Map<string, Pool[]> = new Map();
+  
+  for (const pool of pools) {
+    for (const token of [pool.tokenA, pool.tokenB]) {
+      const tokenAddress = token.id;
+      if (!poolsByToken.has(tokenAddress)) {
+        poolsByToken.set(tokenAddress, []);
+      }
+      poolsByToken.get(tokenAddress)!.push(pool);
     }
   }
-
+  
+  // Track pools used in current path
+  const poolsUsed = new Set<string>();
+  const currentRoute: Pool[] = [];
+  
+  function computeRoutes(currentTokenIn: Token) {
+    // Base case: reached max hop limit
+    if (currentRoute.length > maxHops) {
+      return;
+    }
+    
+    // Success case: last pool in route involves the destination token
+    if (
+      currentRoute.length > 0 &&
+      currentRoute[currentRoute.length - 1]!.involvesToken(tokenOut)
+    ) {
+      routes.push(new Route([...currentRoute], tokenIn, tokenOut));
+      return;
+    }
+    
+    // Get pools that involve the current input token
+    const possiblePools = poolsByToken.get(currentTokenIn.id) || [];
+    
+    for (const curPool of possiblePools) {
+      // Skip if this pool is already used in the current route
+      const poolKey = `${curPool.tokenA.id}:${curPool.tokenB.id}`;
+      if (poolsUsed.has(poolKey)) {
+        continue;
+      }
+      
+      // Get the other token from the pool (the output token from this step)
+      const currentTokenOut = curPool.tokenA.equals(currentTokenIn)
+        ? curPool.tokenB
+        : curPool.tokenA;
+      
+      // Add this pool to the current route
+      currentRoute.push(curPool);
+      poolsUsed.add(poolKey);
+      
+      // Recurse with the output token as the new input
+      computeRoutes(currentTokenOut);
+      
+      // Backtrack
+      poolsUsed.delete(poolKey);
+      currentRoute.pop();
+    }
+  }
+  
+  // Start recursive search
+  computeRoutes(tokenIn);
+  
   return routes;
 }
 
