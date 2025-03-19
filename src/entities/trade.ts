@@ -235,39 +235,30 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     tradeType: TTradeType,
     percent = 100
   ): Trade<TInput, TOutput, TTradeType> {
-    const amounts: CurrencyAmount<Token>[] = new Array(route.tokenPath.length)
-    let inputAmount: CurrencyAmount<TInput>
-    let outputAmount: CurrencyAmount<TOutput>
+    const amounts: CurrencyAmount<Token>[] = new Array(route.tokenPath.length);
+    let inputAmount: CurrencyAmount<any>;
+    let outputAmount: CurrencyAmount<any>;
+
     if (tradeType === TradeType.EXACT_INPUT) {
-      invariant(amount.currency.equals(route.input), 'INPUT')
-      amounts[0] = amount
+      amounts[0] = amount; // Переиспользуем amount напрямую
       for (let i = 0; i < route.tokenPath.length - 1; i++) {
-        const pool = route.pools[i]
-        const outputAmount = pool.getOutputAmount(amounts[i])
-        amounts[i + 1] = outputAmount
+        amounts[i + 1] = route.pools[i].getOutputAmount(amounts[i]);
       }
-      inputAmount = CurrencyAmount.fromFractionalAmount(route.input, amount.numerator, amount.denominator)
-      outputAmount = CurrencyAmount.fromFractionalAmount(
-        route.output,
-        amounts[amounts.length - 1].numerator,
-        amounts[amounts.length - 1].denominator
-      )
+      inputAmount = amount; // Без создания нового объекта
+      outputAmount = amounts[amounts.length - 1];
     } else {
-      invariant(amount.currency.equals(route.output), 'OUTPUT')
-      amounts[amounts.length - 1] = amount
+      amounts[amounts.length - 1] = amount;
       for (let i = route.tokenPath.length - 1; i > 0; i--) {
-        const pool = route.pools[i - 1]
-        const inputAmount = pool.getInputAmount(amounts[i])
-        amounts[i - 1] = inputAmount
+        amounts[i - 1] = route.pools[i - 1].getInputAmount(amounts[i]);
       }
-      inputAmount = CurrencyAmount.fromFractionalAmount(route.input, amounts[0].numerator, amounts[0].denominator)
-      outputAmount = CurrencyAmount.fromFractionalAmount(route.output, amount.numerator, amount.denominator)
+      inputAmount = amounts[0];
+      outputAmount = amount;
     }
 
     return new Trade({
       routes: [{ inputAmount, outputAmount, route, percent }],
       tradeType
-    })
+    });
   }
 
   /**
@@ -565,37 +556,49 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     tradeType: TradeType,
     swapConfig = { minSplits: 1, maxSplits: 10 }
   ): Trade<Currency, Currency, TradeType> | null {
-    // TODO Need rafactor
     invariant(_routes.length > 0, 'ROUTES')
     invariant(percents.length > 0, 'PERCENTS')
-
-    // Compute routes for all percents for all routes
-    const percentToTrades: { [percent: number]: Trade<Currency, Currency, TradeType>[] } = {};
+    
+    // Предварительно вычисляем splitAmount для всех процентов
+    const percentToAmount = new Map<number, CurrencyAmount<Currency>>();
     for (const percent of percents) {
-      const splitAmount = amount.multiply(percent).divide(100)
-
-      for (const route of _routes) {
+      percentToAmount.set(percent, amount.multiply(percent).divide(100));
+    }
+    
+    // Используем Map вместо объекта для лучшей производительности
+    const percentToTrades = new Map<number, Trade<Currency, Currency, TradeType>[]>();
+    for (const percent of percents) {
+      percentToTrades.set(percent, []);
+    }
+    
+    // Оптимизируем внутренний цикл - группируем вычисления по маршрутам
+    for (const route of _routes) {
+      // Для каждого маршрута проходим по всем процентам
+      for (const percent of percents) {
+        const splitAmount = percentToAmount.get(percent)!;
+        
         try {
-          const trade = Trade.fromRoute(route, splitAmount, tradeType, percent)
-
-          if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
-
-          if (!percentToTrades[percent]) {
-            percentToTrades[percent] = []
+          const trade = Trade.fromRoute(route, splitAmount, tradeType, percent);
+          
+          if (trade.inputAmount.greaterThan(0) && trade.priceImpact.greaterThan(0)) {
+            percentToTrades.get(percent)!.push(trade);
           }
-
-          percentToTrades[percent].push(trade)
-
         } catch (error) {
-          // not enough liquidity in this pair
           if ((error as any).isInsufficientReservesError || (error as any).isInsufficientInputAmountError) {
-            continue
+            continue;
           }
-          throw error
+          throw error;
         }
       }
     }
-    const bestTrades = getBestSwapRoute(tradeType, percentToTrades, percents, swapConfig)
+    
+    // Преобразуем Map обратно в объект для совместимости с getBestSwapRoute
+    const percentToTradesObj: { [percent: number]: Trade<Currency, Currency, TradeType>[] } = {};
+    percentToTrades.forEach((trades, percent) => {
+      percentToTradesObj[percent] = trades;
+    });
+    
+    const bestTrades = getBestSwapRoute(tradeType, percentToTradesObj, percents, swapConfig);
     if (!bestTrades) return null
 
     const routes = bestTrades.map(({ inputAmount, outputAmount, route, swaps }) => {

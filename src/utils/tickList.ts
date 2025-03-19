@@ -76,27 +76,18 @@ export abstract class TickList {
    * @private
    */
   private static binarySearch(ticks: readonly Tick[], tick: number): number {
-    invariant(!this.isBelowSmallest(ticks, tick), "BELOW_SMALLEST");
-
     let l = 0;
     let r = ticks.length - 1;
-    let i;
-    while (true) {
-      i = Math.floor((l + r) / 2);
 
-      if (
-        ticks[i].id <= tick &&
-        (i === ticks.length - 1 || ticks[i + 1].id > tick)
-      ) {
+    while (l <= r) {
+      const i = Math.floor((l + r) / 2);
+      if (ticks[i].id <= tick && (i === ticks.length - 1 || ticks[i + 1].id > tick)) {
         return i;
       }
-
-      if (ticks[i].id < tick) {
-        l = i + 1;
-      } else {
-        r = i - 1;
-      }
+      if (ticks[i].id < tick) l = i + 1;
+      else r = i - 1;
     }
+    return r; // Если не нашли точное совпадение, возвращаем последний меньший индекс
   }
 
   public static nextInitializedTick(
@@ -127,30 +118,29 @@ export abstract class TickList {
     lte: boolean,
     tickSpacing: number
   ): [number, boolean] {
-    const compressed = Math.floor(tick / tickSpacing); // matches rounding in the code
+    const compressed = Math.floor(tick / tickSpacing);
+    const tickCount = ticks.length;
 
     if (lte) {
       const wordPos = compressed >> 7;
       const minimum = (wordPos << 7) * tickSpacing;
 
-      if (TickList.isBelowSmallest(ticks, tick)) {
-        return [minimum, false];
-      }
+      if (tick < ticks[0].id) return [minimum, false];
+      if (tick >= ticks[tickCount - 1].id) return [ticks[tickCount - 1].id, true];
 
-      const id = TickList.nextInitializedTick(ticks, tick, lte).id;
-      const nextInitializedTick = Math.max(minimum, id);
-      return [nextInitializedTick, nextInitializedTick === id];
+      const id = this.binarySearch(ticks, tick);
+      const nextInitializedTick = Math.max(minimum, ticks[id].id);
+      return [nextInitializedTick, nextInitializedTick === ticks[id].id];
     } else {
       const wordPos = (compressed + 1) >> 7;
       const maximum = (((wordPos + 1) << 7) - 1) * tickSpacing;
 
-      if (this.isAtOrAboveLargest(ticks, tick)) {
-        return [maximum, false];
-      }
+      if (tick >= ticks[tickCount - 1].id) return [maximum, false];
+      if (tick < ticks[0].id) return [ticks[0].id, true];
 
-      const id = this.nextInitializedTick(ticks, tick, lte).id;
-      const nextInitializedTick = Math.min(maximum, id);
-      return [nextInitializedTick, nextInitializedTick === id];
+      const id = this.binarySearch(ticks, tick);
+      const nextInitializedTick = Math.min(maximum, ticks[id + 1].id);
+      return [nextInitializedTick, nextInitializedTick === ticks[id + 1].id];
     }
   }
 }
