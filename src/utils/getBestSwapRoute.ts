@@ -74,7 +74,7 @@ export function getBestSwapRoute(
   const { minSplits, maxSplits } = swapRouteConfig;
 
   // Проверяем наличие маршрута для 100% и инициализируем начальные данные
-  if (!percentToSortedQuotes[100] || minSplits > 1) {
+  if (!percentToSortedQuotes[100] || percentToSortedQuotes[100].length === 0 || minSplits > 1) {
     console.log('Did not find a valid route without any splits. Continuing search anyway.');
   } else {
     bestQuote = percentToSortedQuotes[100][0].outputAmount;
@@ -101,7 +101,7 @@ export function getBestSwapRoute(
   // Инициализируем очередь с топ-2 маршрутами для каждого процента
   for (let i = percents.length - 1; i >= 0; i--) {
     const percent = percents[i];
-    if (!percentToSortedQuotes[percent]) continue;
+    if (!percentToSortedQuotes[percent] || percentToSortedQuotes[percent].length === 0) continue;
 
     const topRoutes = percentToSortedQuotes[percent].slice(0, 2);
     if (topRoutes[0]) {
@@ -147,7 +147,7 @@ export function getBestSwapRoute(
       for (let i = percentIndex; i >= 0; i--) {
         const percentA = percents[i];
         if (percentA > remainingPercent) continue;
-        if (!percentToSortedQuotes[percentA]) continue;
+        if (!percentToSortedQuotes[percentA] || percentToSortedQuotes[percentA].length === 0) continue;
 
         const candidateRoutesA = percentToSortedQuotes[percentA];
         const routeWithQuoteA = findFirstRouteNotUsingUsedPools(curRoutes, candidateRoutesA, routeToMask);
