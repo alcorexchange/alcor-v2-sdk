@@ -3,6 +3,10 @@
   "version": "1.0.397",
   "description": "",
   "main": "build/index.js",
+  "files": [
+    "build/",
+    "wasm-route-finder/pkg/"
+  ],
   "scripts": {
     "start:dev": "npx nodemon",
     "build": "rimraf ./build && babel src --out-dir build --extensions \".ts\" && tsc --emitDeclarationOnly",

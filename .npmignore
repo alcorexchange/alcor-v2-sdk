@@ -1,0 +1,38 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Test files
+test/
+test*.ts
+test*.js
+testWASM*.ts
+testWASM*.js
+
+# WASM source files (keep only pkg/)
+wasm-route-finder/src/
+wasm-route-finder/target/
+wasm-route-finder/Cargo.toml
+wasm-route-finder/Cargo.lock
+
+# Config files
+.env
+.env.test
+tsconfig.json
+babel.config.js
+jest.config.js
+nodemon.json
+.eslintrc.js
+.prettierrc
+
+# Git
+.git/
+.gitignore
+
+# Other
+routes.json
+examples/
+docs/
+*.log
+node_modules/
