@@ -10,6 +10,9 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
   );
 }
 
+// Memoization cache for getSqrtRatioAtTick
+const sqrtRatioCache = new Map<number, JSBI>();
+
 export abstract class TickMath {
   /**
    * The minimum tick that can be used on any pool.
@@ -32,10 +35,23 @@ export abstract class TickMath {
   );
 
   /**
+   * Clears the sqrt ratio cache. Call this if memory usage is a concern.
+   */
+  public static clearCache(): void {
+    sqrtRatioCache.clear();
+  }
+
+  /**
    * Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
    * @param tick the tick for which to compute the sqrt ratio
    */
   public static getSqrtRatioAtTick(tick: number): JSBI {
+    // Check cache first
+    const cached = sqrtRatioCache.get(tick);
+    if (cached !== undefined) {
+      return cached;
+    }
+
     invariant(
       tick >= TickMath.MIN_TICK &&
         tick <= TickMath.MAX_TICK &&
@@ -90,9 +106,14 @@ export abstract class TickMath {
     if (tick > 0) ratio = JSBI.divide(MaxUint256, ratio);
 
     // back to Q64
-    return JSBI.greaterThan(JSBI.remainder(ratio, Q64), ZERO)
+    const result = JSBI.greaterThan(JSBI.remainder(ratio, Q64), ZERO)
       ? JSBI.add(JSBI.divide(ratio, Q64), ONE)
       : JSBI.divide(ratio, Q64);
+
+    // Store in cache
+    sqrtRatioCache.set(tick, result);
+
+    return result;
   }
 
   /**
