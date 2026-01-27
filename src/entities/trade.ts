@@ -4,7 +4,7 @@ import JSBI from 'jsbi'
 
 import { Currency } from './currency'
 import { Fraction, Percent, Price, CurrencyAmount } from './fractions'
-import { sortedInsert } from '../utils'
+import { sortedInsert } from '../utils/sortedInsert'
 import { Token } from './token'
 import { ONE, ZERO, TradeType } from '../internalConstants'
 import { Route } from './route'

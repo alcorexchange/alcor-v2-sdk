@@ -10,7 +10,7 @@ import { SqrtPriceMath } from "../utils/sqrtPriceMath";
 import { TickMath } from "../utils/tickMath";
 import { encodeSqrtRatioX64 } from "../utils/encodeSqrtRatioX64";
 import { Pool } from "./pool";
-import { TickLibrary, subIn128 } from "../utils";
+import { TickLibrary, subIn128 } from "../utils/tickLibrary";
 
 interface PositionConstructorArgs {
   id: number,

@@ -1,5 +1,5 @@
 import JSBI from "jsbi";
-import { sqrt } from ".";
+import { sqrt } from "./sqrt";
 import { BigintIsh } from "../internalConstants";
 
 /**

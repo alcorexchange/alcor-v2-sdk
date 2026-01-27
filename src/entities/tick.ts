@@ -1,7 +1,7 @@
 import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { BigintIsh } from "../internalConstants";
-import { TickMath } from "../utils";
+import { TickMath } from "../utils/tickMath";
 
 export interface TickConstructorArgs {
   id: number;

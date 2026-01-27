@@ -43,8 +43,8 @@ export function parseTrade(trade) {
   }
 
   // FIXME DEPRECATED Hotfix for legacy v1
-  result!.route = trade.swaps[0].route.pools.map((p) => p.id)
-  result!.memo = `${tradeType}#${result.route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
+  result.route = trade.swaps[0].route.pools.map((p) => p.id)
+  result.memo = `${tradeType}#${result.route.join(',')}#${receiver}#${minReceived.toExtendedAsset()}#0`
 
   return result
 }

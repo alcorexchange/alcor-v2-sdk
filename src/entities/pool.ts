@@ -70,7 +70,6 @@ export class Pool {
   static hashToPoolMap: Map<string, Pool> = new Map()
   public static idToPoolMap: Map<number, Pool> = new Map()
 
-
   private _tokenAPrice?: Price<Token, Token>;
   private _tokenBPrice?: Price<Token, Token>;
 
@@ -440,6 +439,7 @@ export class Pool {
   static hashEquals(pool: Pool, hash: string) {
     return pool.bufferHash === hash
   }
+
   public equals(other: Pool): boolean {
     // Сравниваем id пулов
     if (this.id !== other.id) return false;

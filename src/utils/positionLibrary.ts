@@ -1,5 +1,5 @@
 import JSBI from "jsbi";
-import { subIn128 } from ".";
+import { subIn128 } from "./tickLibrary";
 import { Q64 } from "../internalConstants";
 
 export abstract class PositionLibrary {
