@@ -1,15 +1,14 @@
 {
   "name": "@alcorexchange/alcor-swap-sdk",
-  "version": "1.0.397",
+  "version": "1.0.402",
   "description": "",
   "main": "build/index.js",
   "files": [
-    "build/",
-    "wasm-route-finder/pkg/"
+    "build/**/*"
   ],
   "scripts": {
     "start:dev": "npx nodemon",
-    "build": "rimraf ./build && babel src --out-dir build --extensions \".ts\" && tsc --emitDeclarationOnly",
+    "build": "rimraf ./build && babel src --out-dir build --extensions \".ts\" && tsc --emitDeclarationOnly && cp wasm-route-finder/pkg/*.wasm wasm-route-finder/pkg/*.js build/utils/",
     "start": "npm run build && node build/index.js",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

@@ -8,6 +8,7 @@ import { Token } from './token'
 import { ONE, ZERO, TradeType } from '../internalConstants'
 import { Route } from './route'
 import { getBestSwapRoute } from '../utils/getBestSwapRoute'
+import { Pool } from './pool'
 
 /**
  * Trades comparator, an extension of the input output comparator that also considers other dimensions of the trade in ranking them
@@ -217,6 +218,27 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     amountOut: CurrencyAmount<TOutput>
   ): Trade<TInput, TOutput, TradeType.EXACT_OUTPUT> {
     return Trade.fromRoute(route, amountOut, TradeType.EXACT_OUTPUT)
+  }
+
+  /**
+   * WASM-accelerated version of fromRoute (for EXACT_INPUT only)
+   * @param route route to swap through
+   * @param amount the input amount
+   * @param pools All pools for calculation
+   * @returns Promise of the trade
+   */
+  public static async fromRouteWASM<TInput extends Currency, TOutput extends Currency>(
+    route: Route<TInput, TOutput>,
+    amount: CurrencyAmount<TInput>,
+    pools: Pool[]
+  ): Promise<Trade<TInput, TOutput, TradeType.EXACT_INPUT>> {
+    const { createTradeFromRouteWASM } = await import('../utils/tradeCalculatorWASM');
+    return createTradeFromRouteWASM(
+      route as any,
+      amount as any,
+      TradeType.EXACT_INPUT,
+      pools
+    ) as any;
   }
 
   /**
@@ -547,6 +569,35 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     }
 
     return bestTrades
+  }
+
+  /**
+   * WASM-accelerated version of bestTradeWithSplit
+   * @param _routes Routes to consider
+   * @param amount Amount to swap
+   * @param percents Percentages to split
+   * @param tradeType Type of trade
+   * @param pools All pools for trade calculation
+   * @param swapConfig Configuration for splits
+   * @returns Best trade or null
+   */
+  public static async bestTradeWithSplitWASM<TInput extends Currency, TOutput extends Currency>(
+    _routes: Route<TInput, TOutput>[],
+    amount: CurrencyAmount<Currency>,
+    percents: number[],
+    tradeType: TradeType,
+    pools: Pool[],
+    swapConfig = { minSplits: 1, maxSplits: 10 }
+  ): Promise<Trade<Currency, Currency, TradeType> | null> {
+    const { bestTradeWithSplitWASM } = await import('../utils/tradeCalculatorWASM');
+    return bestTradeWithSplitWASM(
+      _routes as any,
+      amount as any,
+      percents,
+      tradeType,
+      pools,
+      swapConfig
+    );
   }
 
   public static bestTradeWithSplit<TInput extends Currency, TOutput extends Currency>(

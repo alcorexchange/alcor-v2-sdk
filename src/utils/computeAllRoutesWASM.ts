@@ -3,10 +3,11 @@ import { Token, Pool, Route } from '../entities';
 // WASM imports - lazy loaded
 let wasmModule: any = null;
 
-async function loadWasmModule() {
+function loadWasmModule() {
   if (!wasmModule) {
     try {
-      wasmModule = await import('../../wasm-route-finder/pkg/wasm_route_finder.js');
+      // Load from same directory (utils/)
+      wasmModule = require('./wasm_route_finder.js');
     } catch (error) {
       console.error('Failed to load WASM module:', error);
       throw new Error('WASM module not available');
@@ -27,7 +28,7 @@ export class WASMRouteFinder {
    * Initialize with pools - loads them into WASM memory
    */
   async initialize(pools: Pool[]): Promise<void> {
-    await loadWasmModule();
+    loadWasmModule();
     
     // Build pool map for fast lookup
     this.poolsMap.clear();
@@ -57,7 +58,7 @@ export class WASMRouteFinder {
       return;
     }
 
-    await loadWasmModule();
+    loadWasmModule();
     
     // Update local map
     for (const pool of pools) {

@@ -13,5 +13,6 @@ export * from "./priceTickConversions";
 export * from "./sqrtPriceMath";
 export * from "./sortedInsert";
 export * from "./computeAllRoutes";
+export * from "./computeAllRoutesWASM";
 export * from "./common";
 export * from "./getBestSwapRoute";
