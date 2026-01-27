@@ -7,6 +7,7 @@ import { TickDataProvider } from "./tickDataProvider";
  */
 export class TickListDataProvider implements TickDataProvider {
   public ticks: readonly Tick[];
+  private _cursorIndex: number = -1;
 
   constructor(ticks: (Tick | TickConstructorArgs)[], tickSpacing: number) {
     const ticksMapped: Tick[] = ticks.map((t) =>
@@ -22,6 +23,11 @@ export class TickListDataProvider implements TickDataProvider {
     return TickList.getTick(this.ticks, tick);
   }
 
+  /** Reset cursor for new swap */
+  resetCursor(): void {
+    this._cursorIndex = -1;
+  }
+
   nextInitializedTickWithinOneWord(
     tick: number,
     lte: boolean,
@@ -33,6 +39,23 @@ export class TickListDataProvider implements TickDataProvider {
       lte,
       tickSpacing
     );
+  }
+
+  /** Optimized version with cursor - O(1) for sequential access */
+  nextInitializedTickWithinOneWordWithCursor(
+    tick: number,
+    lte: boolean,
+    tickSpacing: number
+  ): [number, boolean] {
+    const [tickNext, initialized, newCursor] = TickList.nextInitializedTickWithinOneWordWithCursor(
+      this.ticks,
+      tick,
+      lte,
+      tickSpacing,
+      this._cursorIndex
+    );
+    this._cursorIndex = newCursor;
+    return [tickNext, initialized];
   }
 
   static toJSON(ticks: Tick[]): object {

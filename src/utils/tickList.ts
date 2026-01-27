@@ -143,4 +143,69 @@ export abstract class TickList {
       return [nextInitializedTick, nextInitializedTick === ticks[id + 1].id];
     }
   }
+
+  /**
+   * Optimized version with cursor hint for sequential access (swap loops)
+   * @param cursorHint - last known index position, -1 if unknown
+   * @returns [tickId, initialized, newCursorIndex]
+   */
+  public static nextInitializedTickWithinOneWordWithCursor(
+    ticks: readonly Tick[],
+    tick: number,
+    lte: boolean,
+    tickSpacing: number,
+    cursorHint: number
+  ): [number, boolean, number] {
+    const compressed = Math.floor(tick / tickSpacing);
+    const tickCount = ticks.length;
+
+    if (lte) {
+      const wordPos = compressed >> 7;
+      const minimum = (wordPos << 7) * tickSpacing;
+
+      if (tick < ticks[0].id) return [minimum, false, -1];
+      if (tick >= ticks[tickCount - 1].id) return [ticks[tickCount - 1].id, true, tickCount - 1];
+
+      // Use cursor hint for O(1) lookup if valid
+      let id: number;
+      if (cursorHint >= 0 && cursorHint < tickCount) {
+        // Linear scan from hint (swap moves monotonically)
+        if (ticks[cursorHint].id <= tick && (cursorHint === tickCount - 1 || ticks[cursorHint + 1].id > tick)) {
+          id = cursorHint;
+        } else if (cursorHint > 0 && ticks[cursorHint - 1].id <= tick && ticks[cursorHint].id > tick) {
+          id = cursorHint - 1;
+        } else {
+          id = this.binarySearch(ticks, tick);
+        }
+      } else {
+        id = this.binarySearch(ticks, tick);
+      }
+
+      const nextInitializedTick = Math.max(minimum, ticks[id].id);
+      return [nextInitializedTick, nextInitializedTick === ticks[id].id, id];
+    } else {
+      const wordPos = (compressed + 1) >> 7;
+      const maximum = (((wordPos + 1) << 7) - 1) * tickSpacing;
+
+      if (tick >= ticks[tickCount - 1].id) return [maximum, false, tickCount - 1];
+      if (tick < ticks[0].id) return [ticks[0].id, true, 0];
+
+      // Use cursor hint for O(1) lookup if valid
+      let id: number;
+      if (cursorHint >= 0 && cursorHint < tickCount - 1) {
+        if (ticks[cursorHint].id <= tick && ticks[cursorHint + 1].id > tick) {
+          id = cursorHint;
+        } else if (cursorHint < tickCount - 2 && ticks[cursorHint + 1].id <= tick && ticks[cursorHint + 2].id > tick) {
+          id = cursorHint + 1;
+        } else {
+          id = this.binarySearch(ticks, tick);
+        }
+      } else {
+        id = this.binarySearch(ticks, tick);
+      }
+
+      const nextInitializedTick = Math.min(maximum, ticks[id + 1].id);
+      return [nextInitializedTick, nextInitializedTick === ticks[id + 1].id, id];
+    }
+  }
 }

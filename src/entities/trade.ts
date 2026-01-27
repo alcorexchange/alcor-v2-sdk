@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import invariant from 'tiny-invariant'
+import JSBI from 'jsbi'
 
 import { Currency } from './currency'
 import { Fraction, Percent, Price, CurrencyAmount } from './fractions'
@@ -510,10 +511,42 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
   ): Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] {
     invariant(routes.length > 0, 'ROUTES')
 
-    const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] = []
-    for (const route of routes) {
-      let trade
+    // Pre-filter: remove routes with zero-liquidity pools
+    const validRoutes = routes.filter(route =>
+      route.pools.every(pool => pool.active && JSBI.greaterThan(pool.liquidity, ZERO))
+    )
 
+    // Helper: compute min liquidity using JSBI (no overflow)
+    const getMinLiquidity = (route: Route<TInput, TOutput>): JSBI => {
+      let min = route.pools[0].liquidity
+      for (let i = 1; i < route.pools.length; i++) {
+        if (JSBI.lessThan(route.pools[i].liquidity, min)) {
+          min = route.pools[i].liquidity
+        }
+      }
+      return min
+    }
+
+    // Precompute min liquidity for sorting
+    const routeMinLiq = new Map<Route<TInput, TOutput>, JSBI>()
+    for (const route of validRoutes) {
+      routeMinLiq.set(route, getMinLiquidity(route))
+    }
+
+    // Sort routes: fewer hops first, then by min liquidity desc
+    validRoutes.sort((a, b) => {
+      if (a.pools.length !== b.pools.length) return a.pools.length - b.pools.length
+      const minLiqA = routeMinLiq.get(a)!
+      const minLiqB = routeMinLiq.get(b)!
+      if (JSBI.greaterThan(minLiqA, minLiqB)) return -1
+      if (JSBI.lessThan(minLiqA, minLiqB)) return 1
+      return 0
+    })
+
+    const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] = []
+
+    for (const route of validRoutes) {
+      let trade
       try {
         trade = Trade.fromRoute(route, currencyAmountIn, TradeType.EXACT_INPUT)
       } catch (error) {
@@ -524,8 +557,8 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
         throw error
       }
 
-      // FIXME! Sorting bug multiple pools
-      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
+      // Only check outputAmount > 0, skip expensive priceImpact calculation
+      if (!trade.outputAmount.greaterThan(0)) continue
 
       sortedInsert(
         bestTrades,
@@ -609,29 +642,60 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
   ): Trade<Currency, Currency, TradeType> | null {
     invariant(_routes.length > 0, 'ROUTES')
     invariant(percents.length > 0, 'PERCENTS')
-    
+
+    // Pre-filter: remove routes with zero-liquidity or inactive pools
+    const validRoutes = _routes.filter(route =>
+      route.pools.every(pool => pool.active && JSBI.greaterThan(pool.liquidity, ZERO))
+    )
+
+    // Helper: compute min liquidity for a route using JSBI (no overflow)
+    const getMinLiquidity = (route: Route<TInput, TOutput>): JSBI => {
+      let min = route.pools[0].liquidity
+      for (let i = 1; i < route.pools.length; i++) {
+        if (JSBI.lessThan(route.pools[i].liquidity, min)) {
+          min = route.pools[i].liquidity
+        }
+      }
+      return min
+    }
+
+    // Precompute min liquidity for sorting (avoid recalculating)
+    const routeMinLiq = new Map<Route<TInput, TOutput>, JSBI>()
+    for (const route of validRoutes) {
+      routeMinLiq.set(route, getMinLiquidity(route))
+    }
+
+    // Sort routes by min liquidity (descending) - no hop preference
+    validRoutes.sort((a, b) => {
+      const minLiqA = routeMinLiq.get(a)!
+      const minLiqB = routeMinLiq.get(b)!
+      if (JSBI.greaterThan(minLiqA, minLiqB)) return -1
+      if (JSBI.lessThan(minLiqA, minLiqB)) return 1
+      return 0
+    })
+
     // Предварительно вычисляем splitAmount для всех процентов
     const percentToAmount = new Map<number, CurrencyAmount<Currency>>();
     for (const percent of percents) {
       percentToAmount.set(percent, amount.multiply(percent).divide(100));
     }
-    
+
     // Используем Map вместо объекта для лучшей производительности
     const percentToTrades = new Map<number, Trade<Currency, Currency, TradeType>[]>();
     for (const percent of percents) {
       percentToTrades.set(percent, []);
     }
-    
+
     // Оптимизируем внутренний цикл - группируем вычисления по маршрутам
-    for (const route of _routes) {
-      // Для каждого маршрута проходим по всем процентам
+    for (const route of validRoutes) {
       for (const percent of percents) {
         const splitAmount = percentToAmount.get(percent)!;
-        
+
         try {
           const trade = Trade.fromRoute(route, splitAmount, tradeType, percent);
-          
-          if (trade.inputAmount.greaterThan(0) && trade.priceImpact.greaterThan(0)) {
+
+          // Only check outputAmount > 0, skip expensive priceImpact calculation
+          if (trade.outputAmount.greaterThan(0)) {
             percentToTrades.get(percent)!.push(trade);
           }
         } catch (error) {

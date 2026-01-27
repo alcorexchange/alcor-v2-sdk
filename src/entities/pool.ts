@@ -262,67 +262,84 @@ export class Pool {
     // Убираем проверки invariant в продакшене, если данные гарантированно валидны
     const exactInput = JSBI.greaterThanOrEqual(amountSpecified, ZERO);
 
-    const state = {
-      amountSpecifiedRemaining: amountSpecified,
-      amountCalculated: ZERO,
-      sqrtPriceX64: this.sqrtPriceX64,
-      tick: this.tickCurrent,
-      liquidity: this.liquidity,
-    };
+    // Cache tickSpacing to avoid getter call each iteration
+    const tickSpacing = this.tickSpacing;
 
-    while (JSBI.notEqual(state.amountSpecifiedRemaining, ZERO) && state.sqrtPriceX64 !== sqrtPriceLimit) {
-      const step: Partial<StepComputations> = { sqrtPriceStartX64: state.sqrtPriceX64 };
+    // Reset cursor for sequential tick access optimization
+    const provider = this.tickDataProvider as TickListDataProvider;
+    const useCursor = typeof provider.nextInitializedTickWithinOneWordWithCursor === 'function';
+    if (useCursor) provider.resetCursor();
 
-      // Оптимизация вызова nextInitializedTickWithinOneWord
-      [step.tickNext, step.initialized] = this.tickDataProvider.nextInitializedTickWithinOneWord(
-        state.tick,
-        zeroForOne,
-        this.tickSpacing
-      );
+    // State variables
+    let amountSpecifiedRemaining = amountSpecified;
+    let amountCalculated = ZERO;
+    let sqrtPriceX64 = this.sqrtPriceX64;
+    let tick = this.tickCurrent;
+    let liquidity = this.liquidity;
 
-      step.tickNext = Math.max(TickMath.MIN_TICK, Math.min(step.tickNext, TickMath.MAX_TICK));
-      step.sqrtPriceNextX64 = TickMath.getSqrtRatioAtTick(step.tickNext);
+    // Step variables (reused each iteration - no object allocation)
+    let sqrtPriceStartX64: JSBI;
+    let tickNext: number;
+    let initialized: boolean;
+    let sqrtPriceNextX64: JSBI;
+    let amountIn: JSBI;
+    let amountOut: JSBI;
+    let feeAmount: JSBI;
+
+    while (JSBI.notEqual(amountSpecifiedRemaining, ZERO) && sqrtPriceX64 !== sqrtPriceLimit) {
+      sqrtPriceStartX64 = sqrtPriceX64;
+
+      // Use cursor-optimized version if available (O(1) vs O(log n))
+      [tickNext, initialized] = useCursor
+        ? provider.nextInitializedTickWithinOneWordWithCursor(tick, zeroForOne, tickSpacing)
+        : this.tickDataProvider.nextInitializedTickWithinOneWord(tick, zeroForOne, tickSpacing);
+
+      // Clamp tickNext to valid range
+      if (tickNext < TickMath.MIN_TICK) tickNext = TickMath.MIN_TICK;
+      else if (tickNext > TickMath.MAX_TICK) tickNext = TickMath.MAX_TICK;
+
+      sqrtPriceNextX64 = TickMath.getSqrtRatioAtTick(tickNext);
 
       const targetPrice = (zeroForOne
-        ? JSBI.lessThan(step.sqrtPriceNextX64, sqrtPriceLimit)
-        : JSBI.greaterThan(step.sqrtPriceNextX64, sqrtPriceLimit))
+        ? JSBI.lessThan(sqrtPriceNextX64, sqrtPriceLimit)
+        : JSBI.greaterThan(sqrtPriceNextX64, sqrtPriceLimit))
         ? sqrtPriceLimit
-        : step.sqrtPriceNextX64;
+        : sqrtPriceNextX64;
 
-      [state.sqrtPriceX64, step.amountIn, step.amountOut, step.feeAmount] = SwapMath.computeSwapStep(
-        state.sqrtPriceX64,
+      [sqrtPriceX64, amountIn, amountOut, feeAmount] = SwapMath.computeSwapStep(
+        sqrtPriceX64,
         targetPrice,
-        state.liquidity,
-        state.amountSpecifiedRemaining,
+        liquidity,
+        amountSpecifiedRemaining,
         this.fee
       );
 
       if (exactInput) {
-        state.amountSpecifiedRemaining = JSBI.subtract(state.amountSpecifiedRemaining, JSBI.add(step.amountIn, step.feeAmount));
-        state.amountCalculated = JSBI.subtract(state.amountCalculated, step.amountOut);
+        amountSpecifiedRemaining = JSBI.subtract(amountSpecifiedRemaining, JSBI.add(amountIn, feeAmount));
+        amountCalculated = JSBI.subtract(amountCalculated, amountOut);
       } else {
-        state.amountSpecifiedRemaining = JSBI.add(state.amountSpecifiedRemaining, step.amountOut);
-        state.amountCalculated = JSBI.add(state.amountCalculated, JSBI.add(step.amountIn, step.feeAmount));
+        amountSpecifiedRemaining = JSBI.add(amountSpecifiedRemaining, amountOut);
+        amountCalculated = JSBI.add(amountCalculated, JSBI.add(amountIn, feeAmount));
       }
 
-      if (JSBI.equal(state.sqrtPriceX64, step.sqrtPriceNextX64)) {
-        if (step.initialized) {
-          let liquidityNet = JSBI.BigInt(this.tickDataProvider.getTick(step.tickNext).liquidityNet);
+      if (JSBI.equal(sqrtPriceX64, sqrtPriceNextX64)) {
+        if (initialized) {
+          let liquidityNet = this.tickDataProvider.getTick(tickNext).liquidityNet;
           if (zeroForOne) liquidityNet = JSBI.multiply(liquidityNet, NEGATIVE_ONE);
-          state.liquidity = LiquidityMath.addDelta(state.liquidity, liquidityNet);
+          liquidity = LiquidityMath.addDelta(liquidity, liquidityNet);
         }
-        state.tick = zeroForOne ? step.tickNext - 1 : step.tickNext;
-      } else if (state.sqrtPriceX64 !== step.sqrtPriceStartX64) {
-        state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX64);
+        tick = zeroForOne ? tickNext - 1 : tickNext;
+      } else if (sqrtPriceX64 !== sqrtPriceStartX64) {
+        tick = TickMath.getTickAtSqrtRatio(sqrtPriceX64);
       }
     }
 
     return {
-      amountA: zeroForOne === exactInput ? JSBI.subtract(amountSpecified, state.amountSpecifiedRemaining) : state.amountCalculated,
-      amountB: zeroForOne === exactInput ? state.amountCalculated : JSBI.subtract(amountSpecified, state.amountSpecifiedRemaining),
-      sqrtPriceX64: state.sqrtPriceX64,
-      liquidity: state.liquidity,
-      tickCurrent: state.tick,
+      amountA: zeroForOne === exactInput ? JSBI.subtract(amountSpecified, amountSpecifiedRemaining) : amountCalculated,
+      amountB: zeroForOne === exactInput ? amountCalculated : JSBI.subtract(amountSpecified, amountSpecifiedRemaining),
+      sqrtPriceX64,
+      liquidity,
+      tickCurrent: tick,
     };
   }
 

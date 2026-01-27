@@ -13,19 +13,19 @@ export function getBestSwapRoute(
 ): Trade<Currency, Currency, TradeType>[] | null {
   // Извлекаем уникальные пулы из всех маршрутов
   const allPools = [...new Set(Object.values(percentToQuotes).flatMap(routes => routes.flatMap(r => r.route.pools)))];
-  
-  // Создаем битовую карту для пулов
-  const poolToBit = new Map<number, number>();
-  let bitCounter = 0;
+
+  // Создаем битовую карту для пулов (bigint для поддержки >31 пулов)
+  const poolToBit = new Map<number, bigint>();
+  let bitCounter = BigInt(0);
   for (const pool of allPools) {
-    poolToBit.set(pool.id, 1 << bitCounter++);
+    poolToBit.set(pool.id, BigInt(1) << bitCounter++);
   }
 
   // Предвычисляем маски для всех маршрутов
-  const routeToMask = new Map<Trade<Currency, Currency, TradeType>, number>();
+  const routeToMask = new Map<Trade<Currency, Currency, TradeType>, bigint>();
   for (const routes of Object.values(percentToQuotes)) {
     for (const route of routes) {
-      let mask = 0;
+      let mask = BigInt(0);
       for (const pool of route.route.pools) {
         mask |= poolToBit.get(pool.id)!;
       }
@@ -88,11 +88,12 @@ export function getBestSwapRoute(
     }
   }
 
-  // Очередь для обработки комбинаций маршрутов
+  // Очередь для обработки комбинаций маршрутов (с usedMask для быстрой проверки overlap)
   const queue = new Queue<{
     percentIndex: number;
     curRoutes: Trade<Currency, Currency, TradeType>[];
     remainingPercent: number;
+    usedMask: bigint;
     special: boolean;
   }>();
 
@@ -109,6 +110,7 @@ export function getBestSwapRoute(
         curRoutes: [topRoutes[0]],
         percentIndex: i,
         remainingPercent: 100 - percent,
+        usedMask: routeToMask.get(topRoutes[0])!,
         special: false,
       });
     }
@@ -117,6 +119,7 @@ export function getBestSwapRoute(
         curRoutes: [topRoutes[1]],
         percentIndex: i,
         remainingPercent: 100 - percent,
+        usedMask: routeToMask.get(topRoutes[1])!,
         special: true,
       });
     }
@@ -142,7 +145,7 @@ export function getBestSwapRoute(
     while (layer > 0) {
       layer--;
 
-      const { remainingPercent, curRoutes, percentIndex, special } = queue.dequeue()!;
+      const { remainingPercent, curRoutes, percentIndex, usedMask, special } = queue.dequeue()!;
 
       for (let i = percentIndex; i >= 0; i--) {
         const percentA = percents[i];
@@ -150,13 +153,14 @@ export function getBestSwapRoute(
         if (!percentToSortedQuotes[percentA] || percentToSortedQuotes[percentA].length === 0) continue;
 
         const candidateRoutesA = percentToSortedQuotes[percentA];
-        const routeWithQuoteA = findFirstRouteNotUsingUsedPools(curRoutes, candidateRoutesA, routeToMask);
+        const routeWithQuoteA = findFirstRouteNotUsingUsedPools(usedMask, candidateRoutesA, routeToMask);
 
         if (!routeWithQuoteA) continue;
 
         const remainingPercentNew = remainingPercent - percentA;
         const curRoutesNew = curRoutes.slice();
         curRoutesNew.push(routeWithQuoteA);
+        const usedMaskNew = usedMask | routeToMask.get(routeWithQuoteA)!;
 
         if (remainingPercentNew === 0 && splits >= minSplits) {
           const quotesNew = curRoutesNew.map(r => r.outputAmount);
@@ -176,6 +180,7 @@ export function getBestSwapRoute(
             curRoutes: curRoutesNew,
             remainingPercent: remainingPercentNew,
             percentIndex: i,
+            usedMask: usedMaskNew,
             special,
           });
         }
@@ -198,21 +203,15 @@ export function getBestSwapRoute(
 
 // Вспомогательная функция для поиска маршрута без пересекающихся пулов
 const findFirstRouteNotUsingUsedPools = (
-  usedRoutes: Trade<Currency, Currency, TradeType>[],
+  usedMask: bigint,
   candidateRoutes: Trade<Currency, Currency, TradeType>[],
-  routeToMask: Map<Trade<Currency, Currency, TradeType>, number>
+  routeToMask: Map<Trade<Currency, Currency, TradeType>, bigint>
 ): Trade<Currency, Currency, TradeType> | null => {
-  let usedMask = 0;
-  for (const route of usedRoutes) {
-    usedMask |= routeToMask.get(route)!;
-  }
-
   for (const candidate of candidateRoutes) {
     const candidateMask = routeToMask.get(candidate)!;
-    if ((candidateMask & usedMask) === 0) {
+    if ((candidateMask & usedMask) === BigInt(0)) {
       return candidate;
     }
   }
-
   return null;
 };

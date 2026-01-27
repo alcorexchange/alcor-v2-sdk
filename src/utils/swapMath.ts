@@ -4,7 +4,28 @@ import { FullMath } from "./fullMath";
 import { SqrtPriceMath } from "./sqrtPriceMath";
 
 const MAX_FEE = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(6));
-const MAX_FEE_MINUS_FEE_PIPS = (feePips: FeeAmount) => JSBI.subtract(MAX_FEE, JSBI.BigInt(feePips));
+
+// Cache for fee factors - feePips values are limited (100, 500, 3000, 10000)
+const feeFactorCache = new Map<FeeAmount, JSBI>();
+const feePipsCache = new Map<FeeAmount, JSBI>();
+
+function getFeeFactor(feePips: FeeAmount): JSBI {
+  let cached = feeFactorCache.get(feePips);
+  if (cached === undefined) {
+    cached = JSBI.subtract(MAX_FEE, getFeePipsBigInt(feePips));
+    feeFactorCache.set(feePips, cached);
+  }
+  return cached;
+}
+
+function getFeePipsBigInt(feePips: FeeAmount): JSBI {
+  let cached = feePipsCache.get(feePips);
+  if (cached === undefined) {
+    cached = JSBI.BigInt(feePips);
+    feePipsCache.set(feePips, cached);
+  }
+  return cached;
+}
 
 export abstract class SwapMath {
   /**
@@ -28,7 +49,7 @@ export abstract class SwapMath {
     let feeAmount: JSBI;
 
     if (exactIn) {
-      const feeFactor = MAX_FEE_MINUS_FEE_PIPS(feePips);
+      const feeFactor = getFeeFactor(feePips);
       const amountRemainingLessFee = JSBI.divide(
         JSBI.multiply(amountRemaining, feeFactor),
         MAX_FEE
@@ -59,7 +80,7 @@ export abstract class SwapMath {
 
       feeAmount = JSBI.notEqual(sqrtRatioNextX64, sqrtRatioTargetX64)
         ? JSBI.subtract(amountRemaining, amountIn)
-        : FullMath.mulDivRoundingUp(amountIn, JSBI.BigInt(feePips), feeFactor);
+        : FullMath.mulDivRoundingUp(amountIn, getFeePipsBigInt(feePips), feeFactor);
     } else {
       const deltaOut = zeroForOne
         ? SqrtPriceMath.getAmountBDelta(sqrtRatioTargetX64, sqrtRatioCurrentX64, liquidity, false)
@@ -92,8 +113,8 @@ export abstract class SwapMath {
 
       feeAmount = FullMath.mulDivRoundingUp(
         amountIn,
-        JSBI.BigInt(feePips),
-        MAX_FEE_MINUS_FEE_PIPS(feePips)
+        getFeePipsBigInt(feePips),
+        getFeeFactor(feePips)
       );
     }
 
