@@ -1,0 +1,128 @@
+{
+  "timestamp": "2026-01-27T00:32:34.630Z",
+  "input": "900.0000 TLM",
+  "totalRoutes": 7168,
+  "successfulRoutes": 7099,
+  "top10": [
+    {
+      "routeIndex": 7039,
+      "poolIds": [
+        9871,
+        7457,
+        3173
+      ],
+      "path": "TLM -> CHSR -> GHOST -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "5666.36002340",
+      "priceImpact": "99.7"
+    },
+    {
+      "routeIndex": 7037,
+      "poolIds": [
+        9871,
+        6712,
+        1428
+      ],
+      "path": "TLM -> CHSR -> CHIPS -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "4212.94033277",
+      "priceImpact": "94.28"
+    },
+    {
+      "routeIndex": 5737,
+      "poolIds": [
+        5404,
+        9263,
+        9271
+      ],
+      "path": "TLM -> BUZZ -> DMT -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "4179.06001376",
+      "priceImpact": "18.34"
+    },
+    {
+      "routeIndex": 6672,
+      "poolIds": [
+        8695,
+        7938,
+        6602
+      ],
+      "path": "TLM -> CHEESE -> WCACHE -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "4026.30153718",
+      "priceImpact": "61.5"
+    },
+    {
+      "routeIndex": 5831,
+      "poolIds": [
+        5404,
+        9640,
+        9645
+      ],
+      "path": "TLM -> BUZZ -> CATERZ -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "3913.08936443",
+      "priceImpact": "23.56"
+    },
+    {
+      "routeIndex": 5829,
+      "poolIds": [
+        5404,
+        9638,
+        9643
+      ],
+      "path": "TLM -> BUZZ -> BUTTERZ -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "3911.67703578",
+      "priceImpact": "23.56"
+    },
+    {
+      "routeIndex": 5828,
+      "poolIds": [
+        5404,
+        9637,
+        9642
+      ],
+      "path": "TLM -> BUZZ -> LADYZ -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "3909.79501139",
+      "priceImpact": "23.56"
+    },
+    {
+      "routeIndex": 5832,
+      "poolIds": [
+        5404,
+        9641,
+        9646
+      ],
+      "path": "TLM -> BUZZ -> HOPPERZ -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "3909.42499651",
+      "priceImpact": "23.56"
+    },
+    {
+      "routeIndex": 5830,
+      "poolIds": [
+        5404,
+        9639,
+        9644
+      ],
+      "path": "TLM -> BUZZ -> DRAGONZ -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "3907.63139073",
+      "priceImpact": "23.56"
+    },
+    {
+      "routeIndex": 5551,
+      "poolIds": [
+        5404,
+        8411,
+        8409
+      ],
+      "path": "TLM -> BUZZ -> PLAI -> WAX",
+      "inputAmount": "900.0000",
+      "outputAmount": "3788.40368531",
+      "priceImpact": "26.59"
+    }
+  ]
+}

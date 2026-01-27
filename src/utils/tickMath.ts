@@ -10,9 +10,10 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
   );
 }
 
-// Memoization caches
+// Memoization cache for getSqrtRatioAtTick only
+// Note: tickAtSqrtRatio cache removed - sqrtRatio values are nearly always unique,
+// causing unbounded memory growth (Map maximum size exceeded)
 const sqrtRatioCache = new Map<number, JSBI>();
-const tickAtSqrtRatioCache = new Map<string, number>();
 
 export abstract class TickMath {
   /**
@@ -36,11 +37,10 @@ export abstract class TickMath {
   );
 
   /**
-   * Clears all caches. Call this if memory usage is a concern.
+   * Clears the sqrt ratio cache. Call this if memory usage is a concern.
    */
   public static clearCache(): void {
     sqrtRatioCache.clear();
-    tickAtSqrtRatioCache.clear();
   }
 
   /**
@@ -124,13 +124,6 @@ export abstract class TickMath {
    * @param sqrtRatioX64 the sqrt ratio as a Q64.96 for which to compute the tick
    */
   public static getTickAtSqrtRatio(sqrtRatioX64: JSBI): number {
-    // Check cache first
-    const cacheKey = sqrtRatioX64.toString();
-    const cached = tickAtSqrtRatioCache.get(cacheKey);
-    if (cached !== undefined) {
-      return cached;
-    }
-
     invariant(
       JSBI.greaterThanOrEqual(sqrtRatioX64, TickMath.MIN_SQRT_RATIO) &&
         JSBI.lessThan(sqrtRatioX64, TickMath.MAX_SQRT_RATIO),
@@ -184,7 +177,7 @@ export abstract class TickMath {
       )
     );
 
-    const result = tickLow === tickHigh
+    return tickLow === tickHigh
       ? tickLow
       : JSBI.lessThanOrEqual(
           TickMath.getSqrtRatioAtTick(tickHigh),
@@ -192,10 +185,5 @@ export abstract class TickMath {
         )
       ? tickHigh
       : tickLow;
-
-    // Store in cache
-    tickAtSqrtRatioCache.set(cacheKey, result);
-
-    return result;
   }
 }

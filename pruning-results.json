@@ -1,0 +1,79 @@
+{
+  "timestamp": "2026-01-27T01:04:04.770Z",
+  "input": "900.0000 TLM",
+  "output": "11427.99380533 WAX",
+  "priceImpact": "97.64",
+  "totalRoutes": 7168,
+  "swaps": [
+    {
+      "percent": 25,
+      "path": "TLM -> CHSR -> GHOST -> WAX",
+      "poolIds": [
+        9871,
+        7457,
+        3173
+      ],
+      "output": "5623.72026863"
+    },
+    {
+      "percent": 35,
+      "path": "TLM -> CHEESE -> WCACHE -> WAX",
+      "poolIds": [
+        8695,
+        7938,
+        6602
+      ],
+      "output": "2331.83304580"
+    },
+    {
+      "percent": 10,
+      "path": "TLM -> BUZZ -> RUCOIN -> WAX",
+      "poolIds": [
+        5404,
+        6657,
+        6655
+      ],
+      "output": "1183.36103054"
+    },
+    {
+      "percent": 10,
+      "path": "TLM -> TRASH -> CHIPS -> WAX",
+      "poolIds": [
+        7817,
+        7518,
+        1428
+      ],
+      "output": "1105.13743172"
+    },
+    {
+      "percent": 10,
+      "path": "TLM -> SSN -> SQJ -> WAX",
+      "poolIds": [
+        3186,
+        8481,
+        4200
+      ],
+      "output": "673.91625570"
+    },
+    {
+      "percent": 5,
+      "path": "TLM -> WAXUSDC -> BRIX -> WAX",
+      "poolIds": [
+        5034,
+        9675,
+        794
+      ],
+      "output": "272.41849077"
+    },
+    {
+      "percent": 5,
+      "path": "TLM -> BLOOM -> BATTY -> WAX",
+      "poolIds": [
+        3759,
+        4839,
+        7214
+      ],
+      "output": "237.60728217"
+    }
+  ]
+}
