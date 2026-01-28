@@ -154,7 +154,7 @@ export class CurrencyAmount<T extends Currency> extends Fraction {
     return msgpack.encode(json);
   }
 
-  static fromBuffer(buffer: Buffer) {
+  static fromBuffer(buffer: Uint8Array) {
     const json = msgpack.decode(buffer)
     return this.fromJSON(json)
   }

@@ -16,5 +16,26 @@
   "plugins": [
     "@babel/plugin-proposal-class-properties",
     "@babel/plugin-transform-classes"
-  ]
+  ],
+  "env": {
+    "esm": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "browsers": "defaults",
+              "node": "8"
+            },
+            "modules": false
+          }
+        ],
+        "@babel/preset-typescript"
+      ],
+      "plugins": [
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-transform-classes"
+      ]
+    }
+  }
 }

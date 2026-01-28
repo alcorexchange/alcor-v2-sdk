@@ -1,5 +1,27 @@
 import msgpack from "msgpack-lite";
-import crypto, {createHash} from 'crypto';
+// Avoid importing node crypto at module load so browser bundles can tree-shake/ignore it.
+const getNodeCrypto = (): any | null => {
+  try {
+    // Use eval to avoid bundlers eagerly pulling in node:crypto for browser builds.
+    const nodeRequire =
+      typeof require !== 'undefined' ? require : (0, eval)('require');
+    return nodeRequire('crypto');
+  } catch (_) {
+    // Ignore; browser or crypto not available.
+  }
+  return null;
+};
+
+const isBuffer = (value: any): boolean =>
+  typeof Buffer !== 'undefined' && typeof Buffer.isBuffer === 'function' && Buffer.isBuffer(value);
+
+const toUint8Array = (data: any): Uint8Array => {
+  if (data instanceof Uint8Array) return data;
+  if (isBuffer(data)) return data;
+  if (data && data.buffer instanceof ArrayBuffer) return new Uint8Array(data.buffer);
+  if (data instanceof ArrayBuffer) return new Uint8Array(data);
+  throw new Error('Expected Buffer/Uint8Array/ArrayBuffer-like data');
+};
 
 import { CurrencyAmount, Price } from "./fractions";
 import { Token } from "./token";
@@ -63,7 +85,7 @@ export class Pool {
   public readonly tickDataProvider: TickDataProvider;
 
   public json?: any
-  public buffer?: Buffer
+  public buffer?: Uint8Array
   public bufferHash?: string
 
   static hashToPoolMap: Map<string, Pool> = new Map()
@@ -377,36 +399,37 @@ export class Pool {
     });
   }
   /**
-   * Converts the pool to a Buffer using msgpack encoding.
+   * Converts the pool to a byte array using msgpack encoding.
    * @param {Pool} pool - The pool instance to convert.
-   * @returns {Buffer} The encoded buffer.
+   * @returns {Uint8Array} The encoded bytes.
    */
-  static toBuffer(pool: Pool): Buffer {
+  static toBuffer(pool: Pool): Uint8Array {
     if (pool.buffer) return pool.buffer;
     
     const json = Pool.toJSON(pool);
     pool.buffer = msgpack.encode(json);
-    pool.bufferHash = Pool.createHash(pool.buffer as Buffer);
+    const hash = Pool.createHash(pool.buffer as Uint8Array, pool);
+    if (hash) pool.bufferHash = hash;
     
-    return pool.buffer as Buffer;
+    return pool.buffer as Uint8Array;
   }
 
   /**
-   * Creates a Pool instance from a Buffer or serialized data.
-   * @param {Buffer | any} data - The buffer or serialized data.
+   * Creates a Pool instance from bytes or serialized data.
+   * @param {Uint8Array | any} data - The bytes or serialized data.
    * @returns {Pool} The pool instance.
    */
-  static fromBuffer(data: Buffer | any): Pool {
-    const bufferHash = Pool.createHash(data instanceof Buffer ? data : data.buffer);
-
-    if (this.hashToPoolMap.has(bufferHash)) {
+  static fromBuffer(data: Uint8Array | any): Pool {
+    const bytes = toUint8Array(data);
+    const bufferHash = Pool.createHash(bytes);
+    if (bufferHash && this.hashToPoolMap.has(bufferHash)) {
       return <Pool>this.hashToPoolMap.get(bufferHash);
     }
 
-    const json = msgpack.decode(data instanceof Buffer ? data : data.buffer);
+    const json = msgpack.decode(bytes);
     const pool = Pool.fromJSON(json);
 
-    this.hashToPoolMap.set(bufferHash, pool);
+    if (bufferHash) this.hashToPoolMap.set(bufferHash, pool);
     this.idToPoolMap.set(pool.id, pool);
     
     return pool;
@@ -419,9 +442,13 @@ export class Pool {
     return pool;
   }
 
-  static createHash(buffer: Buffer, pool?: Pool) {
+  static createHash(buffer: Uint8Array, pool?: Pool): string | null {
     if (pool && pool.bufferHash) {
       return pool.bufferHash
+    }
+    const crypto = getNodeCrypto();
+    if (!crypto || typeof crypto.createHash !== 'function') {
+      return null;
     }
     const hash = crypto.createHash('sha256');
     hash.update(buffer);

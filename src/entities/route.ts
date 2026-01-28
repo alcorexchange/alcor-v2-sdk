@@ -114,7 +114,19 @@ export class Route<TInput extends Currency, TOutput extends Currency> {
       if (typeof pool === 'number') {
         return Pool.fromId(pool);
       } else {
-        return Pool.fromBuffer(Buffer.from(pool));
+        const bytes =
+          pool instanceof Uint8Array
+            ? pool
+            : typeof Buffer !== 'undefined' &&
+              typeof Buffer.isBuffer === 'function' &&
+              Buffer.isBuffer(pool)
+            ? pool
+            : pool instanceof ArrayBuffer
+            ? new Uint8Array(pool)
+            : pool && pool.buffer instanceof ArrayBuffer
+            ? new Uint8Array(pool.buffer)
+            : pool;
+        return Pool.fromBuffer(bytes);
       }
     });
     const input = Token.fromJSON(json.input);
@@ -130,7 +142,7 @@ export class Route<TInput extends Currency, TOutput extends Currency> {
     return msgpack.encode(json);
   }
 
-  static fromBuffer(buffer: Buffer) {
+  static fromBuffer(buffer: Uint8Array) {
     const json = msgpack.decode(buffer);
     return this.fromJSON(json);
   }
@@ -138,7 +150,11 @@ export class Route<TInput extends Currency, TOutput extends Currency> {
   static toBufferAdvanced(route: Route<Currency, Currency>, pools: any[]) {
     const json = {
       pools: pools.map((pool) => {
-        if (typeof pool === 'number' || Buffer.isBuffer(pool)) {
+        const isBuffer =
+          typeof Buffer !== 'undefined' &&
+          typeof Buffer.isBuffer === 'function' &&
+          Buffer.isBuffer(pool);
+        if (typeof pool === 'number' || pool instanceof Uint8Array || isBuffer) {
           return pool;
         } else {
           return Pool.toBuffer(pool);
