@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import { ONE } from "internalConstants";
 import { TickMath } from "utils/tickMath";
 
@@ -40,7 +39,7 @@ describe("TickMath", () => {
 
     it("returns the correct value for tick 0", () => {
       expect(TickMath.getSqrtRatioAtTick(0)).toEqual(
-        JSBI.leftShift(JSBI.BigInt(1), JSBI.BigInt(64))
+        (BigInt(1) << BigInt(64))
       );
     });
 
@@ -59,7 +58,7 @@ describe("TickMath", () => {
     });
     it("returns the correct value for sqrt ratio at max tick", () => {
       expect(
-        TickMath.getTickAtSqrtRatio(JSBI.subtract(TickMath.MAX_SQRT_RATIO, ONE))
+        TickMath.getTickAtSqrtRatio((TickMath.MAX_SQRT_RATIO - ONE))
       ).toEqual(TickMath.MAX_TICK - 1);
     });
   });

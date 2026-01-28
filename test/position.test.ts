@@ -1,6 +1,5 @@
 import { Token } from "entities/token";
 import { Percent } from "entities/fractions/percent";
-import JSBI from "jsbi";
 import { FeeAmount, TICK_SPACINGS } from "internalConstants";
 import { encodeSqrtRatioX64 } from "utils/encodeSqrtRatioX64";
 import { nearestUsableTick } from "utils/nearestUsableTick";
@@ -31,7 +30,7 @@ describe.skip("Position", () => {
       tickLower: -10,
       tickUpper: 10,
     });
-    expect(position.liquidity).toEqual(JSBI.BigInt(1));
+    expect(position.liquidity).toEqual(BigInt(1));
   });
 
   it("can use min and max ticks", () => {
@@ -41,7 +40,7 @@ describe.skip("Position", () => {
       tickLower: nearestUsableTick(TickMath.MIN_TICK, TICK_SPACING),
       tickUpper: nearestUsableTick(TickMath.MAX_TICK, TICK_SPACING),
     });
-    expect(position.liquidity).toEqual(JSBI.BigInt(1));
+    expect(position.liquidity).toEqual(BigInt(1));
   });
 
   it("tick lower must be less than tick upper", () => {
@@ -351,7 +350,7 @@ describe.skip("Position", () => {
             tokenA: DAI,
             tokenB: USDC,
             fee: FeeAmount.LOW,
-            sqrtPriceX64: JSBI.subtract(TickMath.MAX_SQRT_RATIO, JSBI.BigInt(1)),
+            sqrtPriceX64: (TickMath.MAX_SQRT_RATIO - BigInt(1)),
             liquidity: 0,
             tickCurrent: TickMath.MAX_TICK - 1,
             ticks: []
@@ -516,7 +515,7 @@ describe.skip("Position", () => {
             tokenA: DAI,
             tokenB: USDC,
             fee: FeeAmount.LOW,
-            sqrtPriceX64: JSBI.subtract(TickMath.MAX_SQRT_RATIO, JSBI.BigInt(1)),
+            sqrtPriceX64: (TickMath.MAX_SQRT_RATIO - BigInt(1)),
             liquidity: 0,
             tickCurrent: TickMath.MAX_TICK - 1,
             ticks: []

@@ -4,7 +4,6 @@ import { Trade } from "../src/entities/trade";
 import { Route } from "../src/entities/route";
 import { CurrencyAmount } from "../src/entities/fractions/currencyAmount";
 import { computeAllRoutes } from "../src/utils/computeAllRoutes";
-import JSBI from "jsbi";
 import { FeeAmount, TICK_SPACINGS } from "../src/internalConstants";
 import { encodeSqrtRatioX64 } from "../src/utils/encodeSqrtRatioX64";
 import { TickMath } from "../src/utils/tickMath";
@@ -38,7 +37,7 @@ function createPool(
   const reserve1 = CurrencyAmount.fromRawAmount(tokenB, reserveB);
 
   const sqrtRatioX64 = encodeSqrtRatioX64(reserve1.quotient, reserve0.quotient);
-  const liquidity = sqrt(JSBI.multiply(reserve0.quotient, reserve1.quotient));
+  const liquidity = sqrt((reserve0.quotient * reserve1.quotient));
 
   return new Pool({
     id,
@@ -64,7 +63,7 @@ function createPool(
       },
       {
         id: nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeAmount]),
-        liquidityNet: JSBI.multiply(liquidity, JSBI.BigInt(-1)),
+        liquidityNet: (liquidity * BigInt(-1)),
         liquidityGross: liquidity,
         feeGrowthOutsideAX64: 0,
         feeGrowthOutsideBX64: 0,

@@ -1,23 +1,22 @@
-import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { ZERO, MaxUint256 } from "../internalConstants";
 
-const TWO = JSBI.BigInt(2);
+const TWO = BigInt(2);
 const POWERS_OF_2 = [128, 64, 32, 16, 8, 4, 2, 1].map(
-  (pow: number): [number, JSBI] => [
+  (pow: number): [number, bigint] => [
     pow,
-    JSBI.exponentiate(TWO, JSBI.BigInt(pow)),
+    (TWO ** BigInt(pow)),
   ]
 );
 
-export function mostSignificantBit(x: JSBI): number {
-  invariant(JSBI.greaterThan(x, ZERO), "ZERO");
-  invariant(JSBI.lessThanOrEqual(x, MaxUint256), "MAX");
+export function mostSignificantBit(x: bigint): number {
+  invariant((x > ZERO), "ZERO");
+  invariant((x <= MaxUint256), "MAX");
 
   let msb: number = 0;
   for (const [power, min] of POWERS_OF_2) {
-    if (JSBI.greaterThanOrEqual(x, min)) {
-      x = JSBI.signedRightShift(x, JSBI.BigInt(power));
+    if ((x >= min)) {
+      x = (x >> BigInt(power));
       msb += power;
     }
   }

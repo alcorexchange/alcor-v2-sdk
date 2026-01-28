@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import invariant from 'tiny-invariant'
-import JSBI from 'jsbi'
 
 import { Currency } from './currency'
 import { Fraction, Percent, Price, CurrencyAmount } from './fractions'
@@ -513,14 +512,14 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
     // Pre-filter: remove routes with zero-liquidity pools
     const validRoutes = routes.filter(route =>
-      route.pools.every(pool => pool.active && JSBI.greaterThan(pool.liquidity, ZERO))
+      route.pools.every(pool => pool.active && (pool.liquidity > ZERO))
     )
 
-    // Helper: compute min liquidity using JSBI (no overflow)
-    const getMinLiquidity = (route: Route<TInput, TOutput>): JSBI => {
+    // Helper: compute min liquidity (no overflow)
+    const getMinLiquidity = (route: Route<TInput, TOutput>): bigint => {
       let min = route.pools[0].liquidity
       for (let i = 1; i < route.pools.length; i++) {
-        if (JSBI.lessThan(route.pools[i].liquidity, min)) {
+        if ((route.pools[i].liquidity < min)) {
           min = route.pools[i].liquidity
         }
       }
@@ -528,7 +527,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     }
 
     // Precompute min liquidity for sorting
-    const routeMinLiq = new Map<Route<TInput, TOutput>, JSBI>()
+    const routeMinLiq = new Map<Route<TInput, TOutput>, bigint>()
     for (const route of validRoutes) {
       routeMinLiq.set(route, getMinLiquidity(route))
     }
@@ -538,8 +537,8 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       if (a.pools.length !== b.pools.length) return a.pools.length - b.pools.length
       const minLiqA = routeMinLiq.get(a)!
       const minLiqB = routeMinLiq.get(b)!
-      if (JSBI.greaterThan(minLiqA, minLiqB)) return -1
-      if (JSBI.lessThan(minLiqA, minLiqB)) return 1
+      if ((minLiqA > minLiqB)) return -1
+      if ((minLiqA < minLiqB)) return 1
       return 0
     })
 
@@ -645,14 +644,14 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
 
     // Pre-filter: remove routes with zero-liquidity or inactive pools
     const validRoutes = _routes.filter(route =>
-      route.pools.every(pool => pool.active && JSBI.greaterThan(pool.liquidity, ZERO))
+      route.pools.every(pool => pool.active && (pool.liquidity > ZERO))
     )
 
-    // Helper: compute min liquidity for a route using JSBI (no overflow)
-    const getMinLiquidity = (route: Route<TInput, TOutput>): JSBI => {
+    // Helper: compute min liquidity for a route (no overflow)
+    const getMinLiquidity = (route: Route<TInput, TOutput>): bigint => {
       let min = route.pools[0].liquidity
       for (let i = 1; i < route.pools.length; i++) {
-        if (JSBI.lessThan(route.pools[i].liquidity, min)) {
+        if ((route.pools[i].liquidity < min)) {
           min = route.pools[i].liquidity
         }
       }
@@ -660,7 +659,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     }
 
     // Precompute min liquidity for sorting (avoid recalculating)
-    const routeMinLiq = new Map<Route<TInput, TOutput>, JSBI>()
+    const routeMinLiq = new Map<Route<TInput, TOutput>, bigint>()
     for (const route of validRoutes) {
       routeMinLiq.set(route, getMinLiquidity(route))
     }
@@ -669,8 +668,8 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     validRoutes.sort((a, b) => {
       const minLiqA = routeMinLiq.get(a)!
       const minLiqB = routeMinLiq.get(b)!
-      if (JSBI.greaterThan(minLiqA, minLiqB)) return -1
-      if (JSBI.lessThan(minLiqA, minLiqB)) return 1
+      if ((minLiqA > minLiqB)) return -1
+      if ((minLiqA < minLiqB)) return 1
       return 0
     })
 

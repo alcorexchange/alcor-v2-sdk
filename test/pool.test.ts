@@ -5,10 +5,9 @@ import { nearestUsableTick } from "utils/nearestUsableTick";
 import { TickMath } from "utils/tickMath";
 import { Pool } from "entities/pool";
 import { encodeSqrtRatioX64 } from "utils/encodeSqrtRatioX64";
-import JSBI from "jsbi";
 import { NEGATIVE_ONE } from "internalConstants";
 
-const ONE_ETHER = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18));
+const ONE_ETHER = (BigInt(10) ** BigInt(18));
 
 describe("Pool", () => {
   const USDC = new Token("contractb", 6, "USDC", "USD Coin");
@@ -75,7 +74,7 @@ describe("Pool", () => {
           tokenA: USDC,
           tokenB: DAI,
           fee: FeeAmount.MEDIUM,
-          sqrtPriceX64: JSBI.add(encodeSqrtRatioX64(1, 1), JSBI.BigInt(1)),
+          sqrtPriceX64: (encodeSqrtRatioX64(1, 1) + BigInt(1)),
           liquidity: 0,
           tickCurrent: -1,
           ticks: []
@@ -282,7 +281,7 @@ describe("Pool", () => {
               TickMath.MAX_TICK,
               TICK_SPACINGS[FeeAmount.LOW]
             ),
-            liquidityNet: JSBI.multiply(ONE_ETHER, NEGATIVE_ONE),
+            liquidityNet: (ONE_ETHER * NEGATIVE_ONE),
             liquidityGross: ONE_ETHER,
           },
         ]
@@ -294,14 +293,14 @@ describe("Pool", () => {
         const inputAmount = CurrencyAmount.fromRawAmount(USDC, 100);
         const outputAmount = await pool.getOutputAmount(inputAmount);
         expect(outputAmount.currency.equals(DAI)).toBe(true);
-        expect(outputAmount.quotient).toEqual(JSBI.BigInt(98));
+        expect(outputAmount.quotient).toEqual(BigInt(98));
       });
 
       it("DAI -> USDC", async () => {
         const inputAmount = CurrencyAmount.fromRawAmount(DAI, 100);
         const outputAmount = await pool.getOutputAmount(inputAmount);
         expect(outputAmount.currency.equals(USDC)).toBe(true);
-        expect(outputAmount.quotient).toEqual(JSBI.BigInt(98));
+        expect(outputAmount.quotient).toEqual(BigInt(98));
       });
     });
 
@@ -310,28 +309,22 @@ describe("Pool", () => {
         const outputAmount = CurrencyAmount.fromRawAmount(DAI, 98);
         const inputAmount = await pool.getInputAmount(outputAmount);
         expect(inputAmount.currency.equals(USDC)).toBe(true);
-        expect(inputAmount.quotient).toEqual(JSBI.BigInt(100));
+        expect(inputAmount.quotient).toEqual(BigInt(100));
       });
 
       it("DAI -> USDC", async () => {
         const outputAmount = CurrencyAmount.fromRawAmount(USDC, 98);
         const inputAmount = await pool.getInputAmount(outputAmount);
         expect(inputAmount.currency.equals(DAI)).toBe(true);
-        expect(inputAmount.quotient).toEqual(JSBI.BigInt(100));
+        expect(inputAmount.quotient).toEqual(BigInt(100));
       });
     });
   });
 
   describe("#bigNums", () => {
     let pool: Pool;
-    const bigNum1 = JSBI.add(
-      JSBI.BigInt(Number.MAX_SAFE_INTEGER),
-      JSBI.BigInt(1)
-    );
-    const bigNum2 = JSBI.add(
-      JSBI.BigInt(Number.MAX_SAFE_INTEGER),
-      JSBI.BigInt(1)
-    );
+    const bigNum1 = (BigInt(Number.MAX_SAFE_INTEGER) + BigInt(1));
+    const bigNum2 = (BigInt(Number.MAX_SAFE_INTEGER) + BigInt(1));
     beforeEach(() => {
       pool = new Pool({
         tokenA: USDC,
@@ -354,7 +347,7 @@ describe("Pool", () => {
               TickMath.MAX_TICK,
               TICK_SPACINGS[FeeAmount.LOW]
             ),
-            liquidityNet: JSBI.multiply(ONE_ETHER, NEGATIVE_ONE),
+            liquidityNet: (ONE_ETHER * NEGATIVE_ONE),
             liquidityGross: ONE_ETHER,
           },
         ]

@@ -1,6 +1,5 @@
 import { Token } from "../entities/token";
 import { Price } from "../entities/fractions/price";
-import JSBI from "jsbi";
 import { Q128 } from "../internalConstants";
 import { encodeSqrtRatioX64 } from "./encodeSqrtRatioX64";
 import { TickMath } from "./tickMath";
@@ -19,7 +18,7 @@ export function tickToPrice(
 ): Price<Token, Token> {
   const sqrtRatioX64 = TickMath.getSqrtRatioAtTick(tick);
 
-  const ratioX128 = JSBI.multiply(sqrtRatioX64, sqrtRatioX64);
+  const ratioX128 = (sqrtRatioX64 * sqrtRatioX64);
 
   return baseToken.sortsBefore(quoteToken)
     ? new Price(baseToken, quoteToken, Q128, ratioX128)

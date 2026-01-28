@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { Tick } from "../entities/tick";
 import { ZERO } from "../internalConstants";
@@ -27,23 +26,21 @@ export abstract class TickList {
 
     const totalNet = ticks.reduce(
       (accumulator, { liquidityNet }) =>
-        JSBI.add(accumulator, liquidityNet),
+        (accumulator + liquidityNet),
       ZERO
     )
 
-    if (!JSBI.equal(totalNet, ZERO)) console.error('ZERO_NET INVARIAN ISSUE!')
+    if (!(totalNet === ZERO)) console.error('ZERO_NET INVARIAN ISSUE!')
 
     // HOTFIX ignoring for now TODO
     // ensure tick liquidity deltas sum to 0
     // invariant(
-    //   JSBI.equal(
-    //     ticks.reduce(
+    //   (//     ticks.reduce(
     //       (accumulator, { liquidityNet }) =>
-    //         JSBI.add(accumulator, liquidityNet),
+    //         (accumulator + liquidityNet),
     //       ZERO
-    //     ),
-    //     ZERO
-    //   ),
+    //     ) === //     ZERO
+    //),
     //   "ZERO_NET"
     // );
 

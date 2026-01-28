@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import { sqrt } from "./sqrt";
 import { BigintIsh } from "../internalConstants";
 
@@ -12,9 +11,9 @@ import { BigintIsh } from "../internalConstants";
 export function encodeSqrtRatioX64(
   amountB: BigintIsh,
   amountA: BigintIsh
-): JSBI {
-  const numerator = JSBI.leftShift(JSBI.BigInt(amountB), JSBI.BigInt(128));
-  const denominator = JSBI.BigInt(amountA);
-  const ratioX128 = JSBI.divide(numerator, denominator);
+): bigint {
+  const numerator = (BigInt(amountB) << BigInt(128));
+  const denominator = BigInt(amountA);
+  const ratioX128 = (numerator / denominator);
   return sqrt(ratioX128);
 }

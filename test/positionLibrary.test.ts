@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import { PositionLibrary } from "utils/positionLibrary";
 import { ZERO } from "internalConstants";
 
@@ -20,12 +19,12 @@ describe("PositionLibrary", () => {
       const [tokensOwed0, tokensOwed1] = PositionLibrary.getTokensOwed(
         ZERO,
         ZERO,
-        JSBI.BigInt(1),
-        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(64)),
-        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(64))
+        BigInt(1),
+        (BigInt(2) ** BigInt(64)),
+        (BigInt(2) ** BigInt(64))
       );
-      expect(tokensOwed0).toEqual(JSBI.BigInt(1));
-      expect(tokensOwed1).toEqual(JSBI.BigInt(1));
+      expect(tokensOwed0).toEqual(BigInt(1));
+      expect(tokensOwed1).toEqual(BigInt(1));
     });
   });
 });

@@ -1,7 +1,6 @@
 import { CurrencyAmount, Price, Percent } from "./fractions";
 import { Token } from "./token";
 import { BigintIsh, MaxUint64, Q64 } from "../internalConstants";
-import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { ZERO } from "../internalConstants";
 import { maxLiquidityForAmounts } from "../utils/maxLiquidityForAmounts";
@@ -36,16 +35,16 @@ export class Position {
   public readonly pool: Pool;
   public readonly tickLower: number;
   public readonly tickUpper: number;
-  public readonly liquidity: JSBI;
-  public readonly feesA: JSBI;
-  public readonly feesB: JSBI;
-  public readonly feeGrowthInsideALastX64: JSBI;
-  public readonly feeGrowthInsideBLastX64: JSBI;
+  public readonly liquidity: bigint;
+  public readonly feesA: bigint;
+  public readonly feesB: bigint;
+  public readonly feeGrowthInsideALastX64: bigint;
+  public readonly feeGrowthInsideBLastX64: bigint;
 
   // cached resuts for the getters
   private _tokenAAmount: CurrencyAmount<Token> | null = null;
   private _tokenBAmount: CurrencyAmount<Token> | null = null;
-  private _mintAmounts: Readonly<{ amountA: JSBI; amountB: JSBI }> | null =
+  private _mintAmounts: Readonly<{ amountA: bigint; amountB: bigint }> | null =
     null;
 
   /**
@@ -82,11 +81,11 @@ export class Position {
     this.pool = pool;
     this.tickLower = tickLower;
     this.tickUpper = tickUpper;
-    this.liquidity = JSBI.BigInt(liquidity);
-    this.feeGrowthInsideALastX64 = JSBI.BigInt(feeGrowthInsideALastX64);
-    this.feeGrowthInsideBLastX64 = JSBI.BigInt(feeGrowthInsideBLastX64);
-    this.feesA = JSBI.BigInt(feesA)
-    this.feesB = JSBI.BigInt(feesB)
+    this.liquidity = BigInt(liquidity);
+    this.feeGrowthInsideALastX64 = BigInt(feeGrowthInsideALastX64);
+    this.feeGrowthInsideBLastX64 = BigInt(feeGrowthInsideBLastX64);
+    this.feesA = BigInt(feesA)
+    this.feesB = BigInt(feesB)
   }
 
   public get inRange(): boolean {
@@ -186,8 +185,8 @@ export class Position {
    * @returns The sqrt ratios after slippage
    */
   private ratiosAfterSlippage(slippageTolerance: Percent): {
-    sqrtPriceX64Lower: JSBI;
-    sqrtPriceX64Upper: JSBI;
+    sqrtPriceX64Lower: bigint;
+    sqrtPriceX64Upper: bigint;
   } {
     const priceLower = this.pool.tokenAPrice.asFraction.multiply(
       new Percent(1).subtract(slippageTolerance)
@@ -199,18 +198,15 @@ export class Position {
       priceLower.numerator,
       priceLower.denominator
     );
-    if (JSBI.lessThanOrEqual(sqrtPriceX64Lower, TickMath.MIN_SQRT_RATIO)) {
-      sqrtPriceX64Lower = JSBI.add(TickMath.MIN_SQRT_RATIO, JSBI.BigInt(1));
+    if ((sqrtPriceX64Lower <= TickMath.MIN_SQRT_RATIO)) {
+      sqrtPriceX64Lower = (TickMath.MIN_SQRT_RATIO + BigInt(1));
     }
     let sqrtPriceX64Upper = encodeSqrtRatioX64(
       priceUpper.numerator,
       priceUpper.denominator
     );
-    if (JSBI.greaterThanOrEqual(sqrtPriceX64Upper, TickMath.MAX_SQRT_RATIO)) {
-      sqrtPriceX64Upper = JSBI.subtract(
-        TickMath.MAX_SQRT_RATIO,
-        JSBI.BigInt(1)
-      );
+    if ((sqrtPriceX64Upper >= TickMath.MAX_SQRT_RATIO)) {
+      sqrtPriceX64Upper = (TickMath.MAX_SQRT_RATIO - BigInt(1));
     }
     return {
       sqrtPriceX64Lower,
@@ -226,7 +222,7 @@ export class Position {
    */
   public mintAmountsWithSlippage(
     slippageTolerance: Percent
-  ): Readonly<{ amountA: JSBI; amountB: JSBI }> {
+  ): Readonly<{ amountA: bigint; amountB: bigint }> {
     // get lower/upper prices
     const { sqrtPriceX64Upper, sqrtPriceX64Lower } =
       this.ratiosAfterSlippage(slippageTolerance);
@@ -381,7 +377,7 @@ export class Position {
    * Returns the minimum amounts that must be sent in order to mint the amount of liquidity held by the position at
    * the current price for the pool
    */
-  public get mintAmounts(): Readonly<{ amountA: JSBI; amountB: JSBI }> {
+  public get mintAmounts(): Readonly<{ amountA: bigint; amountB: bigint }> {
     if (this._mintAmounts === null) {
       if (this.pool.tickCurrent < this.tickLower) {
         return {
@@ -592,9 +588,9 @@ export class Position {
     const { liquidity, tickLower, tickUpper, feeGrowthInsideALastX64, feeGrowthInsideBLastX64, pool } = this
 
     if (
-      JSBI.equal(liquidity, ZERO) &&
-      JSBI.equal(this.feesA, ZERO) &&
-      JSBI.equal(this.feesB, ZERO)
+      (liquidity === ZERO) &&
+      (this.feesA === ZERO) &&
+      (this.feesB === ZERO)
     ) {
       return {
         feesA: CurrencyAmount.fromRawAmount(this.pool.tokenA, ZERO),
@@ -618,25 +614,13 @@ export class Position {
       feeGrowthGlobalBX64
     )
 
-    const tokensOwedA = JSBI.divide(
-      JSBI.multiply(
-        subIn128(feeGrowthInsideAX64, feeGrowthInsideALastX64),
-        liquidity
-      ),
-      Q64
-    );
+    const tokensOwedA = ((subIn128(feeGrowthInsideAX64, feeGrowthInsideALastX64) * liquidity) / Q64);
 
-    const tokensOwedB = JSBI.divide(
-      JSBI.multiply(
-        subIn128(feeGrowthInsideBX64, feeGrowthInsideBLastX64),
-        liquidity
-      ),
-      Q64
-    );
+    const tokensOwedB = ((subIn128(feeGrowthInsideBX64, feeGrowthInsideBLastX64) * liquidity) / Q64);
 
     return {
-      feesA: CurrencyAmount.fromRawAmount(this.pool.tokenA, JSBI.add(tokensOwedA, this.feesA)),
-      feesB: CurrencyAmount.fromRawAmount(this.pool.tokenB, JSBI.add(tokensOwedB, this.feesB))
+      feesA: CurrencyAmount.fromRawAmount(this.pool.tokenA, (tokensOwedA + this.feesA)),
+      feesB: CurrencyAmount.fromRawAmount(this.pool.tokenB, (tokensOwedB + this.feesB))
     }
   }
 }

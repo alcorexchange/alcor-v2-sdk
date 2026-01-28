@@ -1,19 +1,15 @@
-import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { ONE, ZERO, MaxUint256, Q64 } from "../internalConstants";
 import { mostSignificantBit } from "./mostSignificantBit";
 
-function mulShift(val: JSBI, mulBy: string): JSBI {
-  return JSBI.signedRightShift(
-    JSBI.multiply(val, JSBI.BigInt(mulBy)),
-    JSBI.BigInt(128)
-  );
+function mulShift(val: bigint, mulBy: string): bigint {
+  return ((val * BigInt(mulBy)) >> BigInt(128));
 }
 
 // Memoization cache for getSqrtRatioAtTick only
 // Note: tickAtSqrtRatio cache removed - sqrtRatio values are nearly always unique,
 // causing unbounded memory growth (Map maximum size exceeded)
-const sqrtRatioCache = new Map<number, JSBI>();
+const sqrtRatioCache = new Map<number, bigint>();
 
 export abstract class TickMath {
   /**
@@ -28,11 +24,11 @@ export abstract class TickMath {
   /**
    * The sqrt ratio corresponding to the minimum tick that could be used on any pool.
    */
-  public static MIN_SQRT_RATIO: JSBI = JSBI.BigInt("4295048017");
+  public static MIN_SQRT_RATIO: bigint = BigInt("4295048017");
   /**
    * The sqrt ratio corresponding to the maximum tick that could be used on any pool.
    */
-  public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt(
+  public static MAX_SQRT_RATIO: bigint = BigInt(
     "79226673515401279992447579062"
   );
 
@@ -47,7 +43,7 @@ export abstract class TickMath {
    * Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
    * @param tick the tick for which to compute the sqrt ratio
    */
-  public static getSqrtRatioAtTick(tick: number): JSBI {
+  public static getSqrtRatioAtTick(tick: number): bigint {
     // Check cache first
     const cached = sqrtRatioCache.get(tick);
     if (cached !== undefined) {
@@ -62,10 +58,10 @@ export abstract class TickMath {
     );
     const absTick: number = tick < 0 ? tick * -1 : tick;
 
-    let ratio: JSBI =
+    let ratio: bigint =
       (absTick & 0x1) != 0
-        ? JSBI.BigInt("0xfffcb933bd6fad37aa2d162d1a594001")
-        : JSBI.BigInt("0x100000000000000000000000000000000");
+        ? BigInt("0xfffcb933bd6fad37aa2d162d1a594001")
+        : BigInt("0x100000000000000000000000000000000");
     if ((absTick & 0x2) != 0)
       ratio = mulShift(ratio, "0xfff97272373d413259a46990580e213a");
     if ((absTick & 0x4) != 0)
@@ -105,12 +101,12 @@ export abstract class TickMath {
     if ((absTick & 0x80000) != 0)
       ratio = mulShift(ratio, "0x48a170391f7dc42444e8fa2");
 
-    if (tick > 0) ratio = JSBI.divide(MaxUint256, ratio);
+    if (tick > 0) ratio = (MaxUint256 / ratio);
 
     // back to Q64
-    const result = JSBI.greaterThan(JSBI.remainder(ratio, Q64), ZERO)
-      ? JSBI.add(JSBI.divide(ratio, Q64), ONE)
-      : JSBI.divide(ratio, Q64);
+    const result = ((ratio % Q64) > ZERO)
+      ? ((ratio / Q64) + ONE)
+      : (ratio / Q64);
 
     // Store in cache
     sqrtRatioCache.set(tick, result);
@@ -123,66 +119,45 @@ export abstract class TickMath {
    * and #getSqrtRatioAtTick(tick + 1) > sqrtRatioX64
    * @param sqrtRatioX64 the sqrt ratio as a Q64.96 for which to compute the tick
    */
-  public static getTickAtSqrtRatio(sqrtRatioX64: JSBI): number {
+  public static getTickAtSqrtRatio(sqrtRatioX64: bigint): number {
     invariant(
-      JSBI.greaterThanOrEqual(sqrtRatioX64, TickMath.MIN_SQRT_RATIO) &&
-        JSBI.lessThan(sqrtRatioX64, TickMath.MAX_SQRT_RATIO),
+      (sqrtRatioX64 >= TickMath.MIN_SQRT_RATIO) &&
+        (sqrtRatioX64 < TickMath.MAX_SQRT_RATIO),
       "SQRT_RATIO"
     );
 
-    const sqrtRatioX128 = JSBI.leftShift(sqrtRatioX64, JSBI.BigInt(64));
+    const sqrtRatioX128 = (sqrtRatioX64 << BigInt(64));
 
     const msb = mostSignificantBit(sqrtRatioX128);
 
-    let r: JSBI;
-    if (JSBI.greaterThanOrEqual(JSBI.BigInt(msb), JSBI.BigInt(128))) {
-      r = JSBI.signedRightShift(sqrtRatioX128, JSBI.BigInt(msb - 127));
+    let r: bigint;
+    if ((BigInt(msb) >= BigInt(128))) {
+      r = (sqrtRatioX128 >> BigInt(msb - 127));
     } else {
-      r = JSBI.leftShift(sqrtRatioX128, JSBI.BigInt(127 - msb));
+      r = (sqrtRatioX128 << BigInt(127 - msb));
     }
 
-    let log_2: JSBI = JSBI.leftShift(
-      JSBI.subtract(JSBI.BigInt(msb), JSBI.BigInt(128)),
-      JSBI.BigInt(64)
-    );
+    let log_2: bigint = ((BigInt(msb) - BigInt(128)) << BigInt(64));
 
     for (let i = 0; i < 14; i++) {
-      r = JSBI.signedRightShift(JSBI.multiply(r, r), JSBI.BigInt(127));
-      const f = JSBI.signedRightShift(r, JSBI.BigInt(128));
-      log_2 = JSBI.bitwiseOr(log_2, JSBI.leftShift(f, JSBI.BigInt(63 - i)));
-      r = JSBI.signedRightShift(r, f);
+      r = ((r * r) >> BigInt(127));
+      const f = (r >> BigInt(128));
+      log_2 = (log_2 | (f << BigInt(63 - i)));
+      r = (r >> f);
     }
 
-    const log_sqrt10001 = JSBI.multiply(
-      log_2,
-      JSBI.BigInt("255738958999603826347141")
-    );
+    const log_sqrt10001 = (log_2 * BigInt("255738958999603826347141"));
 
-    const tickLow = JSBI.toNumber(
-      JSBI.signedRightShift(
-        JSBI.subtract(
-          log_sqrt10001,
-          JSBI.BigInt("3402992956809132418596140100660247210")
-        ),
-        JSBI.BigInt(128)
-      )
+    const tickLow = Number(
+      ((log_sqrt10001 - BigInt("3402992956809132418596140100660247210")) >> BigInt(128))
     );
-    const tickHigh = JSBI.toNumber(
-      JSBI.signedRightShift(
-        JSBI.add(
-          log_sqrt10001,
-          JSBI.BigInt("291339464771989622907027621153398088495")
-        ),
-        JSBI.BigInt(128)
-      )
+    const tickHigh = Number(
+      ((log_sqrt10001 + BigInt("291339464771989622907027621153398088495")) >> BigInt(128))
     );
 
     return tickLow === tickHigh
       ? tickLow
-      : JSBI.lessThanOrEqual(
-          TickMath.getSqrtRatioAtTick(tickHigh),
-          sqrtRatioX64
-        )
+      : (TickMath.getSqrtRatioAtTick(tickHigh) <= sqrtRatioX64)
       ? tickHigh
       : tickLow;
   }

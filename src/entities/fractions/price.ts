@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 
 import { BigintIsh, Rounding } from "../../internalConstants";
@@ -49,8 +48,8 @@ export class Price<
     this.baseCurrency = baseCurrency;
     this.quoteCurrency = quoteCurrency;
     this.scalar = new Fraction(
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(baseCurrency.decimals)),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(quoteCurrency.decimals))
+      (BigInt(10) ** BigInt(baseCurrency.decimals)),
+      (BigInt(10) ** BigInt(quoteCurrency.decimals))
     );
   }
 

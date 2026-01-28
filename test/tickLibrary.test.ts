@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import { TickLibrary } from "utils/tickLibrary";
 import { ZERO } from "internalConstants";
 
@@ -39,14 +38,14 @@ describe("TickLibrary", () => {
           -1,
           1,
           0,
-          JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128)),
-          JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128))
+          (BigInt(2) ** BigInt(128)),
+          (BigInt(2) ** BigInt(128))
         );
       expect(feeGrowthInsideAX64).toEqual(
-        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128))
+        (BigInt(2) ** BigInt(128))
       );
       expect(feeGrowthInsideBX64).toEqual(
-        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128))
+        (BigInt(2) ** BigInt(128))
       );
     });
 
@@ -54,14 +53,8 @@ describe("TickLibrary", () => {
       const [feeGrowthInsideAX64, feeGrowthInsideBX64] =
         TickLibrary.getFeeGrowthInside(
           {
-            feeGrowthOutsideAX64: JSBI.exponentiate(
-              JSBI.BigInt(2),
-              JSBI.BigInt(128)
-            ),
-            feeGrowthOutsideBX64: JSBI.exponentiate(
-              JSBI.BigInt(2),
-              JSBI.BigInt(128)
-            ),
+            feeGrowthOutsideAX64: (BigInt(2) ** BigInt(128)),
+            feeGrowthOutsideBX64: (BigInt(2) ** BigInt(128)),
           },
           {
             feeGrowthOutsideAX64: ZERO,
@@ -70,8 +63,8 @@ describe("TickLibrary", () => {
           -1,
           1,
           0,
-          JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128)),
-          JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128))
+          (BigInt(2) ** BigInt(128)),
+          (BigInt(2) ** BigInt(128))
         );
       expect(feeGrowthInsideAX64).toEqual(ZERO);
       expect(feeGrowthInsideBX64).toEqual(ZERO);
@@ -81,14 +74,8 @@ describe("TickLibrary", () => {
       const [feeGrowthInsideAX64, feeGrowthInsideBX64] =
         TickLibrary.getFeeGrowthInside(
           {
-            feeGrowthOutsideAX64: JSBI.exponentiate(
-              JSBI.BigInt(2),
-              JSBI.BigInt(127)
-            ),
-            feeGrowthOutsideBX64: JSBI.exponentiate(
-              JSBI.BigInt(2),
-              JSBI.BigInt(127)
-            ),
+            feeGrowthOutsideAX64: (BigInt(2) ** BigInt(127)),
+            feeGrowthOutsideBX64: (BigInt(2) ** BigInt(127)),
           },
           {
             feeGrowthOutsideAX64: ZERO,
@@ -97,14 +84,14 @@ describe("TickLibrary", () => {
           -1,
           1,
           0,
-          JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128)),
-          JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128))
+          (BigInt(2) ** BigInt(128)),
+          (BigInt(2) ** BigInt(128))
         );
       expect(feeGrowthInsideAX64).toEqual(
-        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(127))
+        (BigInt(2) ** BigInt(127))
       );
       expect(feeGrowthInsideBX64).toEqual(
-        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(127))
+        (BigInt(2) ** BigInt(127))
       );
     });
   });

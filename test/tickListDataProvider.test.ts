@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import { TickListDataProvider } from "entities/tickListDataProvider";
 
 describe("TickListDataProvider", () => {
@@ -45,8 +44,8 @@ describe("TickListDataProvider", () => {
         1
       );
       const { liquidityNet, liquidityGross } = await provider.getTick(-1);
-      expect(liquidityNet).toEqual(JSBI.BigInt(-1));
-      expect(liquidityGross).toEqual(JSBI.BigInt(1));
+      expect(liquidityNet).toEqual(BigInt(-1));
+      expect(liquidityGross).toEqual(BigInt(1));
     });
     it("gets the largest tick from the list", async () => {
       const provider = new TickListDataProvider(
@@ -57,8 +56,8 @@ describe("TickListDataProvider", () => {
         1
       );
       const { liquidityNet, liquidityGross } = await provider.getTick(1);
-      expect(liquidityNet).toEqual(JSBI.BigInt(1));
-      expect(liquidityGross).toEqual(JSBI.BigInt(1));
+      expect(liquidityNet).toEqual(BigInt(1));
+      expect(liquidityGross).toEqual(BigInt(1));
     });
   });
 });

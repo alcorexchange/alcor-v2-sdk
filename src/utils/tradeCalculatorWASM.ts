@@ -1,7 +1,6 @@
 import { Token, Pool, Route, Trade } from '../entities';
 import { CurrencyAmount } from '../entities/fractions';
 import { TradeType } from '../internalConstants';
-import JSBI from 'jsbi';
 
 // WASM module - lazy loaded
 let wasmModule: any = null;
@@ -107,7 +106,7 @@ export class WASMTradeCalculator {
     
     const amountOut = CurrencyAmount.fromRawAmount(
       route.output,
-      JSBI.BigInt(amountOutValue)
+      BigInt(amountOutValue)
     );
     
     return {
@@ -156,7 +155,7 @@ export class WASMTradeCalculator {
             amountIn: amount,
             amountOut: CurrencyAmount.fromRawAmount(
               route.output,
-              JSBI.BigInt(result.amountOut)
+              BigInt(result.amountOut)
             ),
             priceImpact: result.priceImpact
           });
@@ -231,7 +230,7 @@ export async function bestTradeWithSplitWASM(
     const splitAmounts = percents.map(percent => 
       CurrencyAmount.fromRawAmount(
         amount.currency,
-        JSBI.divide(JSBI.multiply(amount.quotient, JSBI.BigInt(percent)), JSBI.BigInt(100))
+        ((amount.quotient * BigInt(percent)) / BigInt(100))
       )
     );
     

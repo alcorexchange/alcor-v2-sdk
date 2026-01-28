@@ -1,8 +1,7 @@
-import JSBI from "jsbi";
 import { BigintIsh, Rounding } from "../../internalConstants";
 import { Fraction } from "./fraction";
 
-const ONE_HUNDRED = new Fraction(JSBI.BigInt(100));
+const ONE_HUNDRED = new Fraction(BigInt(100));
 
 /**
  * Converts a fraction to a percent

@@ -1,7 +1,6 @@
 import msgpack from "msgpack-lite"
 
 import invariant from "tiny-invariant";
-import JSBI from "jsbi";
 import { Currency } from "../currency";
 import { Token } from "../token";
 import { Fraction } from "./fraction";
@@ -13,7 +12,7 @@ const Big = toFormat(_Big);
 
 export class CurrencyAmount<T extends Currency> extends Fraction {
   public readonly currency: T;
-  public readonly decimalScale: JSBI;
+  public readonly decimalScale: bigint;
 
   /**
    * Returns a new currency amount instance from the unitless amount of token, i.e. the raw amount
@@ -47,12 +46,9 @@ export class CurrencyAmount<T extends Currency> extends Fraction {
     denominator?: BigintIsh
   ) {
     super(numerator, denominator);
-    invariant(JSBI.lessThanOrEqual(this.quotient, MaxUint256), "AMOUNT");
+    invariant((this.quotient <= MaxUint256), "AMOUNT");
     this.currency = currency;
-    this.decimalScale = JSBI.exponentiate(
-      JSBI.BigInt(10),
-      JSBI.BigInt(currency.decimals)
-    );
+    this.decimalScale = (BigInt(10) ** BigInt(currency.decimals));
   }
 
   public add(other: CurrencyAmount<T>): CurrencyAmount<T> {
@@ -143,8 +139,8 @@ export class CurrencyAmount<T extends Currency> extends Fraction {
 
   static fromJSON(json: any) {
     const currency = Token.fromJSON(json.currency);
-    const numerator = JSBI.BigInt(json.numerator);
-    const denominator = JSBI.BigInt(json.denominator);
+    const numerator = BigInt(json.numerator);
+    const denominator = BigInt(json.denominator);
     return new CurrencyAmount(currency, numerator, denominator);
   }
 

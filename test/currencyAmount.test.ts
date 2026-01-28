@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import { MaxUint256 } from "internalConstants";
 import { Token } from "../src/entities/token";
 import { CurrencyAmount } from "../src/entities/fractions/currencyAmount";
@@ -11,7 +10,7 @@ describe("CurrencyAmount", () => {
     it("works", () => {
       const token = new Token(CONTRACT_ONE, 18, "ABC");
       const amount = CurrencyAmount.fromRawAmount(token, 100);
-      expect(amount.quotient).toEqual(JSBI.BigInt(100));
+      expect(amount.quotient).toEqual(BigInt(100));
     });
   });
 
@@ -21,7 +20,7 @@ describe("CurrencyAmount", () => {
       const amount = CurrencyAmount.fromRawAmount(token, 100).multiply(
         new Percent(15, 100)
       );
-      expect(amount.quotient).toEqual(JSBI.BigInt(15));
+      expect(amount.quotient).toEqual(BigInt(15));
     });
   });
 
@@ -36,7 +35,7 @@ describe("CurrencyAmount", () => {
     expect(() =>
       CurrencyAmount.fromRawAmount(
         new Token(CONTRACT_ONE, 18, "ABC"),
-        JSBI.add(MaxUint256, JSBI.BigInt(1))
+        (MaxUint256 + BigInt(1))
       )
     ).toThrow("AMOUNT");
   });
@@ -44,18 +43,18 @@ describe("CurrencyAmount", () => {
     expect(() =>
       CurrencyAmount.fromFractionalAmount(
         new Token(CONTRACT_ONE, 18, "ABC"),
-        JSBI.add(JSBI.multiply(MaxUint256, JSBI.BigInt(2)), JSBI.BigInt(2)),
-        JSBI.BigInt(2)
+        ((MaxUint256 * BigInt(2)) + BigInt(2)),
+        BigInt(2)
       )
     ).toThrow("AMOUNT");
   });
   it("token amount numerator can be gt. uint256 if denominator is gt. 1", () => {
     const amount = CurrencyAmount.fromFractionalAmount(
       new Token(CONTRACT_ONE, 18, "ABC"),
-      JSBI.add(MaxUint256, JSBI.BigInt(2)),
+      (MaxUint256 + BigInt(2)),
       2
     );
-    expect(amount.numerator).toEqual(JSBI.add(JSBI.BigInt(2), MaxUint256));
+    expect(amount.numerator).toEqual((BigInt(2) + MaxUint256));
   });
 
   describe("#toFixed", () => {

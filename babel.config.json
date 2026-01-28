@@ -14,8 +14,7 @@
     "@babel/preset-typescript"
   ],
   "plugins": [
-    ["transform-jsbi-to-bigint", { "debug": true }],
     "@babel/plugin-proposal-class-properties",
-    "@babel/plugin-transform-classes"  
+    "@babel/plugin-transform-classes"
   ]
 }

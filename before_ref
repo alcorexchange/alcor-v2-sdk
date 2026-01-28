@@ -3,40 +3,22 @@
 Swap: 900.0000 TLM -> WAX
 Max hops: 3
 
-Pools with ticks: 6336
-routes generate: 2.114s
-Routes found: 7168
+Pools with ticks: 6342
+routes generate: 2.117s
+Routes found: 7172
 
 Computing bestTradeWithSplit...
-split compute: 1.772s
+split compute: 1.554s
 
 === BEST TRADE RESULT ===
 Input: 900.0000 TLM
-Output: 11427.99380533 WAX
-Price Impact: 97.64%
-Swaps: 7
+Output: 239.46608759 WAX
+Price Impact: 0.3111%
+Swaps: 1
 
 === SWAPS BREAKDOWN ===
-#1: 25% - TLM -> CHSR -> GHOST -> WAX
-    Pools: [9871, 7457, 3173]
-    Output: 5623.72026863
-#2: 35% - TLM -> CHEESE -> WCACHE -> WAX
-    Pools: [8695, 7938, 6602]
-    Output: 2331.83304580
-#3: 10% - TLM -> BUZZ -> RUCOIN -> WAX
-    Pools: [5404, 6657, 6655]
-    Output: 1183.36103054
-#4: 10% - TLM -> TRASH -> CHIPS -> WAX
-    Pools: [7817, 7518, 1428]
-    Output: 1105.13743172
-#5: 10% - TLM -> SSN -> SQJ -> WAX
-    Pools: [3186, 8481, 4200]
-    Output: 673.91625570
-#6: 5% - TLM -> WAXUSDC -> BRIX -> WAX
-    Pools: [5034, 9675, 794]
-    Output: 272.41849077
-#7: 5% - TLM -> BLOOM -> BATTY -> WAX
-    Pools: [3759, 4839, 7214]
-    Output: 237.60728217
+#1: 100% - TLM -> WAX
+    Pools: [0]
+    Output: 239.46608759
 
 Results saved to pruning-results.json

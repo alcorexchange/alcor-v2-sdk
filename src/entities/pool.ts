@@ -4,7 +4,6 @@ import crypto, {createHash} from 'crypto';
 import { CurrencyAmount, Price } from "./fractions";
 import { Token } from "./token";
 import { BigintIsh, FeeAmount, TICK_SPACINGS } from "../internalConstants";
-import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { NEGATIVE_ONE, ONE, Q128, ZERO } from "../internalConstants";
 import { LiquidityMath } from "../utils/liquidityMath";
@@ -32,13 +31,13 @@ export interface PoolConstructorArgs {
 }
 
 interface StepComputations {
-  sqrtPriceStartX64: JSBI;
+  sqrtPriceStartX64: bigint;
   tickNext: number;
   initialized: boolean;
-  sqrtPriceNextX64: JSBI;
-  amountIn: JSBI;
-  amountOut: JSBI;
-  feeAmount: JSBI;
+  sqrtPriceNextX64: bigint;
+  amountIn: bigint;
+  amountOut: bigint;
+  feeAmount: bigint;
 }
 
 /**
@@ -56,11 +55,11 @@ export class Pool {
   public readonly tokenA: Token;
   public readonly tokenB: Token;
   public readonly fee: FeeAmount;
-  public readonly sqrtPriceX64: JSBI;
-  public readonly liquidity: JSBI;
+  public readonly sqrtPriceX64: bigint;
+  public readonly liquidity: bigint;
   public readonly tickCurrent: number;
-  public readonly feeGrowthGlobalAX64: JSBI;
-  public readonly feeGrowthGlobalBX64: JSBI;
+  public readonly feeGrowthGlobalAX64: bigint;
+  public readonly feeGrowthGlobalBX64: bigint;
   public readonly tickDataProvider: TickDataProvider;
 
   public json?: any
@@ -101,22 +100,19 @@ export class Pool {
     const tickCurrentSqrtRatioX64 = TickMath.getSqrtRatioAtTick(tickCurrent);
     const nextTickSqrtRatioX64 = TickMath.getSqrtRatioAtTick(tickCurrent + 1);
     invariant(
-      JSBI.greaterThanOrEqual(
-        JSBI.BigInt(sqrtPriceX64),
-        tickCurrentSqrtRatioX64
-      ) &&
-        JSBI.lessThanOrEqual(JSBI.BigInt(sqrtPriceX64), nextTickSqrtRatioX64),
+      (BigInt(sqrtPriceX64) >= tickCurrentSqrtRatioX64) &&
+        (BigInt(sqrtPriceX64) <= nextTickSqrtRatioX64),
       "PRICE_BOUNDS"
     );
     // always create a copy of the list since we want the pool's tick list to be immutable
     this.id = id;
     this.fee = fee;
     this.active = active;
-    this.sqrtPriceX64 = JSBI.BigInt(sqrtPriceX64);
-    this.liquidity = JSBI.BigInt(liquidity);
+    this.sqrtPriceX64 = BigInt(sqrtPriceX64);
+    this.liquidity = BigInt(liquidity);
     this.tickCurrent = tickCurrent;
-    this.feeGrowthGlobalAX64 = JSBI.BigInt(feeGrowthGlobalAX64);
-    this.feeGrowthGlobalBX64 = JSBI.BigInt(feeGrowthGlobalBX64);
+    this.feeGrowthGlobalAX64 = BigInt(feeGrowthGlobalAX64);
+    this.feeGrowthGlobalBX64 = BigInt(feeGrowthGlobalBX64);
 
     this.tickDataProvider = Array.isArray(ticks)
       ? new TickListDataProvider(ticks, TICK_SPACINGS[fee])
@@ -146,7 +142,7 @@ export class Pool {
         this.tokenA,
         this.tokenB,
         Q128,
-        JSBI.multiply(this.sqrtPriceX64, this.sqrtPriceX64)
+        (this.sqrtPriceX64 * this.sqrtPriceX64)
       ))
     );
   }
@@ -160,7 +156,7 @@ export class Pool {
       (this._tokenBPrice = new Price(
         this.tokenB,
         this.tokenA,
-        JSBI.multiply(this.sqrtPriceX64, this.sqrtPriceX64),
+        (this.sqrtPriceX64 * this.sqrtPriceX64),
         Q128
       ))
     );
@@ -184,7 +180,7 @@ export class Pool {
    */
   public getOutputAmount(
     inputAmount: CurrencyAmount<Token>,
-    sqrtPriceLimitX64?: JSBI
+    sqrtPriceLimitX64?: bigint
   ): CurrencyAmount<Token> {
     invariant(this.involvesToken(inputAmount.currency), "TOKEN");
 
@@ -196,15 +192,15 @@ export class Pool {
     const outputAmount = zeroForOne ? amountB : amountA;
     const amountIn = zeroForOne ? amountA : amountB;
 
-    //console.log(JSBI.equal(amountIn, inputAmount.quotient))
-    if (!JSBI.greaterThanOrEqual(inputAmount.quotient, amountIn)) {
-    //if (!JSBI.equal(amountIn, inputAmount.quotient)) {
+    //console.log((amountIn === inputAmount.quotient))
+    if (!(inputAmount.quotient >= amountIn)) {
+    //if (!(amountIn === inputAmount.quotient)) {
       throw new InsufficientInputAmountError
     }
 
     return CurrencyAmount.fromRawAmount(
         outputToken,
-        JSBI.multiply(outputAmount, NEGATIVE_ONE)
+        (outputAmount * NEGATIVE_ONE)
       )
   }
 
@@ -216,17 +212,17 @@ export class Pool {
    */
   public getInputAmount(
     outputAmount: CurrencyAmount<Token>,
-    sqrtPriceLimitX64?: JSBI
+    sqrtPriceLimitX64?: bigint
   ): CurrencyAmount<Token> {
     const zeroForOne = outputAmount.currency.equals(this.tokenB);
 
-    const { amountA, amountB } = this.swap(zeroForOne, JSBI.multiply(outputAmount.quotient, NEGATIVE_ONE), sqrtPriceLimitX64);
+    const { amountA, amountB } = this.swap(zeroForOne, (outputAmount.quotient * NEGATIVE_ONE), sqrtPriceLimitX64);
 
     const inputToken = zeroForOne ? this.tokenA : this.tokenB;
     const inputAmount = zeroForOne ? amountA : amountB;
-    const amountOutReceived = JSBI.multiply(zeroForOne ? amountB : amountA, NEGATIVE_ONE)
+    const amountOutReceived = (zeroForOne ? amountB : amountA * NEGATIVE_ONE)
 
-    if (!JSBI.equal(amountOutReceived, outputAmount.quotient)) {
+    if (!(amountOutReceived === outputAmount.quotient)) {
       throw new InsufficientReservesError
     }
 
@@ -245,21 +241,21 @@ export class Pool {
    */
   private swap(
     zeroForOne: boolean,
-    amountSpecified: JSBI,
-    sqrtPriceLimitX64?: JSBI
+    amountSpecified: bigint,
+    sqrtPriceLimitX64?: bigint
   ): {
-    amountA: JSBI;
-    amountB: JSBI;
-    sqrtPriceX64: JSBI;
-    liquidity: JSBI;
+    amountA: bigint;
+    amountB: bigint;
+    sqrtPriceX64: bigint;
+    liquidity: bigint;
     tickCurrent: number;
   } {
     const sqrtPriceLimit = sqrtPriceLimitX64 || (zeroForOne
-      ? JSBI.add(TickMath.MIN_SQRT_RATIO, ONE)
-      : JSBI.subtract(TickMath.MAX_SQRT_RATIO, ONE));
+      ? (TickMath.MIN_SQRT_RATIO + ONE)
+      : (TickMath.MAX_SQRT_RATIO - ONE));
 
     // Убираем проверки invariant в продакшене, если данные гарантированно валидны
-    const exactInput = JSBI.greaterThanOrEqual(amountSpecified, ZERO);
+    const exactInput = (amountSpecified >= ZERO);
 
     // Cache tickSpacing to avoid getter call each iteration
     const tickSpacing = this.tickSpacing;
@@ -277,15 +273,15 @@ export class Pool {
     let liquidity = this.liquidity;
 
     // Step variables (reused each iteration - no object allocation)
-    let sqrtPriceStartX64: JSBI;
+    let sqrtPriceStartX64: bigint;
     let tickNext: number;
     let initialized: boolean;
-    let sqrtPriceNextX64: JSBI;
-    let amountIn: JSBI;
-    let amountOut: JSBI;
-    let feeAmount: JSBI;
+    let sqrtPriceNextX64: bigint;
+    let amountIn: bigint;
+    let amountOut: bigint;
+    let feeAmount: bigint;
 
-    while (JSBI.notEqual(amountSpecifiedRemaining, ZERO) && sqrtPriceX64 !== sqrtPriceLimit) {
+    while ((amountSpecifiedRemaining !== ZERO) && sqrtPriceX64 !== sqrtPriceLimit) {
       sqrtPriceStartX64 = sqrtPriceX64;
 
       // Use cursor-optimized version if available (O(1) vs O(log n))
@@ -300,8 +296,8 @@ export class Pool {
       sqrtPriceNextX64 = TickMath.getSqrtRatioAtTick(tickNext);
 
       const targetPrice = (zeroForOne
-        ? JSBI.lessThan(sqrtPriceNextX64, sqrtPriceLimit)
-        : JSBI.greaterThan(sqrtPriceNextX64, sqrtPriceLimit))
+        ? (sqrtPriceNextX64 < sqrtPriceLimit)
+        : (sqrtPriceNextX64 > sqrtPriceLimit))
         ? sqrtPriceLimit
         : sqrtPriceNextX64;
 
@@ -314,17 +310,17 @@ export class Pool {
       );
 
       if (exactInput) {
-        amountSpecifiedRemaining = JSBI.subtract(amountSpecifiedRemaining, JSBI.add(amountIn, feeAmount));
-        amountCalculated = JSBI.subtract(amountCalculated, amountOut);
+        amountSpecifiedRemaining = (amountSpecifiedRemaining - (amountIn + feeAmount));
+        amountCalculated = (amountCalculated - amountOut);
       } else {
-        amountSpecifiedRemaining = JSBI.add(amountSpecifiedRemaining, amountOut);
-        amountCalculated = JSBI.add(amountCalculated, JSBI.add(amountIn, feeAmount));
+        amountSpecifiedRemaining = (amountSpecifiedRemaining + amountOut);
+        amountCalculated = (amountCalculated + (amountIn + feeAmount));
       }
 
-      if (JSBI.equal(sqrtPriceX64, sqrtPriceNextX64)) {
+      if ((sqrtPriceX64 === sqrtPriceNextX64)) {
         if (initialized) {
           let liquidityNet = this.tickDataProvider.getTick(tickNext).liquidityNet;
-          if (zeroForOne) liquidityNet = JSBI.multiply(liquidityNet, NEGATIVE_ONE);
+          if (zeroForOne) liquidityNet = (liquidityNet * NEGATIVE_ONE);
           liquidity = LiquidityMath.addDelta(liquidity, liquidityNet);
         }
         tick = zeroForOne ? tickNext - 1 : tickNext;
@@ -334,8 +330,8 @@ export class Pool {
     }
 
     return {
-      amountA: zeroForOne === exactInput ? JSBI.subtract(amountSpecified, amountSpecifiedRemaining) : amountCalculated,
-      amountB: zeroForOne === exactInput ? amountCalculated : JSBI.subtract(amountSpecified, amountSpecifiedRemaining),
+      amountA: zeroForOne === exactInput ? (amountSpecified - amountSpecifiedRemaining) : amountCalculated,
+      amountB: zeroForOne === exactInput ? amountCalculated : (amountSpecified - amountSpecifiedRemaining),
       sqrtPriceX64,
       liquidity,
       tickCurrent: tick,
@@ -372,11 +368,11 @@ export class Pool {
       tokenA: Token.fromJSON(json.tokenA),
       tokenB: Token.fromJSON(json.tokenB),
       fee: json.fee,
-      sqrtPriceX64: JSBI.BigInt(json.sqrtPriceX64),
-      liquidity: JSBI.BigInt(json.liquidity),
+      sqrtPriceX64: BigInt(json.sqrtPriceX64),
+      liquidity: BigInt(json.liquidity),
       tickCurrent: json.tickCurrent,
-      feeGrowthGlobalAX64: JSBI.BigInt(json.feeGrowthGlobalAX64),
-      feeGrowthGlobalBX64: JSBI.BigInt(json.feeGrowthGlobalBX64),
+      feeGrowthGlobalAX64: BigInt(json.feeGrowthGlobalAX64),
+      feeGrowthGlobalBX64: BigInt(json.feeGrowthGlobalBX64),
       ticks: TickListDataProvider.fromJSON(json.tickDataProvider)
     });
   }
@@ -448,10 +444,10 @@ export class Pool {
     if (this.fee !== other.fee) return false;
 
     // Сравниваем sqrtPriceX64
-    if (!JSBI.equal(this.sqrtPriceX64, other.sqrtPriceX64)) return false;
+    if (!(this.sqrtPriceX64 === other.sqrtPriceX64)) return false;
 
     // Сравниваем liquidity
-    if (!JSBI.equal(this.liquidity, other.liquidity)) return false;
+    if (!(this.liquidity === other.liquidity)) return false;
 
     // Сравниваем tickCurrent
     if (this.tickCurrent !== other.tickCurrent) return false;

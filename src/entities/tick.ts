@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { BigintIsh } from "../internalConstants";
 import { TickMath } from "../utils/tickMath";
@@ -16,13 +15,13 @@ export interface TickConstructorArgs {
 
 export class Tick {
   public readonly id: number;
-  public readonly liquidityGross: JSBI;
-  public readonly liquidityNet: JSBI;
-  public readonly feeGrowthOutsideAX64: JSBI;
-  public readonly feeGrowthOutsideBX64: JSBI;
-  public readonly tickCumulativeOutside: JSBI;
-  public readonly secondsOutside: JSBI;
-  public readonly secondsPerLiquidityOutsideX64: JSBI;
+  public readonly liquidityGross: bigint;
+  public readonly liquidityNet: bigint;
+  public readonly feeGrowthOutsideAX64: bigint;
+  public readonly feeGrowthOutsideBX64: bigint;
+  public readonly tickCumulativeOutside: bigint;
+  public readonly secondsOutside: bigint;
+  public readonly secondsPerLiquidityOutsideX64: bigint;
 
   constructor({
     id,
@@ -37,13 +36,13 @@ export class Tick {
     invariant(id >= TickMath.MIN_TICK && id <= TickMath.MAX_TICK, "TICK");
 
     this.id = id;
-    this.liquidityGross = JSBI.BigInt(liquidityGross);
-    this.liquidityNet = JSBI.BigInt(liquidityNet);
-    this.feeGrowthOutsideAX64 = JSBI.BigInt(feeGrowthOutsideAX64);
-    this.feeGrowthOutsideBX64 = JSBI.BigInt(feeGrowthOutsideBX64);
-    this.tickCumulativeOutside = JSBI.BigInt(tickCumulativeOutside)
-    this.secondsOutside = JSBI.BigInt(secondsOutside);
-    this.secondsPerLiquidityOutsideX64 = JSBI.BigInt(secondsPerLiquidityOutsideX64);
+    this.liquidityGross = BigInt(liquidityGross);
+    this.liquidityNet = BigInt(liquidityNet);
+    this.feeGrowthOutsideAX64 = BigInt(feeGrowthOutsideAX64);
+    this.feeGrowthOutsideBX64 = BigInt(feeGrowthOutsideBX64);
+    this.tickCumulativeOutside = BigInt(tickCumulativeOutside)
+    this.secondsOutside = BigInt(secondsOutside);
+    this.secondsPerLiquidityOutsideX64 = BigInt(secondsPerLiquidityOutsideX64);
   }
 
   static toJSON(tick: Tick): object {
@@ -62,13 +61,13 @@ export class Tick {
   static fromJSON(json: any): Tick {
     return new Tick({
       id: json.id,
-      liquidityGross: JSBI.BigInt(json.liquidityGross),
-      liquidityNet: JSBI.BigInt(json.liquidityNet),
-      feeGrowthOutsideAX64: JSBI.BigInt(json.feeGrowthOutsideAX64),
-      feeGrowthOutsideBX64: JSBI.BigInt(json.feeGrowthOutsideBX64),
-      tickCumulativeOutside: JSBI.BigInt(json.tickCumulativeOutside),
-      secondsOutside: JSBI.BigInt(json.secondsOutside),
-      secondsPerLiquidityOutsideX64: JSBI.BigInt(json.secondsPerLiquidityOutsideX64),
+      liquidityGross: BigInt(json.liquidityGross),
+      liquidityNet: BigInt(json.liquidityNet),
+      feeGrowthOutsideAX64: BigInt(json.feeGrowthOutsideAX64),
+      feeGrowthOutsideBX64: BigInt(json.feeGrowthOutsideBX64),
+      tickCumulativeOutside: BigInt(json.tickCumulativeOutside),
+      secondsOutside: BigInt(json.secondsOutside),
+      secondsPerLiquidityOutsideX64: BigInt(json.secondsPerLiquidityOutsideX64),
     });
   }
 }

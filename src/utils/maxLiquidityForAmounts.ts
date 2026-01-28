@@ -1,4 +1,3 @@
-import JSBI from "jsbi";
 import { Q64, BigintIsh } from "../internalConstants";
 
 /**
@@ -13,21 +12,15 @@ import { Q64, BigintIsh } from "../internalConstants";
  * @returns liquidity for amountA, imprecise
  */
 function maxLiquidityForAmountAImprecise(
-  sqrtRatioLX64: JSBI,
-  sqrtRatioUX64: JSBI,
+  sqrtRatioLX64: bigint,
+  sqrtRatioUX64: bigint,
   amountA: BigintIsh
-): JSBI {
-  if (JSBI.greaterThan(sqrtRatioLX64, sqrtRatioUX64)) {
+): bigint {
+  if ((sqrtRatioLX64 > sqrtRatioUX64)) {
     [sqrtRatioLX64, sqrtRatioUX64] = [sqrtRatioUX64, sqrtRatioLX64];
   }
-  const intermediate = JSBI.divide(
-    JSBI.multiply(sqrtRatioLX64, sqrtRatioUX64),
-    Q64
-  );
-  return JSBI.divide(
-    JSBI.multiply(JSBI.BigInt(amountA), intermediate),
-    JSBI.subtract(sqrtRatioUX64, sqrtRatioLX64)
-  );
+  const intermediate = ((sqrtRatioLX64 * sqrtRatioUX64) / Q64);
+  return ((BigInt(amountA) * intermediate) / (sqrtRatioUX64 - sqrtRatioLX64));
 }
 
 /**
@@ -39,24 +32,18 @@ function maxLiquidityForAmountAImprecise(
  * @returns liquidity for amountA, precise
  */
 function maxLiquidityForAmountAPrecise(
-  sqrtRatioLX64: JSBI,
-  sqrtRatioUX64: JSBI,
+  sqrtRatioLX64: bigint,
+  sqrtRatioUX64: bigint,
   amountA: BigintIsh
-): JSBI {
-  if (JSBI.greaterThan(sqrtRatioLX64, sqrtRatioUX64)) {
+): bigint {
+  if ((sqrtRatioLX64 > sqrtRatioUX64)) {
     [sqrtRatioLX64, sqrtRatioUX64] = [sqrtRatioUX64, sqrtRatioLX64];
   }
 
-  const numerator = JSBI.multiply(
-    JSBI.multiply(JSBI.BigInt(amountA), sqrtRatioLX64),
-    sqrtRatioUX64
-  );
-  const denominator = JSBI.multiply(
-    Q64,
-    JSBI.subtract(sqrtRatioUX64, sqrtRatioLX64)
-  );
+  const numerator = ((BigInt(amountA) * sqrtRatioLX64) * sqrtRatioUX64);
+  const denominator = (Q64 * (sqrtRatioUX64 - sqrtRatioLX64));
 
-  return JSBI.divide(numerator, denominator);
+  return (numerator / denominator);
 }
 
 /**
@@ -67,17 +54,14 @@ function maxLiquidityForAmountAPrecise(
  * @returns liquidity for amountB
  */
 function maxLiquidityForAmountB(
-  sqrtRatioLX64: JSBI,
-  sqrtRatioUX64: JSBI,
+  sqrtRatioLX64: bigint,
+  sqrtRatioUX64: bigint,
   amountB: BigintIsh
-): JSBI {
-  if (JSBI.greaterThan(sqrtRatioLX64, sqrtRatioUX64)) {
+): bigint {
+  if ((sqrtRatioLX64 > sqrtRatioUX64)) {
     [sqrtRatioLX64, sqrtRatioUX64] = [sqrtRatioUX64, sqrtRatioLX64];
   }
-  return JSBI.divide(
-    JSBI.multiply(JSBI.BigInt(amountB), Q64),
-    JSBI.subtract(sqrtRatioUX64, sqrtRatioLX64)
-  );
+  return ((BigInt(amountB) * Q64) / (sqrtRatioUX64 - sqrtRatioLX64));
 }
 
 /**
@@ -92,14 +76,14 @@ function maxLiquidityForAmountB(
  * not what core can theoretically support
  */
 export function maxLiquidityForAmounts(
-  sqrtRatioCurrentX64: JSBI,
-  sqrtRatioLX64: JSBI,
-  sqrtRatioUX64: JSBI,
+  sqrtRatioCurrentX64: bigint,
+  sqrtRatioLX64: bigint,
+  sqrtRatioUX64: bigint,
   amountA: BigintIsh,
   amountB: BigintIsh,
   useFullPrecision: boolean
-): JSBI {
-  if (JSBI.greaterThan(sqrtRatioLX64, sqrtRatioUX64)) {
+): bigint {
+  if ((sqrtRatioLX64 > sqrtRatioUX64)) {
     [sqrtRatioLX64, sqrtRatioUX64] = [sqrtRatioUX64, sqrtRatioLX64];
   }
 
@@ -107,9 +91,9 @@ export function maxLiquidityForAmounts(
     ? maxLiquidityForAmountAPrecise
     : maxLiquidityForAmountAImprecise;
 
-  if (JSBI.lessThanOrEqual(sqrtRatioCurrentX64, sqrtRatioLX64)) {
+  if ((sqrtRatioCurrentX64 <= sqrtRatioLX64)) {
     return maxLiquidityForAmountA(sqrtRatioLX64, sqrtRatioUX64, amountA);
-  } else if (JSBI.lessThan(sqrtRatioCurrentX64, sqrtRatioUX64)) {
+  } else if ((sqrtRatioCurrentX64 < sqrtRatioUX64)) {
     const liquidityA = maxLiquidityForAmountA(
       sqrtRatioCurrentX64,
       sqrtRatioUX64,
@@ -120,7 +104,7 @@ export function maxLiquidityForAmounts(
       sqrtRatioCurrentX64,
       amountB
     );
-    return JSBI.lessThan(liquidityA, liquidityB) ? liquidityA : liquidityB;
+    return (liquidityA < liquidityB) ? liquidityA : liquidityB;
   } else {
     return maxLiquidityForAmountB(sqrtRatioLX64, sqrtRatioUX64, amountB);
   }

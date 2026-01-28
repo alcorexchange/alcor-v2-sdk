@@ -1,5 +1,4 @@
 import { MaxUint128, MaxUint64 } from "internalConstants";
-import JSBI from "jsbi";
 import { SqrtPriceMath } from "utils/sqrtPriceMath";
 import { encodeSqrtRatioX64 } from "utils/encodeSqrtRatioX64";
 import { BigNumber } from "ethers";
@@ -17,9 +16,9 @@ describe("#sqrtPriceMath test", () => {
       expect(
         String(
           SqrtPriceMath.getNextSqrtPriceFromInput(
-            JSBI.BigInt(sqrtP),
-            JSBI.BigInt(liquidity),
-            JSBI.BigInt(amountIn),
+            BigInt(sqrtP),
+            BigInt(liquidity),
+            BigInt(amountIn),
             false
           )
         )
@@ -33,9 +32,9 @@ describe("#sqrtPriceMath test", () => {
       expect(
         String(
           SqrtPriceMath.getNextSqrtPriceFromInput(
-            JSBI.BigInt(sqrtP),
-            JSBI.BigInt(liquidity),
-            JSBI.BigInt(amountIn),
+            BigInt(sqrtP),
+            BigInt(liquidity),
+            BigInt(amountIn),
             true
           )
         )
@@ -51,9 +50,9 @@ describe("#sqrtPriceMath test", () => {
       expect(
         String(
           SqrtPriceMath.getNextSqrtPriceFromOutput(
-            JSBI.BigInt(sqrtP),
-            JSBI.BigInt(liquidity),
-            JSBI.BigInt(amountOut),
+            BigInt(sqrtP),
+            BigInt(liquidity),
+            BigInt(amountOut),
             false
           )
         )
@@ -67,9 +66,9 @@ describe("#sqrtPriceMath test", () => {
       expect(
         String(
           SqrtPriceMath.getNextSqrtPriceFromOutput(
-            JSBI.BigInt(sqrtP),
-            JSBI.BigInt(liquidity),
-            JSBI.BigInt(amountOut),
+            BigInt(sqrtP),
+            BigInt(liquidity),
+            BigInt(amountOut),
             true
           )
         )
@@ -85,9 +84,9 @@ describe("#sqrtPriceMath test", () => {
       expect(
         String(
           SqrtPriceMath.getAmountADelta(
-            JSBI.BigInt(sqrtRatioLX64),
-            JSBI.BigInt(sqrtRatioUX64),
-            JSBI.BigInt(liquidity),
+            BigInt(sqrtRatioLX64),
+            BigInt(sqrtRatioUX64),
+            BigInt(liquidity),
             true
           )
         )
@@ -101,9 +100,9 @@ describe("#sqrtPriceMath test", () => {
       expect(
         String(
           SqrtPriceMath.getAmountBDelta(
-            JSBI.BigInt(sqrtRatioLX64),
-            JSBI.BigInt(sqrtRatioUX64),
-            JSBI.BigInt(liquidity),
+            BigInt(sqrtRatioLX64),
+            BigInt(sqrtRatioUX64),
+            BigInt(liquidity),
             true
           )
         )
