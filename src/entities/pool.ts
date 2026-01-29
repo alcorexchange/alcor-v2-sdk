@@ -1,4 +1,4 @@
-import msgpack from "msgpack-lite";
+import { decode, encode } from "@msgpack/msgpack";
 // Avoid importing node crypto at module load so browser bundles can tree-shake/ignore it.
 const getNodeCrypto = (): any | null => {
   try {
@@ -407,7 +407,7 @@ export class Pool {
     if (pool.buffer) return pool.buffer;
     
     const json = Pool.toJSON(pool);
-    pool.buffer = msgpack.encode(json);
+    pool.buffer = encode(json);
     const hash = Pool.createHash(pool.buffer as Uint8Array, pool);
     if (hash) pool.bufferHash = hash;
     
@@ -426,7 +426,7 @@ export class Pool {
       return <Pool>this.hashToPoolMap.get(bufferHash);
     }
 
-    const json = msgpack.decode(bytes);
+    const json = decode(bytes);
     const pool = Pool.fromJSON(json);
 
     if (bufferHash) this.hashToPoolMap.set(bufferHash, pool);

@@ -1,4 +1,4 @@
-import msgpack from "msgpack-lite"
+import { decode, encode } from "@msgpack/msgpack"
 import invariant from 'tiny-invariant'
 
 import { Currency } from './currency'
@@ -139,11 +139,11 @@ export class Route<TInput extends Currency, TOutput extends Currency> {
     lightWeightVersion = false
   ) {
     const json = this.toJSON(route, lightWeightVersion);
-    return msgpack.encode(json);
+    return encode(json);
   }
 
   static fromBuffer(buffer: Uint8Array) {
-    const json = msgpack.decode(buffer);
+    const json = decode(buffer);
     return this.fromJSON(json);
   }
 
@@ -164,7 +164,7 @@ export class Route<TInput extends Currency, TOutput extends Currency> {
       output: Token.toJSON(route.output),
       _midPrice: route._midPrice,
     };
-    return msgpack.encode(json);
+    return encode(json);
   }
 
   public equals(other: Route<Currency, Currency>): boolean {

@@ -1,6 +1,6 @@
 {
   "name": "@alcorexchange/alcor-swap-sdk",
-  "version": "1.0.404",
+  "version": "1.1.0",
   "description": "",
   "main": "build/index.js",
   "module": "build/esm/index.js",
@@ -72,6 +72,7 @@
     "workerpool": "^9.2.0"
   },
   "dependencies": {
+    "@msgpack/msgpack": "^3.1.2",
     "big.js": "^5.2.2",
     "decimal.js-light": "^2.5.0",
     "eos-common": "^0.12.0",
@@ -79,7 +80,6 @@
     "eosjs-account-name": "2.3.0",
     "lodash": "^4.17.21",
     "mnemonist": "^0.39.8",
-    "msgpack-lite": "^0.1.26",
     "node-fetch": "2",
     "tiny-invariant": "^1.1.0",
     "tiny-warning": "^1.0.3",

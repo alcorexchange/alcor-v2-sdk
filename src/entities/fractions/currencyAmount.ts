@@ -1,4 +1,4 @@
-import msgpack from "msgpack-lite"
+import { decode, encode } from "@msgpack/msgpack"
 
 import invariant from "tiny-invariant";
 import { Currency } from "../currency";
@@ -151,11 +151,11 @@ export class CurrencyAmount<T extends Currency> extends Fraction {
       denominator: amount.denominator.toString(),
     }
 
-    return msgpack.encode(json);
+    return encode(json);
   }
 
   static fromBuffer(buffer: Uint8Array) {
-    const json = msgpack.decode(buffer)
+    const json = decode(buffer)
     return this.fromJSON(json)
   }
 }
