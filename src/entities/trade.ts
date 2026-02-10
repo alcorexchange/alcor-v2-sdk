@@ -577,9 +577,41 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
   ): Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[] {
     invariant(routes.length > 0, 'ROUTES')
 
+    // Pre-filter: remove routes with zero-liquidity pools
+    const validRoutes = routes.filter(route =>
+      route.pools.every(pool => pool.active && (pool.liquidity > ZERO))
+    )
+
+    // Helper: compute min liquidity (no overflow)
+    const getMinLiquidity = (route: Route<TInput, TOutput>): bigint => {
+      let min = route.pools[0].liquidity
+      for (let i = 1; i < route.pools.length; i++) {
+        if ((route.pools[i].liquidity < min)) {
+          min = route.pools[i].liquidity
+        }
+      }
+      return min
+    }
+
+    // Precompute min liquidity for sorting
+    const routeMinLiq = new Map<Route<TInput, TOutput>, bigint>()
+    for (const route of validRoutes) {
+      routeMinLiq.set(route, getMinLiquidity(route))
+    }
+
+    // Sort routes: fewer hops first, then by min liquidity desc
+    validRoutes.sort((a, b) => {
+      if (a.pools.length !== b.pools.length) return a.pools.length - b.pools.length
+      const minLiqA = routeMinLiq.get(a)!
+      const minLiqB = routeMinLiq.get(b)!
+      if ((minLiqA > minLiqB)) return -1
+      if ((minLiqA < minLiqB)) return 1
+      return 0
+    })
+
     const bestTrades: Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[] = []
-    for (const route of routes) {
-      let trade 
+    for (const route of validRoutes) {
+      let trade
       try {
         trade = Trade.fromRoute(route, currencyAmountOut, TradeType.EXACT_OUTPUT)
       } catch (error) {
@@ -590,7 +622,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
         throw error
       }
 
-      if (!trade.inputAmount.greaterThan(0) || !trade.priceImpact.greaterThan(0)) continue
+      if (!trade.inputAmount.greaterThan(0)) continue
 
       sortedInsert(
         bestTrades,

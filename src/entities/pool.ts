@@ -242,7 +242,7 @@ export class Pool {
 
     const inputToken = zeroForOne ? this.tokenA : this.tokenB;
     const inputAmount = zeroForOne ? amountA : amountB;
-    const amountOutReceived = (zeroForOne ? amountB : amountA * NEGATIVE_ONE)
+    const amountOutReceived = (zeroForOne ? amountB * NEGATIVE_ONE : amountA * NEGATIVE_ONE)
 
     if (!(amountOutReceived === outputAmount.quotient)) {
       throw new InsufficientReservesError
