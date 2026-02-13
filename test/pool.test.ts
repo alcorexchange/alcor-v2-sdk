@@ -6,6 +6,7 @@ import { TickMath } from "utils/tickMath";
 import { Pool } from "entities/pool";
 import { encodeSqrtRatioX64 } from "utils/encodeSqrtRatioX64";
 import { NEGATIVE_ONE } from "internalConstants";
+import { InsufficientInputAmountError } from "errors";
 
 const ONE_ETHER = (BigInt(10) ** BigInt(18));
 
@@ -301,6 +302,13 @@ describe("Pool", () => {
         const outputAmount = await pool.getOutputAmount(inputAmount);
         expect(outputAmount.currency.equals(USDC)).toBe(true);
         expect(outputAmount.quotient).toEqual(BigInt(98));
+      });
+
+      it("throws when exact input cannot be fully consumed due to price limit", async () => {
+        const inputAmount = CurrencyAmount.fromRawAmount(USDC, 100);
+        const strictLimit = pool.sqrtPriceX64 - BigInt(1);
+
+        expect(() => pool.getOutputAmount(inputAmount, strictLimit)).toThrow(InsufficientInputAmountError);
       });
     });
 

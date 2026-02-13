@@ -214,9 +214,7 @@ export class Pool {
     const outputAmount = zeroForOne ? amountB : amountA;
     const amountIn = zeroForOne ? amountA : amountB;
 
-    //console.log((amountIn === inputAmount.quotient))
-    if (!(inputAmount.quotient >= amountIn)) {
-    //if (!(amountIn === inputAmount.quotient)) {
+    if (!(amountIn === inputAmount.quotient)) {
       throw new InsufficientInputAmountError
     }
 
