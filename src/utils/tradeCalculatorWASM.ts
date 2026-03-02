@@ -1,6 +1,7 @@
 import { Token, Pool, Route, Trade } from '../entities';
 import { CurrencyAmount } from '../entities/fractions';
 import { TradeType } from '../internalConstants';
+import { getBestSwapRoute, SplitRouteQuote } from './getBestSwapRoute';
 
 // WASM module - lazy loaded
 let wasmModule: any = null;
@@ -121,7 +122,7 @@ export class WASMTradeCalculator {
   calculateTradesBatch(
     routes: Route<Token, Token>[],
     amounts: CurrencyAmount<Token>[]
-  ): Array<{ route: Route<Token, Token>, amountIn: CurrencyAmount<Token>, amountOut: CurrencyAmount<Token>, priceImpact: number }> {
+  ): Array<{ route: Route<Token, Token>, amountIn: CurrencyAmount<Token>, amountOut: CurrencyAmount<Token>, priceImpact: number } | null> {
     if (!this.initialized) {
       throw new Error('WASMTradeCalculator not initialized');
     }
@@ -143,7 +144,7 @@ export class WASMTradeCalculator {
       tokenInId
     );
     
-    const trades: Array<{ route: Route<Token, Token>, amountIn: CurrencyAmount<Token>, amountOut: CurrencyAmount<Token>, priceImpact: number }> = [];
+    const trades: Array<{ route: Route<Token, Token>, amountIn: CurrencyAmount<Token>, amountOut: CurrencyAmount<Token>, priceImpact: number } | null> = [];
     let resultIdx = 0;
     
     for (const route of routes) {
@@ -159,6 +160,8 @@ export class WASMTradeCalculator {
             ),
             priceImpact: result.priceImpact
           });
+        } else {
+          trades.push(null);
         }
       }
     }
@@ -238,32 +241,31 @@ export async function bestTradeWithSplitWASM(
     const allTrades = calculator.calculateTradesBatch(routes, splitAmounts);
     
     // Group trades by percent
-    const tradesByPercent: { [percent: number]: Trade<Token, Token, TradeType>[] } = {};
-    let tradeIdx = 0;
+    const quotesByPercent: { [percent: number]: SplitRouteQuote[] } = {};
     
     for (let i = 0; i < percents.length; i++) {
       const percent = percents[i];
-      tradesByPercent[percent] = [];
-      
-      for (const route of routes) {
-        const tradeDat = allTrades[tradeIdx++];
+      quotesByPercent[percent] = [];
+    }
+
+    const amountsPerRoute = splitAmounts.length;
+    for (let routeIndex = 0; routeIndex < routes.length; routeIndex++) {
+      for (let percentIndex = 0; percentIndex < percents.length; percentIndex++) {
+        const flatIndex = routeIndex * amountsPerRoute + percentIndex;
+        const tradeDat = allTrades[flatIndex];
         if (tradeDat) {
-          const trade = Trade.createUncheckedTrade({
-            route: tradeDat.route,
-            inputAmount: tradeDat.amountIn,
-            outputAmount: tradeDat.amountOut,
-            tradeType,
+          const percent = percents[percentIndex];
+          quotesByPercent[percent].push({
+            route: tradeDat.route as any,
+            inputAmount: tradeDat.amountIn as any,
+            outputAmount: tradeDat.amountOut as any,
             percent
-          }) as Trade<Token, Token, TradeType>;
-          
-          tradesByPercent[percent].push(trade);
+          });
         }
       }
     }
     
-    // Use existing getBestSwapRoute logic
-    const { getBestSwapRoute } = require('./getBestSwapRoute');
-    const bestTrades = getBestSwapRoute(tradeType, tradesByPercent, percents, swapConfig);
+    const bestTrades = getBestSwapRoute(tradeType, quotesByPercent, percents, swapConfig);
     
     if (!bestTrades) return null;
     
@@ -271,7 +273,7 @@ export async function bestTradeWithSplitWASM(
       inputAmount: trade.inputAmount,
       outputAmount: trade.outputAmount,
       route: trade.route,
-      percent: trade.swaps[0].percent
+      percent: trade.percent
     }));
     
     return Trade.createUncheckedTradeWithMultipleRoutes({

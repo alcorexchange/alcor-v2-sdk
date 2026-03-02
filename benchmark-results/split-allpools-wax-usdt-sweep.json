@@ -1,0 +1,658 @@
+{
+  "meta": {
+    "timestamp": "2026-03-02T11:40:40.333Z",
+    "nodeVersion": "v24.5.0",
+    "chain": "wax",
+    "poolCount": 6342,
+    "routeCount": 6707,
+    "maxHops": 3,
+    "tradeType": "EXACT_INPUT",
+    "tokenInId": "wax-eosio.token",
+    "tokenOutId": "usdt-usdt.alcor",
+    "amountRaw": "1122300000000",
+    "maxSplitsList": [
+      2,
+      4,
+      6,
+      10
+    ],
+    "iterations": 2,
+    "warmup": 0,
+    "profiles": [
+      "coarse4",
+      "balanced7"
+    ]
+  },
+  "cases": [
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 2,
+      "metrics": {
+        "iterations": 2,
+        "warmup": 0,
+        "avgMs": 1312.7384,
+        "minMs": 1267.0481,
+        "p50Ms": 1267.0481,
+        "p95Ms": 1358.4288,
+        "maxMs": 1358.4288
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "ad0afcb645251ca1d93cedc51039d99f148dbb69976fdd8d9bf2c0f2cc07eb1b",
+        "totalInputRaw": "1122300000000",
+        "totalOutputRaw": "758313",
+        "swapCount": 2,
+        "swaps": [
+          {
+            "percent": 75,
+            "inputRaw": "841725000000",
+            "outputRaw": "572177",
+            "path": [
+              "wax-eosio.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1095
+            ]
+          },
+          {
+            "percent": 25,
+            "inputRaw": "280575000000",
+            "outputRaw": "186136",
+            "path": [
+              "wax-eosio.token",
+              "buzz-buzzingarden",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              3351,
+              5403
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 4,
+      "metrics": {
+        "iterations": 2,
+        "warmup": 0,
+        "avgMs": 1276.2159,
+        "minMs": 1268.2648,
+        "p50Ms": 1268.2648,
+        "p95Ms": 1284.1669,
+        "maxMs": 1284.1669
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "ad0afcb645251ca1d93cedc51039d99f148dbb69976fdd8d9bf2c0f2cc07eb1b",
+        "totalInputRaw": "1122300000000",
+        "totalOutputRaw": "758313",
+        "swapCount": 2,
+        "swaps": [
+          {
+            "percent": 75,
+            "inputRaw": "841725000000",
+            "outputRaw": "572177",
+            "path": [
+              "wax-eosio.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1095
+            ]
+          },
+          {
+            "percent": 25,
+            "inputRaw": "280575000000",
+            "outputRaw": "186136",
+            "path": [
+              "wax-eosio.token",
+              "buzz-buzzingarden",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              3351,
+              5403
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 6,
+      "metrics": {
+        "iterations": 2,
+        "warmup": 0,
+        "avgMs": 1268.2588,
+        "minMs": 1266.9769,
+        "p50Ms": 1266.9769,
+        "p95Ms": 1269.5406,
+        "maxMs": 1269.5406
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "ad0afcb645251ca1d93cedc51039d99f148dbb69976fdd8d9bf2c0f2cc07eb1b",
+        "totalInputRaw": "1122300000000",
+        "totalOutputRaw": "758313",
+        "swapCount": 2,
+        "swaps": [
+          {
+            "percent": 75,
+            "inputRaw": "841725000000",
+            "outputRaw": "572177",
+            "path": [
+              "wax-eosio.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1095
+            ]
+          },
+          {
+            "percent": 25,
+            "inputRaw": "280575000000",
+            "outputRaw": "186136",
+            "path": [
+              "wax-eosio.token",
+              "buzz-buzzingarden",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              3351,
+              5403
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 10,
+      "metrics": {
+        "iterations": 2,
+        "warmup": 0,
+        "avgMs": 1271.5824,
+        "minMs": 1266.3184,
+        "p50Ms": 1266.3184,
+        "p95Ms": 1276.8463,
+        "maxMs": 1276.8463
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "ad0afcb645251ca1d93cedc51039d99f148dbb69976fdd8d9bf2c0f2cc07eb1b",
+        "totalInputRaw": "1122300000000",
+        "totalOutputRaw": "758313",
+        "swapCount": 2,
+        "swaps": [
+          {
+            "percent": 75,
+            "inputRaw": "841725000000",
+            "outputRaw": "572177",
+            "path": [
+              "wax-eosio.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1095
+            ]
+          },
+          {
+            "percent": 25,
+            "inputRaw": "280575000000",
+            "outputRaw": "186136",
+            "path": [
+              "wax-eosio.token",
+              "buzz-buzzingarden",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              3351,
+              5403
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 2,
+      "metrics": {
+        "iterations": 2,
+        "warmup": 0,
+        "avgMs": 2074.0489,
+        "minMs": 2070.0419,
+        "p50Ms": 2070.0419,
+        "p95Ms": 2078.0559,
+        "maxMs": 2078.0559
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "ad0afcb645251ca1d93cedc51039d99f148dbb69976fdd8d9bf2c0f2cc07eb1b",
+        "totalInputRaw": "1122300000000",
+        "totalOutputRaw": "758313",
+        "swapCount": 2,
+        "swaps": [
+          {
+            "percent": 75,
+            "inputRaw": "841725000000",
+            "outputRaw": "572177",
+            "path": [
+              "wax-eosio.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1095
+            ]
+          },
+          {
+            "percent": 25,
+            "inputRaw": "280575000000",
+            "outputRaw": "186136",
+            "path": [
+              "wax-eosio.token",
+              "buzz-buzzingarden",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              3351,
+              5403
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 4,
+      "metrics": {
+        "iterations": 2,
+        "warmup": 0,
+        "avgMs": 2695.1181,
+        "minMs": 2085.767,
+        "p50Ms": 2085.767,
+        "p95Ms": 3304.4692,
+        "maxMs": 3304.4692
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "d337cefb7a40dc8c417c93d608d684193933bad3f126ad6e8c2d6c0d3e007edc",
+        "totalInputRaw": "1122300000000",
+        "totalOutputRaw": "767643",
+        "swapCount": 4,
+        "swaps": [
+          {
+            "percent": 75,
+            "inputRaw": "841725000000",
+            "outputRaw": "572177",
+            "path": [
+              "wax-eosio.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1095
+            ]
+          },
+          {
+            "percent": 10,
+            "inputRaw": "112230000000",
+            "outputRaw": "78445",
+            "path": [
+              "wax-eosio.token",
+              "buzz-buzzingarden",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              3351,
+              5403
+            ]
+          },
+          {
+            "percent": 10,
+            "inputRaw": "112230000000",
+            "outputRaw": "77808",
+            "path": [
+              "wax-eosio.token",
+              "waxusdc-eth.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              314,
+              1171
+            ]
+          },
+          {
+            "percent": 5,
+            "inputRaw": "56115000000",
+            "outputRaw": "39213",
+            "path": [
+              "wax-eosio.token",
+              "waxusdt-eth.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              32,
+              1096
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 6,
+      "metrics": {
+        "iterations": 2,
+        "warmup": 0,
+        "avgMs": 3938.1769,
+        "minMs": 3565.1979,
+        "p50Ms": 3565.1979,
+        "p95Ms": 4311.1559,
+        "maxMs": 4311.1559
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "bc2b7d977f2072ec78af8b2ce8e930d3f8957c035e35fc8dce9792fa48ad7c4e",
+        "totalInputRaw": "1122300000000",
+        "totalOutputRaw": "773012",
+        "swapCount": 6,
+        "swaps": [
+          {
+            "percent": 50,
+            "inputRaw": "561150000000",
+            "outputRaw": "390267",
+            "path": [
+              "wax-eosio.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1095
+            ]
+          },
+          {
+            "percent": 15,
+            "inputRaw": "168345000000",
+            "outputRaw": "115603",
+            "path": [
+              "wax-eosio.token",
+              "buzz-buzzingarden",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              3351,
+              5403
+            ]
+          },
+          {
+            "percent": 10,
+            "inputRaw": "112230000000",
+            "outputRaw": "77808",
+            "path": [
+              "wax-eosio.token",
+              "waxusdc-eth.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              314,
+              1171
+            ]
+          },
+          {
+            "percent": 10,
+            "inputRaw": "112230000000",
+            "outputRaw": "76044",
+            "path": [
+              "wax-eosio.token",
+              "waxusdc-eth.token",
+              "waxusdt-eth.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              4579,
+              970,
+              1096
+            ]
+          },
+          {
+            "percent": 10,
+            "inputRaw": "112230000000",
+            "outputRaw": "75049",
+            "path": [
+              "wax-eosio.token",
+              "king-alpha.waxfun",
+              "pxj-pixeljourney",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              6559,
+              6560,
+              1275
+            ]
+          },
+          {
+            "percent": 5,
+            "inputRaw": "56115000000",
+            "outputRaw": "38241",
+            "path": [
+              "wax-eosio.token",
+              "leef-leefmaincorp",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              217,
+              1174
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 10,
+      "metrics": {
+        "iterations": 2,
+        "warmup": 0,
+        "avgMs": 3634.261,
+        "minMs": 2704.1814,
+        "p50Ms": 2704.1814,
+        "p95Ms": 4564.3407,
+        "maxMs": 4564.3407
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "f86a57a9c447877143fc92a6cc78087682b7717aa0468ffdd4f6d53acb33852c",
+        "totalInputRaw": "1122300000000",
+        "totalOutputRaw": "774533",
+        "swapCount": 7,
+        "swaps": [
+          {
+            "percent": 50,
+            "inputRaw": "561150000000",
+            "outputRaw": "390267",
+            "path": [
+              "wax-eosio.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1095
+            ]
+          },
+          {
+            "percent": 15,
+            "inputRaw": "168345000000",
+            "outputRaw": "115603",
+            "path": [
+              "wax-eosio.token",
+              "buzz-buzzingarden",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              3351,
+              5403
+            ]
+          },
+          {
+            "percent": 10,
+            "inputRaw": "112230000000",
+            "outputRaw": "77808",
+            "path": [
+              "wax-eosio.token",
+              "waxusdc-eth.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              314,
+              1171
+            ]
+          },
+          {
+            "percent": 10,
+            "inputRaw": "112230000000",
+            "outputRaw": "76044",
+            "path": [
+              "wax-eosio.token",
+              "waxusdc-eth.token",
+              "waxusdt-eth.token",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              4579,
+              970,
+              1096
+            ]
+          },
+          {
+            "percent": 5,
+            "inputRaw": "56115000000",
+            "outputRaw": "38694",
+            "path": [
+              "wax-eosio.token",
+              "king-alpha.waxfun",
+              "pxj-pixeljourney",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              6559,
+              6560,
+              1275
+            ]
+          },
+          {
+            "percent": 5,
+            "inputRaw": "56115000000",
+            "outputRaw": "38241",
+            "path": [
+              "wax-eosio.token",
+              "leef-leefmaincorp",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              217,
+              1174
+            ]
+          },
+          {
+            "percent": 5,
+            "inputRaw": "56115000000",
+            "outputRaw": "37876",
+            "path": [
+              "wax-eosio.token",
+              "wuf-wuffi",
+              "usdt-usdt.alcor"
+            ],
+            "poolIds": [
+              1658,
+              1709
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

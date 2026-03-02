@@ -7,7 +7,7 @@ import { sortedInsert } from '../utils/sortedInsert'
 import { Token } from './token'
 import { ONE, ZERO, TradeType } from '../internalConstants'
 import { Route } from './route'
-import { getBestSwapRoute } from '../utils/getBestSwapRoute'
+import { getBestSwapRoute, SplitRouteQuote } from '../utils/getBestSwapRoute'
 import { Pool } from './pool'
 
 /**
@@ -669,7 +669,7 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     amount: CurrencyAmount<Currency>,
     percents: number[],
     tradeType: TradeType,
-    swapConfig = { minSplits: 1, maxSplits: 10 }
+    swapConfig: { minSplits: number, maxSplits: number, branchFactor?: number, candidateLimit?: number } = { minSplits: 1, maxSplits: 10 }
   ): Trade<Currency, Currency, TradeType> | null {
     invariant(_routes.length > 0, 'ROUTES')
     invariant(percents.length > 0, 'PERCENTS')
@@ -711,44 +711,71 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
       percentToAmount.set(percent, amount.multiply(percent).divide(100));
     }
 
-    // Используем Map вместо объекта для лучшей производительности
-    const percentToTrades = new Map<number, Trade<Currency, Currency, TradeType>[]>();
-    for (const percent of percents) {
-      percentToTrades.set(percent, []);
+    const quoteRoute = (
+      route: Route<TInput, TOutput>,
+      splitAmount: CurrencyAmount<Currency>,
+      percent: number
+    ): SplitRouteQuote | null => {
+      const amounts: CurrencyAmount<Token>[] = new Array(route.tokenPath.length)
+      let inputAmount: CurrencyAmount<Currency>
+      let outputAmount: CurrencyAmount<Currency>
+
+      if (tradeType === TradeType.EXACT_INPUT) {
+        amounts[0] = splitAmount as unknown as CurrencyAmount<Token>
+        for (let i = 0; i < route.tokenPath.length - 1; i++) {
+          amounts[i + 1] = route.pools[i].getOutputAmount(amounts[i])
+        }
+        inputAmount = splitAmount
+        outputAmount = amounts[amounts.length - 1] as unknown as CurrencyAmount<Currency>
+      } else {
+        amounts[amounts.length - 1] = splitAmount as unknown as CurrencyAmount<Token>
+        for (let i = route.tokenPath.length - 1; i > 0; i--) {
+          amounts[i - 1] = route.pools[i - 1].getInputAmount(amounts[i])
+        }
+        inputAmount = amounts[0] as unknown as CurrencyAmount<Currency>
+        outputAmount = splitAmount
+      }
+
+      if (!outputAmount.greaterThan(0)) {
+        return null
+      }
+
+      return {
+        percent,
+        route: route as unknown as Route<Currency, Currency>,
+        inputAmount,
+        outputAmount
+      }
     }
 
-    // Оптимизируем внутренний цикл - группируем вычисления по маршрутам
+    const percentToQuotes: { [percent: number]: SplitRouteQuote[] } = {}
+    for (const percent of percents) {
+      percentToQuotes[percent] = []
+    }
+
     for (const route of validRoutes) {
       for (const percent of percents) {
-        const splitAmount = percentToAmount.get(percent)!;
+        const splitAmount = percentToAmount.get(percent)!
 
         try {
-          const trade = Trade.fromRoute(route, splitAmount, tradeType, percent);
-
-          // Only check outputAmount > 0, skip expensive priceImpact calculation
-          if (trade.outputAmount.greaterThan(0)) {
-            percentToTrades.get(percent)!.push(trade);
+          const quote = quoteRoute(route, splitAmount, percent)
+          if (quote) {
+            percentToQuotes[percent].push(quote)
           }
         } catch (error) {
           if ((error as any).isInsufficientReservesError || (error as any).isInsufficientInputAmountError) {
-            continue;
+            continue
           }
-          throw error;
+          throw error
         }
       }
     }
-    
-    // Преобразуем Map обратно в объект для совместимости с getBestSwapRoute
-    const percentToTradesObj: { [percent: number]: Trade<Currency, Currency, TradeType>[] } = {};
-    percentToTrades.forEach((trades, percent) => {
-      percentToTradesObj[percent] = trades;
-    });
-    
-    const bestTrades = getBestSwapRoute(tradeType, percentToTradesObj, percents, swapConfig);
-    if (!bestTrades) return null
 
-    const routes = bestTrades.map(({ inputAmount, outputAmount, route, swaps }) => {
-      return { inputAmount, outputAmount, route, percent: swaps[0].percent }
+    const bestQuotes = getBestSwapRoute(tradeType, percentToQuotes, percents, swapConfig)
+    if (!bestQuotes) return null
+
+    const routes = bestQuotes.map(({ inputAmount, outputAmount, route, percent }) => {
+      return { inputAmount, outputAmount, route, percent }
     })
 
     // Check missing input after splitting

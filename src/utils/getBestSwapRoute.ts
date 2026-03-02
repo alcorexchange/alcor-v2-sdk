@@ -1,217 +1,199 @@
-import Queue from 'mnemonist/queue';
-import FixedReverseHeap from 'mnemonist/fixed-reverse-heap';
-import { Currency } from '../entities/currency';
-import { Trade } from '../entities/trade';
-import { CurrencyAmount } from '../entities/fractions';
-import { TradeType } from '../internalConstants';
+import Queue from 'mnemonist/queue'
+
+import { Currency } from '../entities/currency'
+import { Route } from '../entities/route'
+import { CurrencyAmount } from '../entities/fractions'
+import { TradeType } from '../internalConstants'
+
+export interface SplitRouteQuote {
+  percent: number
+  route: Route<Currency, Currency>
+  inputAmount: CurrencyAmount<Currency>
+  outputAmount: CurrencyAmount<Currency>
+}
+
+interface SwapRouteConfig {
+  minSplits: number
+  maxSplits: number
+  branchFactor?: number
+  candidateLimit?: number
+}
 
 export function getBestSwapRoute(
   routeType: TradeType,
-  percentToQuotes: { [percent: number]: Trade<Currency, Currency, TradeType>[] },
+  percentToQuotes: { [percent: number]: SplitRouteQuote[] },
   percents: number[],
-  swapRouteConfig = { minSplits: 1, maxSplits: 8 }
-): Trade<Currency, Currency, TradeType>[] | null {
-  // Извлекаем уникальные пулы из всех маршрутов
-  const allPools = [...new Set(Object.values(percentToQuotes).flatMap(routes => routes.flatMap(r => r.route.pools)))];
+  swapRouteConfig: SwapRouteConfig = { minSplits: 1, maxSplits: 8 }
+): SplitRouteQuote[] | null {
+  const { minSplits, maxSplits, branchFactor = 1, candidateLimit = 0 } = swapRouteConfig
+  const branchWidth = Math.max(1, branchFactor)
 
-  // Создаем битовую карту для пулов (bigint для поддержки >31 пулов)
-  const poolToBit = new Map<number, bigint>();
-  let bitCounter = BigInt(0);
-  for (const pool of allPools) {
-    poolToBit.set(pool.id, BigInt(1) << bitCounter++);
-  }
-
-  // Предвычисляем маски для всех маршрутов
-  const routeToMask = new Map<Trade<Currency, Currency, TradeType>, bigint>();
-  for (const routes of Object.values(percentToQuotes)) {
-    for (const route of routes) {
-      let mask = BigInt(0);
-      for (const pool of route.route.pools) {
-        mask |= poolToBit.get(pool.id)!;
-      }
-      routeToMask.set(route, mask);
-    }
-  }
-
-  // Сортируем маршруты для каждого процента
-  const percentToSortedQuotes: { [percent: number]: Trade<Currency, Currency, TradeType>[] } = {};
-  for (const percent in percentToQuotes) {
-    percentToSortedQuotes[percent] = percentToQuotes[percent].sort((a, b) =>
-      routeType === TradeType.EXACT_INPUT
-        ? a.outputAmount.greaterThan(b.outputAmount) ? -1 : 1
-        : a.inputAmount.lessThan(b.inputAmount) ? -1 : 1
-    );
-  }
-
-  // Функция сравнения для типа торговли
   const quoteCompFn =
     routeType === TradeType.EXACT_INPUT
       ? (a: CurrencyAmount<Currency>, b: CurrencyAmount<Currency>) => a.greaterThan(b)
-      : (a: CurrencyAmount<Currency>, b: CurrencyAmount<Currency>) => a.lessThan(b);
+      : (a: CurrencyAmount<Currency>, b: CurrencyAmount<Currency>) => a.lessThan(b)
 
-  // Функция суммирования CurrencyAmount
-  const sumFn = (currencyAmounts: CurrencyAmount<Currency>[]): CurrencyAmount<Currency> => {
-    let sum = currencyAmounts[0]!;
-    for (let i = 1; i < currencyAmounts.length; i++) {
-      sum = sum.add(currencyAmounts[i]!);
-    }
-    return sum;
-  };
+  const quoteOf =
+    routeType === TradeType.EXACT_INPUT
+      ? (q: SplitRouteQuote) => q.outputAmount
+      : (q: SplitRouteQuote) => q.inputAmount
 
-  let bestQuote: CurrencyAmount<Currency> | undefined;
-  let bestSwap: Trade<Currency, Currency, TradeType>[] | undefined;
+  // Build pool bit ids without intermediate arrays.
+  const poolToBit = new Map<number, bigint>()
+  let bitCounter = BigInt(0)
 
-  // Храним лучшие маршруты для каждого уровня разбиения (максимум 3)
-  const bestSwapsPerSplit = new FixedReverseHeap<{
-    quote: CurrencyAmount<Currency>;
-    routes: Trade<Currency, Currency, TradeType>[];
-  }>(
-    Array,
-    (a, b) => (quoteCompFn(a.quote, b.quote) ? -1 : 1),
-    3
-  );
-
-  const { minSplits, maxSplits } = swapRouteConfig;
-
-  // Проверяем наличие маршрута для 100% и инициализируем начальные данные
-  if (!percentToSortedQuotes[100] || percentToSortedQuotes[100].length === 0 || minSplits > 1) {
-    console.log('Did not find a valid route without any splits. Continuing search anyway.');
-  } else {
-    bestQuote = percentToSortedQuotes[100][0].outputAmount;
-    bestSwap = [percentToSortedQuotes[100][0]];
-
-    for (const routeWithQuote of percentToSortedQuotes[100].slice(0, 5)) {
-      bestSwapsPerSplit.push({
-        quote: routeWithQuote.outputAmount,
-        routes: [routeWithQuote],
-      });
+  for (const quotes of Object.values(percentToQuotes)) {
+    for (const quote of quotes) {
+      for (const pool of quote.route.pools) {
+        if (!poolToBit.has(pool.id)) {
+          poolToBit.set(pool.id, BigInt(1) << bitCounter)
+          bitCounter += BigInt(1)
+        }
+      }
     }
   }
 
-  // Очередь для обработки комбинаций маршрутов (с usedMask для быстрой проверки overlap)
+  const routeToMask = new Map<SplitRouteQuote, bigint>()
+  for (const quotes of Object.values(percentToQuotes)) {
+    for (const quote of quotes) {
+      let mask = BigInt(0)
+      for (const pool of quote.route.pools) {
+        mask |= poolToBit.get(pool.id)!
+      }
+      routeToMask.set(quote, mask)
+    }
+  }
+
+  const percentToSortedQuotes: { [percent: number]: SplitRouteQuote[] } = {}
+  for (const percent in percentToQuotes) {
+    const sorted = percentToQuotes[percent].sort((a, b) => {
+      const qa = quoteOf(a)
+      const qb = quoteOf(b)
+      return quoteCompFn(qa, qb) ? -1 : 1
+    })
+
+    percentToSortedQuotes[percent] =
+      candidateLimit > 0 && sorted.length > candidateLimit ? sorted.slice(0, candidateLimit) : sorted
+  }
+
+  let bestQuote: CurrencyAmount<Currency> | undefined
+  let bestSwap: SplitRouteQuote[] | undefined
+
+  if ((!percentToSortedQuotes[100] || percentToSortedQuotes[100].length === 0) && minSplits <= 1) {
+    console.log('Did not find a valid route without any splits. Continuing search anyway.')
+  } else if (minSplits <= 1 && percentToSortedQuotes[100] && percentToSortedQuotes[100][0]) {
+    bestSwap = [percentToSortedQuotes[100][0]]
+    bestQuote = quoteOf(percentToSortedQuotes[100][0])
+  }
+
   const queue = new Queue<{
-    percentIndex: number;
-    curRoutes: Trade<Currency, Currency, TradeType>[];
-    remainingPercent: number;
-    usedMask: bigint;
-    special: boolean;
-  }>();
+    percentIndex: number
+    curRoutes: SplitRouteQuote[]
+    remainingPercent: number
+    usedMask: bigint
+    quoteSoFar: CurrencyAmount<Currency>
+  }>()
 
-  if (percents.length === 0) return null;
+  if (percents.length === 0) return null
 
-  // Инициализируем очередь с топ-2 маршрутами для каждого процента
   for (let i = percents.length - 1; i >= 0; i--) {
-    const percent = percents[i];
-    if (!percentToSortedQuotes[percent] || percentToSortedQuotes[percent].length === 0) continue;
+    const percent = percents[i]
+    const candidates = percentToSortedQuotes[percent]
+    if (!candidates || candidates.length === 0) continue
 
-    const topRoutes = percentToSortedQuotes[percent].slice(0, 2);
-    if (topRoutes[0]) {
+    const seeds = candidates.slice(0, branchWidth)
+    for (const seed of seeds) {
       queue.enqueue({
-        curRoutes: [topRoutes[0]],
+        curRoutes: [seed],
         percentIndex: i,
         remainingPercent: 100 - percent,
-        usedMask: routeToMask.get(topRoutes[0])!,
-        special: false,
-      });
-    }
-    if (topRoutes[1]) {
-      queue.enqueue({
-        curRoutes: [topRoutes[1]],
-        percentIndex: i,
-        remainingPercent: 100 - percent,
-        usedMask: routeToMask.get(topRoutes[1])!,
-        special: true,
-      });
+        usedMask: routeToMask.get(seed)!,
+        quoteSoFar: quoteOf(seed)
+      })
     }
   }
 
-  let splits = 1;
+  let splits = 1
 
-  // Основной цикл поиска лучших маршрутов
   while (queue.size > 0) {
-    bestSwapsPerSplit.clear();
-
-    let layer = queue.size;
-    splits++;
+    let layer = queue.size
+    splits++
 
     if (splits >= 3 && bestSwap && bestSwap.length < splits - 1) {
-      break;
+      break
     }
 
     if (splits > maxSplits) {
-      break;
+      break
     }
 
     while (layer > 0) {
-      layer--;
+      layer--
 
-      const { remainingPercent, curRoutes, percentIndex, usedMask, special } = queue.dequeue()!;
+      const { remainingPercent, curRoutes, percentIndex, usedMask, quoteSoFar } = queue.dequeue()!
 
       for (let i = percentIndex; i >= 0; i--) {
-        const percentA = percents[i];
-        if (percentA > remainingPercent) continue;
-        if (!percentToSortedQuotes[percentA] || percentToSortedQuotes[percentA].length === 0) continue;
+        const percent = percents[i]
+        if (percent > remainingPercent) continue
 
-        const candidateRoutesA = percentToSortedQuotes[percentA];
-        const routeWithQuoteA = findFirstRouteNotUsingUsedPools(usedMask, candidateRoutesA, routeToMask);
+        const candidates = percentToSortedQuotes[percent]
+        if (!candidates || candidates.length === 0) continue
 
-        if (!routeWithQuoteA) continue;
+        const routeCandidates = findRoutesNotUsingUsedPools(usedMask, candidates, routeToMask, branchWidth)
+        if (routeCandidates.length === 0) continue
 
-        const remainingPercentNew = remainingPercent - percentA;
-        const curRoutesNew = curRoutes.slice();
-        curRoutesNew.push(routeWithQuoteA);
-        const usedMaskNew = usedMask | routeToMask.get(routeWithQuoteA)!;
+        for (const candidate of routeCandidates) {
+          const remainingPercentNew = remainingPercent - percent
+          const usedMaskNew = usedMask | routeToMask.get(candidate)!
+          const quoteNew = quoteSoFar.add(quoteOf(candidate))
 
-        if (remainingPercentNew === 0 && splits >= minSplits) {
-          const quotesNew = curRoutesNew.map(r => r.outputAmount);
-          const quoteNew = sumFn(quotesNew);
+          if (remainingPercentNew === 0 && splits >= minSplits) {
+            const curRoutesNew = curRoutes.slice()
+            curRoutesNew.push(candidate)
 
-          bestSwapsPerSplit.push({
-            quote: quoteNew,
-            routes: curRoutesNew,
-          });
-
-          if (!bestQuote || quoteCompFn(quoteNew, bestQuote)) {
-            bestQuote = quoteNew;
-            bestSwap = curRoutesNew;
+            if (!bestQuote || quoteCompFn(quoteNew, bestQuote)) {
+              bestQuote = quoteNew
+              bestSwap = curRoutesNew
+            }
+          } else {
+            const curRoutesNew = curRoutes.slice()
+            curRoutesNew.push(candidate)
+            queue.enqueue({
+              curRoutes: curRoutesNew,
+              remainingPercent: remainingPercentNew,
+              percentIndex: i,
+              usedMask: usedMaskNew,
+              quoteSoFar: quoteNew
+            })
           }
-        } else {
-          queue.enqueue({
-            curRoutes: curRoutesNew,
-            remainingPercent: remainingPercentNew,
-            percentIndex: i,
-            usedMask: usedMaskNew,
-            special,
-          });
         }
       }
     }
   }
 
   if (!bestSwap) {
-    console.log('Could not find a valid swap');
-    return null;
+    console.log('Could not find a valid swap')
+    return null
   }
 
-  const quote = sumFn(bestSwap.map(routeWithValidQuote => routeWithValidQuote.outputAmount));
-  const routeWithQuotes = bestSwap.sort((routeAmountA, routeAmountB) =>
-    routeAmountB.outputAmount.greaterThan(routeAmountA.outputAmount) ? 1 : -1
-  );
-
-  return routeWithQuotes;
+  return bestSwap
 }
 
-// Вспомогательная функция для поиска маршрута без пересекающихся пулов
-const findFirstRouteNotUsingUsedPools = (
+const findRoutesNotUsingUsedPools = (
   usedMask: bigint,
-  candidateRoutes: Trade<Currency, Currency, TradeType>[],
-  routeToMask: Map<Trade<Currency, Currency, TradeType>, bigint>
-): Trade<Currency, Currency, TradeType> | null => {
+  candidateRoutes: SplitRouteQuote[],
+  routeToMask: Map<SplitRouteQuote, bigint>,
+  limit: number
+): SplitRouteQuote[] => {
+  const result: SplitRouteQuote[] = []
+
   for (const candidate of candidateRoutes) {
-    const candidateMask = routeToMask.get(candidate)!;
+    const candidateMask = routeToMask.get(candidate)!
     if ((candidateMask & usedMask) === BigInt(0)) {
-      return candidate;
+      result.push(candidate)
+      if (result.length >= limit) return result
     }
   }
-  return null;
-};
+
+  return result
+}

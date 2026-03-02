@@ -1,0 +1,474 @@
+{
+  "meta": {
+    "timestamp": "2026-03-02T11:36:57.025Z",
+    "nodeVersion": "v24.5.0",
+    "chain": "wax",
+    "poolCount": 6342,
+    "routeCount": 7172,
+    "maxHops": 3,
+    "tradeType": "EXACT_INPUT",
+    "tokenInId": "tlm-alien.worlds",
+    "tokenOutId": "wax-eosio.token",
+    "amountRaw": "9000000",
+    "maxSplitsList": [
+      2,
+      4,
+      6,
+      8,
+      10
+    ],
+    "iterations": 6,
+    "warmup": 1,
+    "profiles": [
+      "coarse4",
+      "balanced7"
+    ]
+  },
+  "cases": [
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 2,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 826.2663,
+        "minMs": 821.5292,
+        "p50Ms": 822.5175,
+        "p95Ms": 836.1473,
+        "maxMs": 836.1473
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 4,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 838.0116,
+        "minMs": 826.468,
+        "p50Ms": 829.8805,
+        "p95Ms": 857.6407,
+        "maxMs": 857.6407
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 6,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 823.1871,
+        "minMs": 817.1362,
+        "p50Ms": 822.7873,
+        "p95Ms": 828.158,
+        "maxMs": 828.158
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 8,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 825.1585,
+        "minMs": 817.5003,
+        "p50Ms": 823.0432,
+        "p95Ms": 835.1372,
+        "maxMs": 835.1372
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "coarse4",
+      "percents": [
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 10,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 823.634,
+        "minMs": 819.7501,
+        "p50Ms": 823.3978,
+        "p95Ms": 830.8339,
+        "maxMs": 830.8339
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 2,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 1336.6628,
+        "minMs": 1328.3194,
+        "p50Ms": 1334.1686,
+        "p95Ms": 1346.7302,
+        "maxMs": 1346.7302
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 4,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 1341.6936,
+        "minMs": 1322.7321,
+        "p50Ms": 1333.1977,
+        "p95Ms": 1361.1765,
+        "maxMs": 1361.1765
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 6,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 1369.6106,
+        "minMs": 1342.6067,
+        "p50Ms": 1353.5333,
+        "p95Ms": 1431.7332,
+        "maxMs": 1431.7332
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 8,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 1355.4553,
+        "minMs": 1328.1913,
+        "p50Ms": 1346.4181,
+        "p95Ms": 1403.4063,
+        "maxMs": 1403.4063
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "profile": "balanced7",
+      "percents": [
+        5,
+        10,
+        15,
+        25,
+        50,
+        75,
+        100
+      ],
+      "maxSplits": 10,
+      "metrics": {
+        "iterations": 6,
+        "warmup": 1,
+        "avgMs": 1576.6523,
+        "minMs": 1352.4942,
+        "p50Ms": 1603.1943,
+        "p95Ms": 1716.2398,
+        "maxMs": 1716.2398
+      },
+      "determinism": {
+        "stable": true,
+        "mismatches": 0
+      },
+      "result": {
+        "fingerprint": "b99dd9b0da4c034ba8352f0fd369d4646612b4e6777b676fb6b125f35ca77338",
+        "totalInputRaw": "9000000",
+        "totalOutputRaw": "23946608759",
+        "swapCount": 1,
+        "swaps": [
+          {
+            "percent": 100,
+            "inputRaw": "9000000",
+            "outputRaw": "23946608759",
+            "path": [
+              "tlm-alien.worlds",
+              "wax-eosio.token"
+            ],
+            "poolIds": [
+              0
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

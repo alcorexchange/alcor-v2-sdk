@@ -1,0 +1,228 @@
+{
+  "meta": {
+    "timestamp": "2026-03-02T11:25:31.850Z",
+    "nodeVersion": "v24.5.0",
+    "poolCount": 24,
+    "routeCount": 31,
+    "maxHops": 4,
+    "inputAmountRaw": "250000",
+    "percents": [
+      5,
+      10,
+      15,
+      20,
+      25,
+      30,
+      35,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90,
+      100
+    ],
+    "iterations": 80,
+    "warmup": 8
+  },
+  "cases": [
+    {
+      "maxSplits": 2,
+      "metrics": {
+        "iterations": 80,
+        "warmup": 8,
+        "avgMs": 8.9074,
+        "minMs": 8.5041,
+        "p50Ms": 8.8354,
+        "p95Ms": 9.4409,
+        "maxMs": 9.6781
+      },
+      "determinism": {
+        "mismatches": 0,
+        "stable": true
+      },
+      "result": {
+        "fingerprint": "11d01f762267e3b71455fa4d5c1cc1b48df46e8826a5e778d4347e3ea745e0ff",
+        "totalInputRaw": "250000",
+        "totalOutputRaw": "193856",
+        "swapCount": 2,
+        "swaps": [
+          {
+            "percent": 50,
+            "inputRaw": "125000",
+            "outputRaw": "98820",
+            "path": [
+              "TKNA",
+              "TKNB",
+              "TKNF",
+              "TKNJ"
+            ],
+            "poolIds": [
+              0,
+              6,
+              22
+            ]
+          },
+          {
+            "percent": 50,
+            "inputRaw": "125000",
+            "outputRaw": "95036",
+            "path": [
+              "TKNA",
+              "TKNE",
+              "TKNJ"
+            ],
+            "poolIds": [
+              3,
+              23
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "maxSplits": 4,
+      "metrics": {
+        "iterations": 80,
+        "warmup": 8,
+        "avgMs": 9.197,
+        "minMs": 8.8277,
+        "p50Ms": 9.07,
+        "p95Ms": 9.8277,
+        "maxMs": 11.3032
+      },
+      "determinism": {
+        "mismatches": 0,
+        "stable": true
+      },
+      "result": {
+        "fingerprint": "b3595fb0e94d99ab005d34d28b95ba04d78925acf585ff1b99b179fa41dea173",
+        "totalInputRaw": "250000",
+        "totalOutputRaw": "201258",
+        "swapCount": 3,
+        "swaps": [
+          {
+            "percent": 40,
+            "inputRaw": "100000",
+            "outputRaw": "83688",
+            "path": [
+              "TKNA",
+              "TKNB",
+              "TKNF",
+              "TKNJ"
+            ],
+            "poolIds": [
+              0,
+              6,
+              22
+            ]
+          },
+          {
+            "percent": 40,
+            "inputRaw": "100000",
+            "outputRaw": "79133",
+            "path": [
+              "TKNA",
+              "TKNE",
+              "TKNJ"
+            ],
+            "poolIds": [
+              3,
+              23
+            ]
+          },
+          {
+            "percent": 20,
+            "inputRaw": "50000",
+            "outputRaw": "38437",
+            "path": [
+              "TKNA",
+              "TKND",
+              "TKNH",
+              "TKNI",
+              "TKNJ"
+            ],
+            "poolIds": [
+              2,
+              13,
+              20,
+              21
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "maxSplits": 6,
+      "metrics": {
+        "iterations": 80,
+        "warmup": 8,
+        "avgMs": 9.03,
+        "minMs": 8.7785,
+        "p50Ms": 8.9875,
+        "p95Ms": 9.3176,
+        "maxMs": 9.635
+      },
+      "determinism": {
+        "mismatches": 0,
+        "stable": true
+      },
+      "result": {
+        "fingerprint": "b3595fb0e94d99ab005d34d28b95ba04d78925acf585ff1b99b179fa41dea173",
+        "totalInputRaw": "250000",
+        "totalOutputRaw": "201258",
+        "swapCount": 3,
+        "swaps": [
+          {
+            "percent": 40,
+            "inputRaw": "100000",
+            "outputRaw": "83688",
+            "path": [
+              "TKNA",
+              "TKNB",
+              "TKNF",
+              "TKNJ"
+            ],
+            "poolIds": [
+              0,
+              6,
+              22
+            ]
+          },
+          {
+            "percent": 40,
+            "inputRaw": "100000",
+            "outputRaw": "79133",
+            "path": [
+              "TKNA",
+              "TKNE",
+              "TKNJ"
+            ],
+            "poolIds": [
+              3,
+              23
+            ]
+          },
+          {
+            "percent": 20,
+            "inputRaw": "50000",
+            "outputRaw": "38437",
+            "path": [
+              "TKNA",
+              "TKND",
+              "TKNH",
+              "TKNI",
+              "TKNJ"
+            ],
+            "poolIds": [
+              2,
+              13,
+              20,
+              21
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
