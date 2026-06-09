@@ -510,9 +510,12 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
   ): Trade<TInput, TOutput, TradeType.EXACT_INPUT>[] {
     invariant(routes.length > 0, 'ROUTES')
 
-    // Pre-filter: remove routes with zero-liquidity pools
+    // Pre-filter: drop routes touching empty pools (no positions at all).
+    // Use ticks presence, NOT current in-range liquidity: a pool can have
+    // liquidity === 0 at the current tick while all positions are out of range,
+    // yet still be tradeable (the swap crosses the gap into a position).
     const validRoutes = routes.filter(route =>
-      route.pools.every(pool => pool.active && (pool.liquidity > ZERO))
+      route.pools.every(pool => pool.active && ((pool.tickDataProvider as any)?.ticks?.length ?? 0) > 0)
     )
 
     // Helper: compute min liquidity (no overflow)
@@ -577,9 +580,12 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
   ): Trade<TInput, TOutput, TradeType.EXACT_OUTPUT>[] {
     invariant(routes.length > 0, 'ROUTES')
 
-    // Pre-filter: remove routes with zero-liquidity pools
+    // Pre-filter: drop routes touching empty pools (no positions at all).
+    // Use ticks presence, NOT current in-range liquidity: a pool can have
+    // liquidity === 0 at the current tick while all positions are out of range,
+    // yet still be tradeable (the swap crosses the gap into a position).
     const validRoutes = routes.filter(route =>
-      route.pools.every(pool => pool.active && (pool.liquidity > ZERO))
+      route.pools.every(pool => pool.active && ((pool.tickDataProvider as any)?.ticks?.length ?? 0) > 0)
     )
 
     // Helper: compute min liquidity (no overflow)
@@ -674,9 +680,12 @@ export class Trade<TInput extends Currency, TOutput extends Currency, TTradeType
     invariant(_routes.length > 0, 'ROUTES')
     invariant(percents.length > 0, 'PERCENTS')
 
-    // Pre-filter: remove routes with zero-liquidity or inactive pools
+    // Pre-filter: drop routes touching empty pools (no positions at all).
+    // Use ticks presence, NOT current in-range liquidity: a pool can have
+    // liquidity === 0 at the current tick while all positions are out of range,
+    // yet still be tradeable (the swap crosses the gap into a position).
     const validRoutes = _routes.filter(route =>
-      route.pools.every(pool => pool.active && (pool.liquidity > ZERO))
+      route.pools.every(pool => pool.active && ((pool.tickDataProvider as any)?.ticks?.length ?? 0) > 0)
     )
 
     // Helper: compute min liquidity for a route (no overflow)

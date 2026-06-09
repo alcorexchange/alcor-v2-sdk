@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo clean:*)",
+      "Bash(wasm-pack build:*)",
+      "Bash(yarn build)",
+      "Bash(ts-node:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx ts-node:*)",
+      "Read(//Users/avral/projects/alcor/contracts/alcor-v2-swap/**)",
+      "Bash(npx tsc:*)",
+      "Bash(npm ls:*)",
+      "Bash(npx babel:*)",
+      "Bash(git stash:*)",
+      "Bash(node -e:*)",
+      "Bash(BABEL_SHOW_CONFIG_FOR=src/utils/computeAllRoutes.ts npx babel:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(npm install:*)",
+      "Bash(npm search:*)",
+      "Bash(node migrate-jsbi.js:*)",
+      "Bash(find:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(git -C /Users/avral/projects/alcor/alcor-v2-sdk status)",
+      "Bash(git -C /Users/avral/projects/alcor/alcor-v2-sdk diff src/)",
+      "Bash(git -C /Users/avral/projects/alcor/alcor-v2-sdk log --oneline -5)",
+      "Bash(git -C /Users/avral/projects/alcor/alcor-v2-sdk add src/entities/pool.ts src/entities/trade.ts)",
+      "Bash(git -C /Users/avral/projects/alcor/alcor-v2-sdk commit -m \"$\\(cat <<''EOF''\nfix bestTradeExactOut: sign bug in getInputAmount and optimize route filtering\n\n- Fix amountOutReceived sign in Pool.getInputAmount for zeroForOne case\n  \\(was missing NEGATIVE_ONE multiplication, matching contract behavior\\)\n- Add route pre-filtering and liquidity-based sorting to bestTradeExactOut\n  \\(same optimizations as bestTradeExactIn\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npm whoami:*)",
+      "Bash(npm ping:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
