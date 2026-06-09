@@ -112,3 +112,6 @@ wasm-route-finder/Cargo.lock
 # WASM test files
 testWASM*.ts
 testWASM*.js
+
+# Claude
+.claude
