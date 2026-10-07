@@ -118,6 +118,28 @@ describe("Pool", () => {
         ticks: []
       });
     });
+
+    it("works with lowest fee and ticks one spacing apart", async () => {
+      const pool = new Pool({
+        tokenA: USDC,
+        tokenB: DAI,
+        fee: FeeAmount.LOWEST,
+        sqrtPriceX64: encodeSqrtRatioX64(1, 1),
+        liquidity: ONE_ETHER,
+        tickCurrent: 0,
+        ticks: [
+          { id: -1, liquidityNet: ONE_ETHER, liquidityGross: ONE_ETHER },
+          { id: 1, liquidityNet: ONE_ETHER * NEGATIVE_ONE, liquidityGross: ONE_ETHER },
+        ]
+      });
+      expect(pool.tickSpacing).toEqual(1);
+
+      // 0.01% of 1_000_000 is 100, so the output stays just below 999_900
+      const inputAmount = CurrencyAmount.fromRawAmount(USDC, 1_000_000);
+      const outputAmount = await pool.getOutputAmount(inputAmount);
+      expect(outputAmount.quotient > BigInt(999_890)).toBe(true);
+      expect(outputAmount.quotient <= BigInt(999_900)).toBe(true);
+    });
   });
 
   describe("#tokenA", () => {
