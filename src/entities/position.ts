@@ -587,17 +587,17 @@ export class Position {
   public async getFees(): Promise<Fees> {
     const { liquidity, tickLower, tickUpper, feeGrowthInsideALastX64, feeGrowthInsideBLastX64, pool } = this
 
-    if (
-      (liquidity === ZERO) &&
-      (this.feesA === ZERO) &&
-      (this.feesB === ZERO)
-    ) {
+    // Without liquidity nothing accrues — owed is growth × 0 — so the fees are
+    // what the position already holds. Its ticks are not read: a burn that
+    // empties the last position on a tick deletes that tick on chain, and a
+    // withdrawn position with fees left to collect would throw on the lookup.
+    if (liquidity === ZERO) {
       return {
-        feesA: CurrencyAmount.fromRawAmount(this.pool.tokenA, ZERO),
-        feesB: CurrencyAmount.fromRawAmount(this.pool.tokenB, ZERO)
+        feesA: CurrencyAmount.fromRawAmount(this.pool.tokenA, this.feesA),
+        feesB: CurrencyAmount.fromRawAmount(this.pool.tokenB, this.feesB)
       }
     }
-    
+
     const lower = this.pool.tickDataProvider.getTick(tickLower)
     const upper = this.pool.tickDataProvider.getTick(tickUpper)
 
